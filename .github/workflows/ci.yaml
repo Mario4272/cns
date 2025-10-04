@@ -37,8 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install ruff black mypy pytest-cov hypothesis testcontainers[postgres]
+          pip install ".[dev]"
 
       - name: Lint (ruff)
         run: ruff check .
@@ -56,14 +55,24 @@ jobs:
           CNS_DB_NAME: cns
           CNS_DB_USER: cns
           CNS_DB_PASSWORD: cns
+          CNS_VECTOR_DIMS: 1536
         run: |
-          python -m pytest -q --cov=cns_py --cov-report=xml --cov-report=term
+          python -m pytest -q --cov=cns_py --cov-report=xml --cov-report=term --cov-fail-under=85
 
       - name: Upload coverage XML
         uses: actions/upload-artifact@v4
         with:
           name: coverage-xml-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
           path: coverage.xml
+
+      - name: Install psql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: pgTAP (schema invariants)
+        run: |
+          psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
 
       - name: Perf smoke (placeholder)
         run: |
