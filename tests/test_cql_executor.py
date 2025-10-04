@@ -29,3 +29,36 @@ def test_cql_golden_asof_2025():
     steps = [s.get("name") for s in out.get("explain", {}).get("steps", [])]
     for name in g["expect_explain_steps"]:
         assert name in steps
+
+
+def test_cql_golden_belief_threshold():
+    g = load_golden("cql_belief_097.json")
+    out = cql(g["query"])
+    assert "results" in out and len(out["results"]) >= 1
+    top = out["results"][0]
+    for k, v in g["expect_top"].items():
+        assert top.get(k) == v
+
+
+def test_cql_golden_belief_empty():
+    g = load_golden("cql_belief_empty.json")
+    out = cql(g["query"])
+    assert "results" in out
+    if g.get("expect_empty"):
+        assert len(out["results"]) == 0
+
+def test_cql_golden_asof_2024():
+    g = load_golden("cql_asof_2024.json")
+    out = cql(g["query"])
+    assert "results" in out and len(out["results"]) >= 1
+
+    top = out["results"][0]
+    for k, v in g["expect_top"].items():
+        assert top.get(k) == v
+    for k in g["expect_keys"]:
+        assert k in top
+    assert isinstance(top.get("provenance"), list) and len(top["provenance"]) >= 1
+
+    steps = [s.get("name") for s in out.get("explain", {}).get("steps", [])]
+    for name in g["expect_explain_steps"]:
+        assert name in steps

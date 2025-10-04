@@ -1,0 +1,8 @@
+{
+  "query": "MATCH label=\"FrameworkX\" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z BELIEF >= 0.97 RETURN EXPLAIN PROVENANCE",
+  "expect_top": {
+    "subject_label": "FrameworkX",
+    "predicate": "supports_tls",
+    "object_label": "TLS1.3"
+  }
+}
