@@ -74,6 +74,19 @@ jobs:
         run: |
           psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
 
-      - name: Perf smoke (placeholder)
+      - name: Perf smoke (P95 gate)
+        env:
+          CNS_DB_HOST: 127.0.0.1
+          CNS_DB_PORT: 5433
+          CNS_DB_NAME: cns
+          CNS_DB_USER: cns
+          CNS_DB_PASSWORD: cns
         run: |
-          echo "Perf smoke gate TBD"
+          python scripts/perf_smoke.py --iters 15 --p95-budget-ms 500
+
+      - name: Upload last EXPLAIN (perf)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-last-explain-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
+          path: perf_last_explain.json
