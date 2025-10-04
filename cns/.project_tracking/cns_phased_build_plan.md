@@ -42,6 +42,24 @@ Goal: Ship a cognition-native substrate that proves value over “just a DB” i
 - **Tests**
   - Golden tests for `ASOF` differences, citations presence, and belief thresholds.
 
+### Checklist (ACTIVE)
+- ☐ CQL v0.1 parser: `MATCH`, `WHERE SIMILAR()`, `ASOF`, `BELIEF()`, `RETURN … EXPLAIN PROVENANCE`  
+  Owner: JR · Due: 2025-10-11 · Labels: `phase/P1, cql, area/python` · Issue: #1
+- ☐ Executor (Python): plan = ANN shortlist → temporal mask → 1–2 hop traverse  
+  Owner: JR · Due: 2025-10-14 · Labels: `phase/P1, area/python, perf` · Issue: #2
+- ☐ Citations in results (Global Citations Contract)  
+  Owner: JR · Due: 2025-10-15 · Labels: `phase/P1, api, docs` · Issue: #3
+- ☐ EXPLAIN v1: operator timings (ANN/mask/traverse) + belief term breakdown  
+  Owner: JR · Due: 2025-10-16 · Labels: `phase/P1, perf` · Issue: #4
+- ☐ Belief v0: logistic; config weights; unit tests  
+  Owner: JR · Due: 2025-10-17 · Labels: `phase/P1, learners` · Issue: #5
+- ☐ Golden tests: ASOF split, citations presence, belief thresholds  
+  Owner: JR · Due: 2025-10-18 · Labels: `phase/P1, tests` · Issue: #6
+- ☐ Latency SLO: P95 ≤ 300 ms on dev corpus (10k atoms / 100k fibers / 100k vecs)  
+  Owner: JR · Due: 2025-10-22 · Labels: `phase/P1, perf` · Issue: #7
+- ☐ README snippet: CQL example with time-split + citations + EXPLAIN  
+  Owner: JR · Due: 2025-10-23 · Labels: `phase/P1, docs` · Issue: #8
+
 ### Metrics / SLOs
 - P95 end-to-end latency ≤ 300 ms on 10k atoms / 100k fibers / 100k vectors (dev box).
 - 100% of answers include at least one citation.
