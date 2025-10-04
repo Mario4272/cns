@@ -1,0 +1,28 @@
+[project]
+name = "cns"
+version = "0.0.1"
+description = "Cognition-Native Store"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 100
+extend-select = ["E", "F", "I"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_no_return = true
+ignore_missing_imports = true
+packages = ["cns_py"]

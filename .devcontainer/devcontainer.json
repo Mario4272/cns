@@ -1,0 +1,13 @@
+{
+  "name": "CNS Dev",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "pip install -r requirements.txt",
+  "forwardPorts": [5433, 8080],
+  "remoteEnv": {
+    "CNS_DB_HOST": "127.0.0.1",
+    "CNS_DB_PORT": "5433"
+  }
+}
