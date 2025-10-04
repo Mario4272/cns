@@ -1,0 +1,135 @@
+Gaps to plug in JR’s build plan (must-add)
+0A) Dev & QA Scaffold (Week 0, alongside Phase 0)
+
+Python test harness: pytest, pytest-cov, hypothesis, testcontainers[postgres] (ephemeral pgvector), pg8000/psycopg.
+
+Rust test/bench: cargo test, proptest, criterion benches gated but not blocking.
+
+SQL tests: pgTAP for functions/views, plus migration “smoke” test.
+
+Type/lint/style: ruff + black + mypy (strict-ish); Rust clippy + rustfmt.
+
+Pre-commit hooks: format, lint, typecheck, secrets scan (detect-secrets).
+
+Repro env: .tool-versions (asdf) or uv/poetry lock; Devcontainer (.devcontainer/) for Dockerized Postgres+pgvector.
+
+Make targets: make test, make lint, make typecheck, make e2e, make bench, make verify.
+
+CI/CD (immediately)
+
+CI matrix: Python 3.10–3.12; Postgres {15,16} with pgvector; OS {ubuntu-latest}.
+Stages: lint → typecheck → unit → integ (testcontainers) → pgTAP → coverage → perf-smoke.
+
+Coverage gates: ≥85% (packages: cql, executor, belief, provenance).
+
+Artifacting: publish HTML coverage, EXPLAIN traces, and failing-query fixtures on CI.
+
+SBOM & vuln scan: pip-audit, cargo-audit, and Docker image scan.
+
+Renovate/Bot: weekly dep bumps w/ CI auto-run.
+
+Tests you must name explicitly (Phase 1)
+
+Parser property tests (fuzz CQL tokens ↔ AST idempotency).
+
+Deterministic embeddings: pluggable “mock embedder” for tests (no network); fixed CNS_VECTOR_DIMS.
+
+Golden result sets: freeze JSON for ASOF splits, belief deltas, and provenance shape.
+
+Planner invariants: ANN shortlist size, temporal mask selectivity bounds, traverse fanout caps.
+
+Error taxonomy: assert specific error codes/messages for: no-citations, invalid-ASOF, vector-dim-mismatch, rule-timeout.
+
+Data & Migrations
+
+Migration policy: numbered, irreversible-only in dev; make migrate/verify runs pgTAP checks against empty & seeded DB.
+
+Seed contract: deterministic seed corpus (fixed IDs, timestamps, vectors) → stable golden tests.
+
+Backfill scripts: templates to re-derive beliefs and contradictions after schema change.
+
+Observability (from Phase 1)
+
+Structured logs: JSON logs with query_id, plan_id, asof_ts, timings.
+
+OTel: spans per operator (ANN, mask, traverse, belief); export to stdout in dev.
+
+Perf smoke: CI job that runs mini-corpus and asserts P95 targets (fail the build if >300ms for P1).
+
+Security & Provenance Ops
+
+Key mgmt: dev Ed25519 keys in repo (test-only), prod via env/keystore; rotate script.
+
+Provenance verifier: a CLI to verify the full chain for any row; include in CI.
+
+Secrets: .env.example + dotenv-linter; block commits with secrets detector.
+
+RLS/tenancy: a toggleable dev profile to exercise row-level-policy paths early.
+
+API & Docs
+
+OpenAPI/JSON Schema for /v1/atom, /v1/cql, /v1/explain; ship a Postman collection.
+
+Error codes & EXPLAIN schema doc page (dev-facing).
+
+ADR log: /docs/adr/NN-title.md for grammar freezes, belief math choices, storage tiering.
+
+Frontend (IB Explorer) test spine
+
+Unit: Vitest.
+
+E2E: Playwright scripted demo (time slider → contradiction highlight → provenance panel).
+
+Perf budget: LOD frame budget test (≥55 FPS @10k).
+
+Paste-ready additions to the plan
+Phase 0A — Tooling & QA (parallel to Phase 0)
+
+Deliverables
+
+Py test rig (pytest, pytest-cov, hypothesis, testcontainers), pgTAP suite, ruff/black/mypy, pre-commit.
+
+Devcontainer with pgvector; make verify runs full lint/type/test/tap locally.
+
+Exit criteria
+
+make verify green on a clean clone.
+
+CI green on matrix; coverage ≥85%; perf-smoke P95 ≤500ms (tiny corpus).
+
+Global Contracts (add)
+
+Testing Contract: every CQL operator change must add/adjust golden tests; parser/property tests required for grammar edits.
+
+CI Gate: no merge unless verify passes and perf-smoke within SLO.
+
+Schema Contract: migrations must be backward-compatible for read paths or include snapshot+replay.
+
+Provenance Key Contract: dev keys rotate weekly; CI verifies signature chains for seeded data.
+
+Makefile (add targets)
+make verify       # lint+type+unit+integ+pgTAP+coverage+perf-smoke
+make test         # unit + integ
+make tap          # pgTAP only
+make bench        # criterion + microbench (feature-flagged)
+make e2e          # Playwright demo script
+
+Minimal files to add
+
+pyproject.toml (deps + ruff/black/mypy config)
+
+tests/ (unit, golden/, property/)
+
+tests_pg/ (pgTAP .sql)
+
+.pre-commit-config.yaml
+
+.devcontainer/devcontainer.json
+
+.github/workflows/ci.yaml
+
+scripts/prov_verify.py (verify signatures)
+
+docs/adr/0001-cql-v0.1-freeze.md
+
+If you want, I’ll drop a CI YAML + pyproject.toml skeleton and the make verify target into the Canvas so JR can just commit and run without yak-shaving.

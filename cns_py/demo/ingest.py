@@ -2,6 +2,7 @@ from datetime import datetime
 from dateutil.tz import UTC
 
 from cns_py.storage.db import get_conn
+from psycopg.types.json import Json
 
 
 def upsert_atom(cur, kind: str, label: str, text: str | None = None):
@@ -24,7 +25,8 @@ def upsert_atom(cur, kind: str, label: str, text: str | None = None):
 
 def link_with_validity(cur, src_id: int, dst_id: int, predicate: str,
                         valid_from: datetime | None, valid_to: datetime | None,
-                        belief: float | None = 1.0):
+                        belief: float | None = 1.0,
+                        provenance: dict | None = None):
     cur.execute(
         """
         INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id
@@ -32,14 +34,25 @@ def link_with_validity(cur, src_id: int, dst_id: int, predicate: str,
         (src_id, dst_id, predicate),
     )
     fiber_id = cur.fetchone()[0]
+    if provenance is None:
+        provenance = {
+            "source_id": f"demo_seed:fiber:{fiber_id}",
+            "uri": "https://example.org/demo/tls-policy",
+            "hash": "demo-sha256-placeholder",
+            "fetched_at": datetime.now(tz=UTC).isoformat(),
+            "line_span": None,
+        }
     cur.execute(
         """
-        INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief)
-        VALUES ('fiber', %s, %s, %s, %s)
+        INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief, provenance)
+        VALUES ('fiber', %s, %s, %s, %s, %s)
         ON CONFLICT (subject_kind, subject_id)
-        DO UPDATE SET valid_from=excluded.valid_from, valid_to=excluded.valid_to, belief=excluded.belief
+        DO UPDATE SET valid_from=excluded.valid_from,
+                      valid_to=excluded.valid_to,
+                      belief=excluded.belief,
+                      provenance=excluded.provenance
         """,
-        (fiber_id, valid_from, valid_to, belief),
+        (fiber_id, valid_from, valid_to, belief, Json(provenance)),
     )
     return fiber_id
 
