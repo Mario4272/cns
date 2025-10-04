@@ -32,3 +32,5 @@ class ResultItem:
     object_label: str
     confidence: Optional[float]
     provenance: List[Provenance] = field(default_factory=list)
+    # Optional belief details for EXPLAIN
+    belief_details: Optional[Dict[str, Any]] = None
