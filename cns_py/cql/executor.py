@@ -77,6 +77,9 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
 
     results: List[ResultItem] = []
     belief_items = 0
+    _sum_base = 0.0
+    _sum_conf = 0.0
+    _sum_rec = 0.0
     with get_conn() as conn:
         with conn.cursor() as cur:
             try:
@@ -94,6 +97,15 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 # Belief v0 compute
                 conf, details = belief_compute(base_conf, observed_at)
                 belief_items += 1
+                try:
+                    _sum_base += float(base_conf or 0.0)
+                except Exception:
+                    pass
+                _sum_conf += float(conf)
+                try:
+                    _sum_rec += float(details.get("recency", 0.0))
+                except Exception:
+                    pass
 
                 # Provenance enrichment
                 prov: List[Provenance] = []
@@ -127,7 +139,14 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     }))
 
     # Belief compute step (aggregate)
-    steps.append(ExplainStep(name="belief_compute", ms=0.0, extra={"items": belief_items}))
+    extra = {"items": belief_items}
+    if belief_items > 0:
+        extra.update({
+            "avg_base_belief": _sum_base / belief_items,
+            "avg_confidence": _sum_conf / belief_items,
+            "avg_recency": _sum_rec / belief_items,
+        })
+    steps.append(ExplainStep(name="belief_compute", ms=0.0, extra=extra))
 
     total_ms = (time.perf_counter() - t0) * 1000.0
     report = ExplainReport(steps=steps, total_ms=total_ms)
