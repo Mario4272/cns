@@ -3,6 +3,18 @@ name = "cns"
 version = "0.0.1"
 description = "Cognition-Native Store"
 requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "pytest-cov>=5.0.0",
+  "hypothesis>=6.112.0",
+  "testcontainers[postgres]>=4.9.0",
+  "ruff>=0.6.9",
+  "black>=24.8.0",
+  "mypy>=1.10.0",
+]
 
 [tool.pytest.ini_options]
 addopts = "-q"
