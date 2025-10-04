@@ -34,141 +34,23 @@ make e2e          # Playwright demo script
 - `pyproject.toml` (deps + ruff/black/mypy config)
 - `tests/` (unit, golden/, property/)
 - `tests_pg/` (pgTAP .sql)
-- `.pre-commit-config.yaml`
 - `.devcontainer/devcontainer.json`
 - `.github/workflows/ci.yaml`
 - `scripts/prov_verify.py` (verify provenance signatures)
 - `docs/adr/0001-cql-v0.1-freeze.md`
 
-## Phase 1 — CQL Surface + Provenance (Weeks 1–3)
-**Objective:** Lock a minimal query contract that is *clearly not SQL* and returns citations by default.
-
-### Deliverables
-- **CQL v0.1 (subset)**
-  - Syntax: `MATCH`, `WHERE SIMILAR()`, `ASOF`, `BELIEF()`, `RETURN … EXPLAIN PROVENANCE`.
-  - Parser + executor (Python ref): ANN shortlist → temporal mask → 1–2 hop traverse.
-- **Provenance**
-  - Every answer returns `[source_id, uri, line_span?, fetched_at, hash]`.
-  - `EXPLAIN` includes operator timings and source fanout.
-- **Belief economics v0**
-  - Logistic update function (weights documented, tunable).
-  - Responses include `confidence` per fiber/claim.
-- **Tests**
-  - Golden tests for `ASOF` differences, citations presence, and belief thresholds.
-
 ### Checklist (ACTIVE)
-- ☐ CQL v0.1 parser: `MATCH`, `WHERE SIMILAR()`, `ASOF`, `BELIEF()`, `RETURN … EXPLAIN PROVENANCE`  
-  Owner: JR · Due: 2025-10-11 · Labels: `phase/P1, cql, area/python` · Issue: #1
-- ☐ Executor (Python): plan = ANN shortlist → temporal mask → 1–2 hop traverse  
-  Owner: JR · Due: 2025-10-14 · Labels: `phase/P1, area/python, perf` · Issue: #2
-- ☐ Citations in results (Global Citations Contract)  
-  Owner: JR · Due: 2025-10-15 · Labels: `phase/P1, api, docs` · Issue: #3
-- ☐ EXPLAIN v1: operator timings (ANN/mask/traverse) + belief term breakdown  
-  Owner: JR · Due: 2025-10-16 · Labels: `phase/P1, perf` · Issue: #4
-- ☐ Belief v0: logistic; config weights; unit tests  
-  Owner: JR · Due: 2025-10-17 · Labels: `phase/P1, learners` · Issue: #5
-- ☐ Golden tests: ASOF split, citations presence, belief thresholds  
-  Owner: JR · Due: 2025-10-18 · Labels: `phase/P1, tests` · Issue: #6
-- ☐ Latency SLO: P95 ≤ 300 ms on dev corpus (10k atoms / 100k fibers / 100k vecs)  
-  Owner: JR · Due: 2025-10-22 · Labels: `phase/P1, perf` · Issue: #7
-- ☐ README snippet: CQL example with time-split + citations + EXPLAIN  
-  Owner: JR · Due: 2025-10-23 · Labels: `phase/P1, docs` · Issue: #8
-
-### Explicit tests (Phase 1)
-- **Parser property tests:** CQL tokens ↔ AST idempotency (hypothesis)
-- **Deterministic embeddings:** pluggable mock embedder; fixed `CNS_VECTOR_DIMS`
-- **Golden result sets:** freeze JSON for ASOF splits, belief deltas, provenance shape
-- **Planner invariants:** shortlist size bounds, temporal mask selectivity, traverse fanout caps
-- **Error taxonomy:** assert codes/messages for no-citations, invalid-ASOF, vector-dim-mismatch, rule-timeout
-
-### Metrics / SLOs
-- P95 end-to-end latency ≤ 300 ms on 10k atoms / 100k fibers / 100k vectors (dev box).
-- 100% of answers include at least one citation.
-
-### Risks & Mitigations
-- *Parser creep* → freeze v0.1 grammar; add features in v0.2 only.
-- *Citation gaps* → fail query if no provenance; allow `--allow-hypotheses` to relax.
-
-**Exit criteria**
-- `cql(query)` returns results + citations + `EXPLAIN`.
-- README shows a CQL example with time-split result + sources.
-
-**Example run (2025-10-04)**
-Command:
-```
-python scripts/cql_smoke.py
-```
-Excerpt (formatted):
-```json
-{
-  "results": [
-    {
-      "subject_label": "FrameworkX",
-      "predicate": "supports_tls",
-      "object_label": "TLS1.3",
-      "confidence": 0.98,
-      "provenance": [ { "source_id": "fiber:<id>", "uri": null } ]
-    }
-  ],
-  "explain": {
-    "steps": [
-      { "name": "ann_shortlist", "ms": <n> },
-      { "name": "temporal_mask", "ms": <n>, "extra": { "asof": "2025-01-01T00:00:00Z" } },
-      { "name": "graph_traverse", "ms": <n>, "extra": { "rows": 1 } }
-    ],
-    "total_ms": <n>
-  }
-}
-```
+- ☐ Tooling/QA rig (pytest + property tests + testcontainers + coverage)  
+  Owner: JR · Labels: `phase/P0A, tests, area/python` · Issue: #9
+- ☐ CI workflow (lint, type, unit, integ, pgTAP, coverage, perf-smoke)  
+  Owner: JR · Labels: `phase/P0A, tests, docs, perf` · Issue: #10
+- ☐ Pre-commit hooks (ruff, black, mypy, detect-secrets)  
+  Owner: JR · Labels: `phase/P0A, docs` · Issue: #11
+- ☐ Devcontainer for pgvector dev env  
+  Owner: JR · Labels: `phase/P0A, docs` · Issue: #12
 
 ---
-
-## Phase 2 — Learners-in-Store (Weeks 3–5)
-**Objective:** Make the substrate feel alive: it detects contradictions and resolves entities.
-
-### Deliverables
-- **Learner: Entity Resolution v0**
-  - Alias → canonical (name similarity + context hints).
-  - Writes `ALSO_KNOWN_AS` fibers + canonical IDs.
-- **Learner: Contradiction Detector v0**
-  - Same `(subject, predicate)`, different `object` → create `CONTRADICTS` edges.
-  - Triggers belief arbitration; keep minority view with lower confidence.
-- **Belief updater**
-  - Incremental recompute on new evidence/contradiction; decay by recency.
-
-### Metrics
-- ER precision ≥ 0.9 on curated toy set; contradictions flagged correctly in demo.
-- Belief delta visible in `EXPLAIN` (before/after values).
-
-### Risks
-- False merges in ER → human-overrides API to split.
-- Contradiction spam → throttle by subject/predicate windowing.
-
-**Exit criteria**
-- New demo: ingest two conflicting papers → CQL highlights conflict + adjusted beliefs.
-
----
-
-## Phase 3 — Bundles & Compression (Weeks 5–7)
-**Objective:** Keep growth sublinear; speed up queries with graph-aware summaries.
-
-### Deliverables
-- **Bundles (semantic compression)**
-  - Materialize cluster summaries (centroid claims) with back-pointers.
-  - Planner can satisfy broad queries from Bundles, drill to sources on demand.
-- **Storage tiering policies**
-  - Hot (RAM cache, recent heads), Warm (SSD columnar), Cold (object store).
-- **Aging**
-  - Recency decay; demote long-tail vectors; keep stubs for rehydration.
-
-### Metrics
-- Storage growth with Bundles enabled ≤ 0.5× vs raw ingest.
-- Query speedup ≥ 1.5× on cluster-level questions.
-
-**Exit criteria**
-- Toggle `use_bundles=true` shows faster results with identical top-k (within tolerance).
-
----
+ 
 
 ## Phase 4 — IB Explorer Alpha (Weeks 7–9)
 **Objective:** Give users the multi-dimensional feel (IB not DB) and time travel.
