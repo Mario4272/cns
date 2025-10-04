@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from dateutil.parser import isoparse
 
 from cns_py.storage.db import get_conn
+from .belief import compute as belief_compute
 from .parser import CqlQuery
 from .types import Provenance, ExplainStep, ExplainReport, ResultItem
 
@@ -42,7 +43,9 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
         "SELECT a_src.label AS subject_label, "
         "f.predicate AS predicate, "
         "a_dst.label AS object_label, "
-        "COALESCE(asp.belief, 0.0) AS confidence, "
+        "COALESCE(asp.belief, 0.0) AS base_confidence, "
+        "asp.observed_at AS observed_at, "
+        "asp.provenance AS provenance_json, "
         "f.id AS fiber_id "
         "FROM fibers f "
         "JOIN atoms a_src ON a_src.id = f.src "
@@ -73,6 +76,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     sql += "ORDER BY COALESCE(asp.belief, 0.0) DESC LIMIT 100"
 
     results: List[ResultItem] = []
+    belief_items = 0
     with get_conn() as conn:
         with conn.cursor() as cur:
             try:
@@ -86,16 +90,44 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 print("[CQL DEBUG] execute failed:", debug)
                 raise
             for row in cur.fetchall():
-                subj, pred, obj, conf, fiber_id = row
+                subj, pred, obj, base_conf, observed_at, prov_json, fiber_id = row
+                # Belief v0 compute
+                conf, details = belief_compute(base_conf, observed_at)
+                belief_items += 1
+
+                # Provenance enrichment
                 prov: List[Provenance] = []
-                # Placeholder provenance (Phase 1: structure only)
-                prov.append(Provenance(source_id=f"fiber:{fiber_id}", uri=None, line_span=None, fetched_at=None, hash=None))
-                results.append(ResultItem(subject_label=subj, predicate=pred, object_label=obj, confidence=conf, provenance=prov))
+                if prov_json and isinstance(prov_json, dict):
+                    prov.append(
+                        Provenance(
+                            source_id=prov_json.get("source_id") or f"fiber:{fiber_id}",
+                            uri=prov_json.get("uri"),
+                            line_span=prov_json.get("line_span"),
+                            fetched_at=prov_json.get("fetched_at"),
+                            hash=prov_json.get("hash"),
+                        )
+                    )
+                else:
+                    prov.append(Provenance(source_id=f"fiber:{fiber_id}", uri=None, line_span=None, fetched_at=None, hash=None))
+
+                results.append(
+                    ResultItem(
+                        subject_label=subj,
+                        predicate=pred,
+                        object_label=obj,
+                        confidence=conf,
+                        provenance=prov,
+                        belief_details=details,
+                    )
+                )
 
     t_trav1 = time.perf_counter()
     steps.append(ExplainStep(name="graph_traverse", ms=(t_trav1 - t_trav0) * 1000.0, extra={
         "rows": len(results)
     }))
+
+    # Belief compute step (aggregate)
+    steps.append(ExplainStep(name="belief_compute", ms=0.0, extra={"items": belief_items}))
 
     total_ms = (time.perf_counter() - t0) * 1000.0
     report = ExplainReport(steps=steps, total_ms=total_ms)
