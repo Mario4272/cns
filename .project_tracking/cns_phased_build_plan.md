@@ -40,13 +40,13 @@ make e2e          # Playwright demo script
 - `docs/adr/0001-cql-v0.1-freeze.md`
 
 ### Checklist (ACTIVE)
-- ☐ Tooling/QA rig (pytest + property tests + testcontainers + coverage)  
+- ✅ Tooling/QA rig (pytest + property tests + testcontainers + coverage)  
   Owner: JR · Labels: `phase/P0A, tests, area/python` · Issue: #9
-- ☐ CI workflow (lint, type, unit, integ, pgTAP, coverage, perf-smoke)  
+- ✅ CI workflow (lint, type, unit, integ, pgTAP, coverage, perf-smoke)  
   Owner: JR · Labels: `phase/P0A, tests, docs, perf` · Issue: #10
-- ☐ Pre-commit hooks (ruff, black, mypy, detect-secrets)  
+- ✅ Pre-commit hooks (ruff, black, mypy, detect-secrets)  
   Owner: JR · Labels: `phase/P0A, docs` · Issue: #11
-- ☐ Devcontainer for pgvector dev env  
+- ✅ Devcontainer for pgvector dev env  
   Owner: JR · Labels: `phase/P0A, docs` · Issue: #12
 
 ---
