@@ -1,0 +1,4 @@
+{
+  "query": "MATCH label=\"FrameworkX\" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z BELIEF >= 0.9999 RETURN EXPLAIN PROVENANCE",
+  "expect_empty": true
+}

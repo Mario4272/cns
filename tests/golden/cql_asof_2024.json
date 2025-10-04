@@ -1,0 +1,10 @@
+{
+  "query": "MATCH label=\"FrameworkX\" PREDICATE supports_tls ASOF 2024-12-31T12:00:00Z RETURN EXPLAIN PROVENANCE",
+  "expect_top": {
+    "subject_label": "FrameworkX",
+    "predicate": "supports_tls",
+    "object_label": "TLS1.2"
+  },
+  "expect_keys": ["confidence", "provenance"],
+  "expect_explain_steps": ["ann_shortlist", "temporal_mask", "graph_traverse", "belief_compute"]
+}
