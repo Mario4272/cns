@@ -1,0 +1,19 @@
+services:
+  db:
+    image: ankane/pgvector:latest
+    container_name: cns_db
+    environment:
+      POSTGRES_DB: cns
+      POSTGRES_USER: cns
+      POSTGRES_PASSWORD: cns
+    ports:
+      - "5433:5432"
+    volumes:
+      - cns_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "cns"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+volumes:
+  cns_pg_data:

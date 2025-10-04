@@ -1,0 +1,17 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Rust/Build
+target/
+
+# Editors
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Docker
+cns_pg/
