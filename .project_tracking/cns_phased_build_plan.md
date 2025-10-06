@@ -5,21 +5,23 @@ Goal: Ship a cognition-native substrate that proves value over “just a DB” i
 
 ---
 
-## Phase 0 — Bootstrap (Week 0) ✅
+## Phase 0 — Bootstrap (Week 0) ✅ COMPLETE
 **Objective:** Repo + runnable demo to align contributors.
 
-- Repo scaffold (`bootstrap_cns_repo.sh`) with:
-  - Python ref impl on Postgres + pgvector.
-  - Rust engine skeleton (journal/graph/vector/symbolic/planner crates).
-  - Docker pgvector, Makefile, basic docs.
-- Demo: TLS 1.2 → TLS 1.3 supersession; `ASOF` query shows change.
+- ✅ Repo scaffold (`bootstrap_cns_repo.sh`) with:
+  - ✅ Python ref impl on Postgres + pgvector.
+  - ⚠️ Rust engine skeleton (deferred to Phase 5).
+  - ✅ Docker pgvector, Makefile, basic docs.
+- ✅ Demo: TLS 1.2 → TLS 1.3 supersession; `ASOF` query shows change.
 
 **Exit criteria**
-- `make up` → `ingest.py` → `query.py` produces expected outputs.
-- Docs: 01-vision, 02-architecture, 03-cql-spec-draft, 04-roadmap.
+- ✅ `make up` → `ingest.py` → `query.py` produces expected outputs.
+- ⚠️ Docs: 01-vision, 02-architecture, 03-cql-spec-draft, 04-roadmap (content exists in tracking docs, needs extraction).
 
-**Evidence (2025-10-04)**
-- Demo query results:
+**Status (2025-10-06)**
+- ✅ Demo working end-to-end
+- ✅ All core functionality implemented
+- ⚠️ Documentation needs reorganization (not blocking)
 
 ### Makefile targets (to add)
 ```
@@ -39,7 +41,7 @@ make e2e          # Playwright demo script
 - `scripts/prov_verify.py` (verify provenance signatures)
 - `docs/adr/0001-cql-v0.1-freeze.md`
 
-### Checklist (ACTIVE)
+### Phase 0A Checklist ✅ COMPLETE
 - ✅ Tooling/QA rig (pytest + property tests + testcontainers + coverage)  
   Owner: JR · Labels: `phase/P0A, tests, area/python` · Issue: #9
 - ✅ CI workflow (lint, type, unit, integ, pgTAP, coverage, perf-smoke)  
@@ -48,6 +50,59 @@ make e2e          # Playwright demo script
   Owner: JR · Labels: `phase/P0A, docs` · Issue: #11
 - ✅ Devcontainer for pgvector dev env  
   Owner: JR · Labels: `phase/P0A, docs` · Issue: #12
+
+---
+
+## Phase 1 — Python Reference (Weeks 1-2) ✅ COMPLETE
+**Objective:** Prove core concepts with Python + Postgres.
+
+### Deliverables
+- ✅ Schema: atoms, fibers, aspects (belief, vectors, temporal)
+- ✅ Core API: `upsert_atom`, `link_with_validity`
+- ✅ Demo: TLS 1.2 → TLS 1.3 supersession with temporal queries
+- ✅ Basic temporal queries (`ASOF`)
+
+**Status (2025-10-06)**
+- ✅ All deliverables complete
+- ✅ Demo working end-to-end
+- ⚠️ Full API layer (`nn_search`, `traverse_from`) deferred to Phase 3
+
+---
+
+## Phase 2 — CQL Draft (Weeks 2-3) ✅ COMPLETE
+**Objective:** Minimal CQL parser + executor.
+
+### Deliverables
+- ✅ Parser (`cns_py/cql/parser.py`) for MATCH, ASOF, BELIEF, RETURN
+- ✅ Executor (`cns_py/cql/executor.py`) with temporal mask, graph traverse, belief compute
+- ✅ Planner skeleton (`cns_py/cql/planner.py`)
+- ✅ Belief module (`cns_py/cql/belief.py`) with sigmoid + recency
+- ✅ Types module (`cns_py/cql/types.py`)
+- ✅ ADR 0001 (CQL v0.1 freeze)
+- ✅ Unit tests (parser, executor, belief)
+- ✅ Golden tests (4 JSON files)
+
+**Status (2025-10-06)**
+- ✅ All deliverables complete
+- ✅ Tests passing
+- ✅ CQL v0.1 frozen and documented
+
+---
+
+## Phase 3 — Contradiction Detection + Docs (Week 3) ✅ COMPLETE
+**Objective:** Implement contradiction detection and expand documentation.
+
+### Deliverables
+- ✅ `cns_py/cql/contradict.py` — Fiber and atom contradiction detection
+- ✅ `tests/test_contradict.py` — Unit tests with fixtures
+- ✅ `docs/05-visualization.md` — IB Explorer design spec
+- ✅ `docs/06-ib-vs-db.md` — Positioning document
+- ✅ `CONTRIBUTING.md` — Contribution guidelines
+
+**Status (2025-10-06)**
+- ✅ All deliverables complete (created 2025-10-06)
+- 🔄 Integration testing pending
+- ⚠️ `CODE_OF_CONDUCT.md` deferred (standard boilerplate, not blocking)
 
 ---
  
