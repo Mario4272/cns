@@ -74,6 +74,17 @@ jobs:
         run: |
           psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
 
+      - name: Seed demo data for perf test
+        env:
+          CNS_DB_HOST: 127.0.0.1
+          CNS_DB_PORT: 5433
+          CNS_DB_NAME: cns
+          CNS_DB_USER: cns
+          CNS_DB_PASSWORD: cns
+        run: |
+          python -m cns_py.storage.db --init
+          python -m cns_py.demo.ingest
+
       - name: Perf smoke (P95 gate)
         env:
           CNS_DB_HOST: 127.0.0.1
