@@ -15,25 +15,29 @@ def _run(cmd: list[str]) -> None:
 
 @pytest.fixture(scope="session", autouse=True)
 def ensure_db_and_demo_ready():
-    # Clean up any existing containers first (handles port conflicts from previous runs)
-    try:
-        _run(["docker", "compose", "-f", "docker/docker-compose.yml", "down"])
-    except subprocess.CalledProcessError:
-        pass  # Ignore if nothing to clean up
-
-    # Bring up docker services (idempotent). Retry once if docker is waking up.
-    for attempt in range(2):
+    # Skip Docker Compose if running in CI (GitHub Actions provides postgres service)
+    is_ci = os.getenv("CI") == "true" or os.getenv("GITHUB_ACTIONS") == "true"
+    
+    if not is_ci:
+        # Clean up any existing containers first (handles port conflicts from previous runs)
         try:
-            _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
-            break
+            _run(["docker", "compose", "-f", "docker/docker-compose.yml", "down"])
         except subprocess.CalledProcessError:
-            if attempt == 0:
-                time.sleep(2.0)
-            else:
-                raise
+            pass  # Ignore if nothing to clean up
 
-    # Wait a moment for DB to accept connections
-    time.sleep(1.0)
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+                _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+                break
+            except subprocess.CalledProcessError:
+                if attempt == 0:
+                    time.sleep(2.0)
+                else:
+                    raise
+
+        # Wait a moment for DB to accept connections
+        time.sleep(1.0)
 
     # Initialize schema and ingest demo using the current Python interpreter
     py = sys.executable
