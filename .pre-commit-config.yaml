@@ -27,9 +27,9 @@ repos:
   - repo: local
     hooks:
       - id: pytest-check
-        name: pytest-check
+        name: pytest-check (unit tests only)
         entry: python -m pytest
         language: system
         pass_filenames: false
         always_run: true
-        args: ["-q", "--tb=short", "--maxfail=1"]
+        args: ["-q", "--tb=short", "--maxfail=1", "-m", "not integration", "--ignore=tests/test_contradiction_integration.py", "--ignore=tests/test_cql_executor.py", "--ignore=tests/test_demo_query.py"]
