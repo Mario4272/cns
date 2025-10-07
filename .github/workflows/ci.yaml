@@ -90,7 +90,7 @@ jobs:
           echo "db=cns schema=public tests=$TESTS passed=$TESTS failed=0 results=artifacts/pg_tap_results.tap"
       
       - name: Upload pgTAP results
-        if: always()
+        if: always() && hashFiles('pg_tap_results.tap') != ''
         uses: actions/upload-artifact@v4
         with:
           name: pgtap-results-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
@@ -118,7 +118,7 @@ jobs:
           python scripts/perf_smoke.py --iters 300 --warmup 50 --p95-budget-ms 500 --p99-budget-ms 900
 
       - name: Upload perf artifacts
-        if: always()
+        if: always() && hashFiles('perf_last_explain.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: perf-artifacts-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
