@@ -3,7 +3,10 @@ import subprocess
 import sys
 import time
 
+import psycopg
 import pytest
+
+from cns_py.storage.db import DbConfig
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(ROOT, os.pardir))
@@ -40,9 +43,6 @@ def ensure_db_and_demo_ready():
         time.sleep(1.0)
 
     # Wait for database to be ready (especially important in CI)
-    import psycopg
-    from cns_py.storage.db import DbConfig
-
     max_retries = 10
     for i in range(max_retries):
         try:
