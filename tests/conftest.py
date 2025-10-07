@@ -99,7 +99,7 @@ def ensure_db_and_demo_ready():
                 f"[CONFTEST] Data verification: {atom_count} atoms, "
                 f"{fiber_count} fibers, {aspect_count} aspects"
             )
-            
+
             # Debug: Show actual aspect data
             cur.execute(
                 "SELECT subject_kind, subject_id, valid_from, valid_to, belief "
@@ -108,7 +108,7 @@ def ensure_db_and_demo_ready():
             print("[CONFTEST] Aspect data:")
             for row in cur.fetchall():
                 print(f"  {row}")
-            
+
             if atom_count == 0:
                 raise RuntimeError("FATAL: Demo ingest succeeded but no atoms in database!")
 
