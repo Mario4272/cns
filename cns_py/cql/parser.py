@@ -17,7 +17,8 @@ class CqlQuery:
 def parse(query: str) -> CqlQuery:
     """
     Minimal parser for queries like:
-    MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z BELIEF >= 0.7 RETURN EXPLAIN PROVENANCE
+    MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z 
+    BELIEF >= 0.7 RETURN EXPLAIN PROVENANCE
 
     All keywords are optional; defaults:
       - explain: True

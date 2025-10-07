@@ -9,7 +9,10 @@ from cns_py.cql.executor import cql
 
 
 def run_once() -> float:
-    q = 'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE'
+    q = (
+        'MATCH label="FrameworkX" PREDICATE supports_tls '
+        'ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE'
+    )
     t0 = time.perf_counter()
     out = cql(q)
     t1 = time.perf_counter()

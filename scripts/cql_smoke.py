@@ -11,7 +11,10 @@ if str(PROJECT_ROOT) not in sys.path:
 try:
     from cns_py.cql.executor import cql
 
-    q = 'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE'
+    q = (
+        'MATCH label="FrameworkX" PREDICATE supports_tls '
+        'ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE'
+    )
     print(json.dumps(cql(q), indent=2))
 except Exception:
     traceback.print_exc()
