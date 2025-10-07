@@ -63,8 +63,10 @@ def detect_fiber_contradictions(
     JOIN aspects asp1 ON asp1.subject_kind='fiber' AND asp1.subject_id=f1.id
     JOIN aspects asp2 ON asp2.subject_kind='fiber' AND asp2.subject_id=f2.id
     WHERE f1.dst != f2.dst
-      AND COALESCE(asp1.valid_from, '-infinity'::timestamptz) < COALESCE(asp2.valid_to, 'infinity'::timestamptz)
-      AND COALESCE(asp2.valid_from, '-infinity'::timestamptz) < COALESCE(asp1.valid_to, 'infinity'::timestamptz)
+      AND COALESCE(asp1.valid_from, '-infinity'::timestamptz) < 
+          COALESCE(asp2.valid_to, 'infinity'::timestamptz)
+      AND COALESCE(asp2.valid_from, '-infinity'::timestamptz) < 
+          COALESCE(asp1.valid_to, 'infinity'::timestamptz)
     """
 
     params = {}
@@ -101,7 +103,11 @@ def detect_fiber_contradictions(
                     overlap_end,
                 ) = row
 
-                reason = f"Same subject '{subj_label}' has predicate '{pred}' pointing to both '{obj1_label}' and '{obj2_label}' during overlapping time periods"
+                reason = (
+                    f"Same subject '{subj_label}' has predicate '{pred}' "
+                    f"pointing to both '{obj1_label}' and '{obj2_label}' "
+                    f"during overlapping time periods"
+                )
 
                 contradictions.append(
                     Contradiction(
@@ -160,8 +166,10 @@ def detect_atom_text_contradictions(
       AND a2.text IS NOT NULL 
       AND a1.text != a2.text
       AND (asp1.id IS NULL OR asp2.id IS NULL OR (
-          COALESCE(asp1.valid_from, '-infinity'::timestamptz) < COALESCE(asp2.valid_to, 'infinity'::timestamptz)
-          AND COALESCE(asp2.valid_from, '-infinity'::timestamptz) < COALESCE(asp1.valid_to, 'infinity'::timestamptz)
+          COALESCE(asp1.valid_from, '-infinity'::timestamptz) < 
+              COALESCE(asp2.valid_to, 'infinity'::timestamptz)
+          AND COALESCE(asp2.valid_from, '-infinity'::timestamptz) < 
+              COALESCE(asp1.valid_to, 'infinity'::timestamptz)
       ))
     """
 
@@ -198,7 +206,10 @@ def detect_atom_text_contradictions(
                     overlap_end,
                 ) = row
 
-                reason = f"Atoms with same kind+label '{atom1_label}' have different text values: '{text1[:50]}...' vs '{text2[:50]}...'"
+                reason = (
+                    f"Atoms with same kind+label '{atom1_label}' have different text values: "
+                    f"'{text1[:50]}...' vs '{text2[:50]}...'"
+                )
 
                 contradictions.append(
                     Contradiction(

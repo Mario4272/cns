@@ -68,7 +68,10 @@ def test_parse_belief_threshold(label, belief):
 @given(label=labels, predicate=predicates, timestamp=timestamps, belief=beliefs)
 def test_parse_full_query(label, predicate, timestamp, belief):
     """Property: Full query with all clauses should preserve all values."""
-    query = f'MATCH label="{label}" PREDICATE {predicate} ASOF {timestamp} BELIEF >= {belief} RETURN EXPLAIN PROVENANCE'
+    query = (
+        f'MATCH label="{label}" PREDICATE {predicate} ASOF {timestamp} '
+        f'BELIEF >= {belief} RETURN EXPLAIN PROVENANCE'
+    )
     result = parse(query)
     assert result.label == label
     assert result.predicate == predicate

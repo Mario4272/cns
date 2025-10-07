@@ -34,6 +34,8 @@ target-version = ["py310", "py311", "py312"]
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
 extend-select = ["E", "F", "I"]
 
 [tool.setuptools]

@@ -55,8 +55,11 @@ def seed_contradiction_scenario():
             fiber1_id = cur.fetchone()[0]
 
             cur.execute(
-                """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief, provenance)
-                   VALUES ('fiber', %s, %s, %s, %s, %s)""",
+                """
+                INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, 
+                                    belief, provenance)
+                VALUES ('fiber', %s, %s, %s, %s, %s)
+                """,
                 (
                     fiber1_id,
                     past,
@@ -84,8 +87,11 @@ def seed_contradiction_scenario():
             overlap_end = future + timedelta(days=30)
 
             cur.execute(
-                """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief, provenance)
-                   VALUES ('fiber', %s, %s, %s, %s, %s)""",
+                """
+                INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, 
+                                    belief, provenance)
+                VALUES ('fiber', %s, %s, %s, %s, %s)
+                """,
                 (
                     fiber2_id,
                     overlap_start,

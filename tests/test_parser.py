@@ -3,7 +3,8 @@ from cns_py.cql.parser import parse
 
 def test_parse_minimal_fields():
     q = parse(
-        'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE'
+        'MATCH label="FrameworkX" PREDICATE supports_tls '
+        'ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE'
     )
     assert q.label == "FrameworkX"
     assert q.predicate == "supports_tls"

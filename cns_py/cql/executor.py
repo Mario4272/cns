@@ -27,7 +27,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
 
     # Step 1: ANN shortlist (placeholder for Phase 1; 0ms)
     t_ann0 = time.perf_counter()
-    shortlist_ids: Optional[List[int]] = None  # Future: vector shortlist
+    # shortlist_ids: Optional[List[int]] = None  # Future: vector shortlist
     t_ann1 = time.perf_counter()
     steps.append(ExplainStep(name="ann_shortlist", ms=(t_ann1 - t_ann0) * 1000.0, extra={}))
 
