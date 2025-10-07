@@ -58,7 +58,7 @@ jobs:
           CNS_VECTOR_DIMS: 1536
         run: |
           echo "[CI: coverage]"
-          python -m pytest -q \
+          python -m pytest -q -s \
             --cov=cns_py \
             --cov-report=xml \
             --cov-report=html \
