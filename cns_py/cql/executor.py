@@ -86,6 +86,20 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     _sum_rec = 0.0
     with get_conn() as conn:
         with conn.cursor() as cur:
+            # Debug: Test if the query works without temporal filter
+            if q.label == "FrameworkX" and q.asof_iso:
+                test_sql = (
+                    base_select + "WHERE a_src.label = %(label)s AND f.predicate = %(predicate)s"
+                )
+                test_params = {"label": q.label, "predicate": q.predicate}
+                cur.execute(test_sql, test_params)
+                test_rows = cur.fetchall()
+                print(f"[CQL DEBUG] Without temporal filter: {len(test_rows)} rows")
+                for row in test_rows:
+                    print(
+                        f"  {row[0]} --{row[1]}--> {row[2]}, belief={row[3]}, valid_from={row[4] if len(row) > 4 else 'N/A'}"
+                    )
+
             # Debug: print SQL and params to diagnose empty results
             print(f"[CQL DEBUG] SQL: {sql}")
             print(f"[CQL DEBUG] Params: {params}")
