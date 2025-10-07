@@ -1,5 +1,7 @@
 """Property-based tests for CQL parser using hypothesis."""
 
+from datetime import datetime
+
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -21,7 +23,7 @@ predicates = st.text(
 
 # Strategy for generating valid ISO8601 timestamps
 timestamps = st.datetimes(
-    min_value=st.datetime(2000, 1, 1), max_value=st.datetime(2030, 12, 31)
+    min_value=datetime(2000, 1, 1), max_value=datetime(2030, 12, 31)
 ).map(lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%SZ"))
 
 # Strategy for generating valid belief thresholds
