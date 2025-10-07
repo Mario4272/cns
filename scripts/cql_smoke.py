@@ -13,7 +13,7 @@ try:
 
     q = (
         'MATCH label="FrameworkX" PREDICATE supports_tls '
-        'ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE'
+        "ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE"
     )
     print(json.dumps(cql(q), indent=2))
 except Exception:

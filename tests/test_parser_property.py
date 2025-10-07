@@ -70,7 +70,7 @@ def test_parse_full_query(label, predicate, timestamp, belief):
     """Property: Full query with all clauses should preserve all values."""
     query = (
         f'MATCH label="{label}" PREDICATE {predicate} ASOF {timestamp} '
-        f'BELIEF >= {belief} RETURN EXPLAIN PROVENANCE'
+        f"BELIEF >= {belief} RETURN EXPLAIN PROVENANCE"
     )
     result = parse(query)
     assert result.label == label
