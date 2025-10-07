@@ -96,9 +96,8 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 test_rows = cur.fetchall()
                 print(f"[CQL DEBUG] Without temporal filter: {len(test_rows)} rows")
                 for row in test_rows:
-                    print(
-                        f"  {row[0]} --{row[1]}--> {row[2]}, belief={row[3]}, valid_from={row[4] if len(row) > 4 else 'N/A'}"
-                    )
+                    vf = row[4] if len(row) > 4 else "N/A"
+                    print(f"  {row[0]} --{row[1]}--> {row[2]}, belief={row[3]}, valid_from={vf}")
 
             # Debug: print SQL and params to diagnose empty results
             print(f"[CQL DEBUG] SQL: {sql}")
