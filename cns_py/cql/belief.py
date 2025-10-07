@@ -48,14 +48,15 @@ def compute(
       - cfg: weights
     Returns: (confidence, details)
     """
-    cfg = cfg or BeliefConfig()
+    if cfg is None:
+        cfg = BeliefConfig()
     b = 0.0 if base_belief is None else float(base_belief)
     rec = _recency_term(observed_at, datetime.now(timezone.utc), cfg.recency_half_life_days)
 
     # Map 0..1 to -3..+3 logit-ish range for evidence center, then add recency nudge
     evidence_score = (b - 0.5) * 6.0
-    x = cfg.w_evidence * evidence_score + cfg.w_recency * (rec * 2.0 - 1.0)
-    conf = _sigmoid(x)
+    x = cfg.w_evidence * evidence_score + cfg.w_recency * rec
+    conf = float(_sigmoid(x))
 
     details = {
         "base_belief": b,
