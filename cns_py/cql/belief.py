@@ -32,7 +32,8 @@ def _recency_term(
     now = now or datetime.now(timezone.utc)
     dt = abs((now - observed_at).total_seconds()) / (60 * 60 * 24)
     # Exponential decay: 1.0 at t=0; 0.5 at t=half_life
-    return max(0.0, min(1.0, 0.5 ** (dt / max(1e-6, half_life_days))))
+    result = 0.5 ** (dt / max(1e-6, half_life_days))
+    return float(max(0.0, min(1.0, result)))
 
 
 def compute(
