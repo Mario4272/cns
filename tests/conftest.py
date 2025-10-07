@@ -109,6 +109,18 @@ def ensure_db_and_demo_ready():
             for row in cur.fetchall():
                 print(f"  {row}")
 
+            # Debug: Show fibers with their atoms
+            cur.execute(
+                "SELECT f.id, a_src.label, f.predicate, a_dst.label "
+                "FROM fibers f "
+                "JOIN atoms a_src ON a_src.id = f.src "
+                "JOIN atoms a_dst ON a_dst.id = f.dst "
+                "ORDER BY f.id"
+            )
+            print("[CONFTEST] Fiber data:")
+            for row in cur.fetchall():
+                print(f"  Fiber {row[0]}: {row[1]} --{row[2]}--> {row[3]}")
+
             if atom_count == 0:
                 raise RuntimeError("FATAL: Demo ingest succeeded but no atoms in database!")
 
