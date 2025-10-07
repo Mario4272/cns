@@ -153,7 +153,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     )
 
     # Belief compute step (aggregate)
-    extra = {"items": belief_items}
+    extra: Dict[str, Any] = {"items": belief_items}
     if belief_items > 0:
         extra.update(
             {
@@ -167,7 +167,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     total_ms = (time.perf_counter() - t0) * 1000.0
     report = ExplainReport(steps=steps, total_ms=total_ms)
 
-    payload = {
+    payload: Dict[str, Any] = {
         "results": [
             {
                 "subject_label": r.subject_label,
@@ -180,11 +180,10 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
         ]
     }
     if q.explain:
-        explain_data: Dict[str, Any] = {
+        payload["explain"] = {
             "total_ms": report.total_ms,
             "steps": [asdict(s) for s in report.steps],
         }
-        payload["explain"] = explain_data
     return payload
 
 
