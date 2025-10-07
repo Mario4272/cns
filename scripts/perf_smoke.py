@@ -30,6 +30,13 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--p99-budget-ms", type=float, default=900.0)
     args = ap.parse_args(argv)
 
+    # Ensure EXPLAIN artifact exists even if we fail early
+    try:
+        with open("perf_last_explain.json", "w", encoding="utf-8") as f:
+            json.dump({"status": "initializing"}, f)
+    except Exception:
+        pass
+
     # Warmup phase
     print(f"[CI: perf-smoke]")
     print(f"Warming up ({args.warmup} iterations)...")
