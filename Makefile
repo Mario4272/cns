@@ -22,7 +22,12 @@ init-db:
 
 # Phase 0A: QA targets (lightweight placeholders; CI will wire full steps)
 test:
-	. ./.venv/Scripts/activate && python -m pytest -q
+	@echo "[test] Running all tests (requires Docker Desktop running)"
+	python -m pytest -v
+
+test-quick:
+	@echo "[test-quick] Running unit tests only (no database)"
+	python -m pytest -v -m "not integration" --ignore=tests/test_contradiction_integration.py --ignore=tests/test_cql_executor.py --ignore=tests/test_demo_query.py
 
 verify:
 	@echo "[verify] lint (ruff)"
