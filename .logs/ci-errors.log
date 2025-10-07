@@ -1,0 +1,2725 @@
+Run echo "[CI: coverage]"
+  echo "[CI: coverage]"
+  python -m pytest -q \
+    --cov=cns_py \
+    --cov-report=xml \
+    --cov-report=html \
+    --cov-report=term-missing:skip-covered \
+    --cov-fail-under=85 \
+    --hypothesis-show-statistics \
+    --hypothesis-seed=123456
+  echo "threshold=85; actual=$(grep -oP 'TOTAL.*?\K\d+' coverage.xml | head -1)%; report=artifacts/coverage-html/index.html"
+  shell: /usr/bin/bash -e {0}
+  env:
+    pythonLocation: /opt/hostedtoolcache/Python/3.11.13/x64
+    PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib/pkgconfig
+    Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+    Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+    Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+    LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib
+    CNS_DB_HOST: 127.0.0.1
+    CNS_DB_PORT: 5433
+    CNS_DB_NAME: cns
+    CNS_DB_USER: cns
+    CNS_DB_PASSWORD: cns
+    CNS_VECTOR_DIMS: 1536
+[CI: coverage]
+EEEEEEEEEEEEEEEEEEEEEEEEEEE
+ERROR: Coverage failure: total of 27 is less than fail-under=85
+                                                                         [100%]
+==================================== ERRORS ====================================
+_______________ ERROR at setup of test_belief_sigmoid_monotonic ________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+---------------------------- Captured stderr setup -----------------------------
+ db Pulling 
+ a803e7c4b030 Pulling fs layer 
+ 12dd3b657e91 Pulling fs layer 
+ 147adba297eb Pulling fs layer 
+ 56ee7c0dd616 Pulling fs layer 
+ f9aacf30f429 Pulling fs layer 
+ 7ad57b8030eb Pulling fs layer 
+ 786562b3be85 Pulling fs layer 
+ 04efcdd3a2a4 Pulling fs layer 
+ 2c35234636c9 Pulling fs layer 
+ 6e662fa63f18 Pulling fs layer 
+ f1a157d7d7b0 Pulling fs layer 
+ bb153abf3802 Pulling fs layer 
+ 7077e54346e0 Pulling fs layer 
+ 2e3723549f11 Pulling fs layer 
+ c5f09b500022 Pulling fs layer 
+ 04efcdd3a2a4 Waiting 
+ 7077e54346e0 Waiting 
+ 2c35234636c9 Waiting 
+ 2e3723549f11 Waiting 
+ 6e662fa63f18 Waiting 
+ c5f09b500022 Waiting 
+ f1a157d7d7b0 Waiting 
+ bb153abf3802 Waiting 
+ f9aacf30f429 Waiting 
+ 786562b3be85 Waiting 
+ 7ad57b8030eb Waiting 
+ 56ee7c0dd616 Waiting 
+ 12dd3b657e91 Downloading [=======================================>           ]     935B/1.169kB
+ 12dd3b657e91 Downloading [==================================================>]  1.169kB/1.169kB
+ 12dd3b657e91 Download complete 
+ 147adba297eb Downloading [>                                                  ]  45.23kB/4.423MB
+ 147adba297eb Verifying Checksum 
+ 147adba297eb Download complete 
+ a803e7c4b030 Downloading [>                                                  ]  293.3kB/29.12MB
+ 56ee7c0dd616 Downloading [>                                                  ]  14.62kB/1.444MB
+ 56ee7c0dd616 Verifying Checksum 
+ 56ee7c0dd616 Download complete 
+ a803e7c4b030 Downloading [====>                                              ]  2.395MB/29.12MB
+ f9aacf30f429 Downloading [>                                                  ]  80.86kB/8.065MB
+ 7ad57b8030eb Downloading [>                                                  ]  13.25kB/1.195MB
+ 7ad57b8030eb Verifying Checksum 
+ 7ad57b8030eb Download complete 
+ f9aacf30f429 Downloading [====================>                              ]  3.386MB/8.065MB
+ a803e7c4b030 Downloading [========>                                          ]  4.791MB/29.12MB
+ 786562b3be85 Downloading [==================================================>]     116B/116B
+ 786562b3be85 Verifying Checksum 
+ 786562b3be85 Download complete 
+ f9aacf30f429 Verifying Checksum 
+ f9aacf30f429 Download complete 
+ a803e7c4b030 Downloading [=============>                                     ]  7.793MB/29.12MB
+ 04efcdd3a2a4 Downloading [==============>                                    ]     935B/3.14kB
+ 04efcdd3a2a4 Downloading [==================================================>]   3.14kB/3.14kB
+ 04efcdd3a2a4 Download complete 
+ 2c35234636c9 Downloading [>                                                  ]  540.7kB/104.3MB
+ a803e7c4b030 Downloading [================>                                  ]  9.898MB/29.12MB
+ 6e662fa63f18 Downloading [====>                                              ]     933B/9.778kB
+ 6e662fa63f18 Downloading [==================================================>]  9.778kB/9.778kB
+ 6e662fa63f18 Verifying Checksum 
+ 6e662fa63f18 Download complete 
+ 2c35234636c9 Downloading [=====>                                             ]   12.3MB/104.3MB
+ a803e7c4b030 Downloading [==========================>                        ]  15.58MB/29.12MB
+ f1a157d7d7b0 Downloading [==================================================>]     129B/129B
+ f1a157d7d7b0 Download complete 
+ 2c35234636c9 Downloading [========>                                          ]  18.19MB/104.3MB
+ a803e7c4b030 Downloading [======================================>            ]  22.18MB/29.12MB
+ bb153abf3802 Downloading [==================================================>]     171B/171B
+ bb153abf3802 Verifying Checksum 
+ 2c35234636c9 Downloading [============>                                      ]  25.71MB/104.3MB
+ a803e7c4b030 Downloading [=============================================>     ]  26.68MB/29.12MB
+ a803e7c4b030 Verifying Checksum 
+ a803e7c4b030 Download complete 
+ 7077e54346e0 Downloading [=========>                                         ]     934B/4.785kB
+ 7077e54346e0 Downloading [==================================================>]  4.785kB/4.785kB
+ 7077e54346e0 Verifying Checksum 
+ 7077e54346e0 Download complete 
+ 2c35234636c9 Downloading [===============>                                   ]  33.24MB/104.3MB
+ a803e7c4b030 Extracting [>                                                  ]  294.9kB/29.12MB
+ 2c35234636c9 Downloading [===================>                               ]  39.63MB/104.3MB
+ 2e3723549f11 Downloading [>                                                  ]  1.369kB/80.84kB
+ a803e7c4b030 Extracting [===========>                                       ]  6.488MB/29.12MB
+ 2e3723549f11 Downloading [==================================================>]  80.84kB/80.84kB
+ 2e3723549f11 Verifying Checksum 
+ 2e3723549f11 Download complete 
+ c5f09b500022 Downloading [>                                                  ]  115.2kB/11.2MB
+ 2c35234636c9 Downloading [=====================>                             ]  44.46MB/104.3MB
+ a803e7c4b030 Extracting [=================>                                 ]  10.32MB/29.12MB
+ c5f09b500022 Downloading [=====================>                             ]  4.866MB/11.2MB
+ 2c35234636c9 Downloading [=======================>                           ]   49.3MB/104.3MB
+ a803e7c4b030 Extracting [===========================>                       ]  15.93MB/29.12MB
+ c5f09b500022 Downloading [=================================================> ]  10.99MB/11.2MB
+ c5f09b500022 Verifying Checksum 
+ c5f09b500022 Download complete 
+ 2c35234636c9 Downloading [==========================>                        ]  55.74MB/104.3MB
+ a803e7c4b030 Extracting [=========================================>         ]  23.89MB/29.12MB
+ 2c35234636c9 Downloading [=============================>                     ]  61.64MB/104.3MB
+ a803e7c4b030 Extracting [==========================================>        ]  24.77MB/29.12MB
+ 2c35234636c9 Downloading [================================>                  ]  67.53MB/104.3MB
+ a803e7c4b030 Extracting [===============================================>   ]  27.72MB/29.12MB
+ 2c35234636c9 Downloading [==================================>                ]  72.87MB/104.3MB
+ 2c35234636c9 Downloading [====================================>              ]  75.54MB/104.3MB
+ 2c35234636c9 Downloading [=======================================>           ]  83.04MB/104.3MB
+ a803e7c4b030 Extracting [================================================>  ]  28.31MB/29.12MB
+ a803e7c4b030 Extracting [==================================================>]  29.12MB/29.12MB
+ 2c35234636c9 Downloading [==========================================>        ]  87.85MB/104.3MB
+ a803e7c4b030 Pull complete 
+ 12dd3b657e91 Extracting [==================================================>]  1.169kB/1.169kB
+ 12dd3b657e91 Extracting [==================================================>]  1.169kB/1.169kB
+ 2c35234636c9 Downloading [===============================================>   ]  98.03MB/104.3MB
+ 2c35234636c9 Downloading [=================================================> ]  103.9MB/104.3MB
+ 2c35234636c9 Verifying Checksum 
+ 2c35234636c9 Download complete 
+ 12dd3b657e91 Pull complete 
+ 147adba297eb Extracting [>                                                  ]  65.54kB/4.423MB
+ 147adba297eb Extracting [==================================================>]  4.423MB/4.423MB
+ 147adba297eb Pull complete 
+ 56ee7c0dd616 Extracting [=>                                                 ]  32.77kB/1.444MB
+ 56ee7c0dd616 Extracting [==================================================>]  1.444MB/1.444MB
+ 56ee7c0dd616 Pull complete 
+ f9aacf30f429 Extracting [>                                                  ]   98.3kB/8.065MB
+ f9aacf30f429 Extracting [========================>                          ]  3.932MB/8.065MB
+ f9aacf30f429 Extracting [=====================================>             ]  5.997MB/8.065MB
+ f9aacf30f429 Extracting [==================================================>]  8.065MB/8.065MB
+ f9aacf30f429 Pull complete 
+ 7ad57b8030eb Extracting [=>                                                 ]  32.77kB/1.195MB
+ 7ad57b8030eb Extracting [==================================================>]  1.195MB/1.195MB
+ 7ad57b8030eb Extracting [==================================================>]  1.195MB/1.195MB
+ 7ad57b8030eb Pull complete 
+ 786562b3be85 Extracting [==================================================>]     116B/116B
+ 786562b3be85 Extracting [==================================================>]     116B/116B
+ 786562b3be85 Pull complete 
+ 04efcdd3a2a4 Extracting [==================================================>]   3.14kB/3.14kB
+ 04efcdd3a2a4 Extracting [==================================================>]   3.14kB/3.14kB
+ 04efcdd3a2a4 Pull complete 
+ 2c35234636c9 Extracting [>                                                  ]  557.1kB/104.3MB
+ 2c35234636c9 Extracting [===>                                               ]  7.242MB/104.3MB
+ 2c35234636c9 Extracting [=====>                                             ]  10.58MB/104.3MB
+ 2c35234636c9 Extracting [=======>                                           ]   15.6MB/104.3MB
+ 2c35234636c9 Extracting [==========>                                        ]  21.17MB/104.3MB
+ 2c35234636c9 Extracting [=============>                                     ]   27.3MB/104.3MB
+ 2c35234636c9 Extracting [=================>                                 ]  36.77MB/104.3MB
+ 2c35234636c9 Extracting [======================>                            ]  46.24MB/104.3MB
+ 2c35234636c9 Extracting [=========================>                         ]  52.36MB/104.3MB
+ 2c35234636c9 Extracting [============================>                      ]   59.6MB/104.3MB
+ 2c35234636c9 Extracting [=================================>                 ]  70.19MB/104.3MB
+ 2c35234636c9 Extracting [=====================================>             ]   79.1MB/104.3MB
+ 2c35234636c9 Extracting [==========================================>        ]  88.57MB/104.3MB
+ 2c35234636c9 Extracting [============================================>      ]  91.91MB/104.3MB
+ 2c35234636c9 Extracting [=============================================>     ]   94.7MB/104.3MB
+ 2c35234636c9 Extracting [===============================================>   ]   98.6MB/104.3MB
+ 2c35234636c9 Extracting [================================================>  ]  100.8MB/104.3MB
+ 2c35234636c9 Extracting [=================================================> ]  102.5MB/104.3MB
+ 2c35234636c9 Extracting [=================================================> ]  103.6MB/104.3MB
+ 2c35234636c9 Extracting [==================================================>]  104.3MB/104.3MB
+ 2c35234636c9 Pull complete 
+ 6e662fa63f18 Extracting [==================================================>]  9.778kB/9.778kB
+ 6e662fa63f18 Extracting [==================================================>]  9.778kB/9.778kB
+ 6e662fa63f18 Pull complete 
+ f1a157d7d7b0 Extracting [==================================================>]     129B/129B
+ f1a157d7d7b0 Extracting [==================================================>]     129B/129B
+ f1a157d7d7b0 Pull complete 
+ bb153abf3802 Extracting [==================================================>]     171B/171B
+ bb153abf3802 Extracting [==================================================>]     171B/171B
+ bb153abf3802 Pull complete 
+ 7077e54346e0 Extracting [==================================================>]  4.785kB/4.785kB
+ 7077e54346e0 Extracting [==================================================>]  4.785kB/4.785kB
+ 7077e54346e0 Pull complete 
+ 2e3723549f11 Extracting [====================>                              ]  32.77kB/80.84kB
+ 2e3723549f11 Extracting [==================================================>]  80.84kB/80.84kB
+ 2e3723549f11 Extracting [==================================================>]  80.84kB/80.84kB
+ 2e3723549f11 Pull complete 
+ c5f09b500022 Extracting [>                                                  ]  131.1kB/11.2MB
+ c5f09b500022 Extracting [============>                                      ]  2.753MB/11.2MB
+ c5f09b500022 Extracting [========================================>          ]  9.175MB/11.2MB
+ c5f09b500022 Extracting [==================================================>]   11.2MB/11.2MB
+ c5f09b500022 Pull complete 
+ db Pulled 
+ Network docker_default  Creating
+ Network docker_default  Created
+ Volume "docker_cns_pg_data"  Creating
+ Volume "docker_cns_pg_data"  Created
+ Container cns_db  Creating
+ Container cns_db  Created
+ Container cns_db  Starting
+Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint cns_db (189fb98ece56bee4b8f64ef72269b3695777f9b77b57f082c58e2a2ecccf52b2): Bind for 0.0.0.0:5433 failed: port is already allocated
+ Container cns_db  Starting
+Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint cns_db (f07a8f62e5c496733cf0c42ec9733caad1465cc41561dcf0a46cb86de6dc0fab): Bind for 0.0.0.0:5433 failed: port is already allocated
+_________________ ERROR at setup of test_belief_recency_effect _________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+______________ ERROR at setup of test_detect_fiber_contradictions ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+____________ ERROR at setup of test_detect_atom_text_contradictions ____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+_______________ ERROR at setup of test_detect_all_contradictions _______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+___________ ERROR at setup of test_no_contradictions_without_overlap ___________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+__________ ERROR at setup of test_detect_contradictions_with_filters ___________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+________________ ERROR at setup of test_contradiction_detected _________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+_____________ ERROR at setup of test_contradiction_affects_belief ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+___________ ERROR at setup of test_contradiction_with_asof_resolves ____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+____________ ERROR at setup of test_detect_all_finds_contradiction _____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+____________ ERROR at setup of test_contradiction_explain_artifact _____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+___________ ERROR at setup of test_no_contradiction_without_overlap ____________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+_________________ ERROR at setup of test_cql_golden_asof_2025 __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+______________ ERROR at setup of test_cql_golden_belief_threshold ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+________________ ERROR at setup of test_cql_golden_belief_empty ________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+_________________ ERROR at setup of test_cql_golden_asof_2024 __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+______________ ERROR at setup of test_tls_supersession_asof_split ______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+_________________ ERROR at setup of test_parse_minimal_fields __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+________________ ERROR at setup of test_parse_belief_threshold _________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+____________________ ERROR at setup of test_parse_defaults _____________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+__________________ ERROR at setup of test_parse_combinations ___________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+_______________ ERROR at setup of test_parse_timestamp_roundtrip _______________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+________________ ERROR at setup of test_parse_belief_threshold _________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+___________________ ERROR at setup of test_parse_full_query ____________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+__________________ ERROR at setup of test_parse_minimal_query __________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+________________ ERROR at setup of test_parse_empty_components _________________
+
+    @pytest.fixture(scope="session", autouse=True)
+    def ensure_db_and_demo_ready():
+        # Bring up docker services (idempotent). Retry once if docker is waking up.
+        for attempt in range(2):
+            try:
+>               _run(["docker", "compose", "-f", "docker/docker-compose.yml", "up", "-d"])
+
+tests/conftest.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/conftest.py:13: in _run
+    subprocess.run(cmd, check=True, cwd=REPO)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d'],)
+kwargs = {'cwd': '/home/runner/work/cns/cns'}
+process = <Popen: returncode: 1 args: ['docker', 'compose', '-f', 'docker/docker-compo...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+
+/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/subprocess.py:571: CalledProcessError
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.11.13-final-0 _______________
+
+Name                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------
+cns_py/cql/belief.py          36     23    36%   17-24, 30-36, 52-72
+cns_py/cql/contradict.py      68     48    29%   41-127, 145-229, 242-249
+cns_py/cql/executor.py        94     81    14%   18-21, 25-187, 191-194
+cns_py/cql/parser.py          64     52    19%   27-89
+cns_py/cql/planner.py         39     39     0%   1-54
+cns_py/demo/ingest.py         33     33     0%   1-107
+cns_py/demo/query.py          23     15    35%   12-30, 34-41, 45
+cns_py/storage/db.py          33     15    55%   20-21, 77-80, 84-93, 97
+--------------------------------------------------------
+TOTAL                        418    306    27%
+
+5 files skipped due to complete coverage.
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+FAIL Required test coverage of 85% not reached. Total coverage: 26.79%
+============================ Hypothesis Statistics =============================
+=========================== short test summary info ============================
+ERROR tests/test_belief.py::test_belief_sigmoid_monotonic - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_belief.py::test_belief_recency_effect - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradict.py::test_detect_fiber_contradictions - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradict.py::test_detect_atom_text_contradictions - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradict.py::test_detect_all_contradictions - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradict.py::test_no_contradictions_without_overlap - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradict.py::test_detect_contradictions_with_filters - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradiction_integration.py::test_contradiction_detected - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradiction_integration.py::test_contradiction_affects_belief - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradiction_integration.py::test_contradiction_with_asof_resolves - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradiction_integration.py::test_detect_all_finds_contradiction - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradiction_integration.py::test_contradiction_explain_artifact - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_contradiction_integration.py::test_no_contradiction_without_overlap - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_cql_executor.py::test_cql_golden_asof_2025 - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_cql_executor.py::test_cql_golden_belief_threshold - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_cql_executor.py::test_cql_golden_belief_empty - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_cql_executor.py::test_cql_golden_asof_2024 - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_demo_query.py::test_tls_supersession_asof_split - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser.py::test_parse_minimal_fields - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser.py::test_parse_belief_threshold - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser_property.py::test_parse_defaults - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser_property.py::test_parse_combinations - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser_property.py::test_parse_timestamp_roundtrip - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser_property.py::test_parse_belief_threshold - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser_property.py::test_parse_full_query - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser_property.py::test_parse_minimal_query - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+ERROR tests/test_parser_property.py::test_parse_empty_components - subprocess.CalledProcessError: Command '['docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '-d']' returned non-zero exit status 1.
+Error: Process completed with exit code 1.
