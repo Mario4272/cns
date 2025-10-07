@@ -86,6 +86,9 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     _sum_rec = 0.0
     with get_conn() as conn:
         with conn.cursor() as cur:
+            # Debug: print SQL and params to diagnose empty results
+            print(f"[CQL DEBUG] SQL: {sql}")
+            print(f"[CQL DEBUG] Params: {params}")
             try:
                 cur.execute(sql, params)
             except Exception:
@@ -96,7 +99,9 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 }
                 print("[CQL DEBUG] execute failed:", debug)
                 raise
-            for row in cur.fetchall():
+            rows = cur.fetchall()
+            print(f"[CQL DEBUG] Rows returned: {len(rows)}")
+            for row in rows:
                 subj, pred, obj, base_conf, observed_at, prov_json, fiber_id = row
                 # Belief v0 compute
                 conf, details = belief_compute(base_conf, observed_at)
