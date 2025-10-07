@@ -80,4 +80,26 @@ def ensure_db_and_demo_ready():
         print(f"FATAL: Demo ingest failed: {e}")
         raise
 
+    # Verify demo data was actually inserted
+    with psycopg.connect(
+        host=DbConfig().host,
+        port=DbConfig().port,
+        dbname=DbConfig().dbname,
+        user=DbConfig().user,
+        password=DbConfig().password,
+    ) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM atoms")
+            atom_count = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(*) FROM fibers")
+            fiber_count = cur.fetchone()[0]
+            cur.execute("SELECT COUNT(*) FROM aspects")
+            aspect_count = cur.fetchone()[0]
+            print(
+                f"[CONFTEST] Data verification: {atom_count} atoms, "
+                f"{fiber_count} fibers, {aspect_count} aspects"
+            )
+            if atom_count == 0:
+                raise RuntimeError("FATAL: Demo ingest succeeded but no atoms in database!")
+
     yield
