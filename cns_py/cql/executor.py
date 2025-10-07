@@ -180,10 +180,11 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
         ]
     }
     if q.explain:
-        payload["explain"] = {
+        explain_data: Dict[str, Any] = {
             "total_ms": report.total_ms,
             "steps": [asdict(s) for s in report.steps],
         }
+        payload["explain"] = explain_data
     return payload
 
 

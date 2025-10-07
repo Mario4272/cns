@@ -26,11 +26,11 @@ def tls_supported_as_of(label: str, ts: datetime) -> Optional[str]:
             cur.execute(sql, (label, ts, ts))
             row = cur.fetchone()
             if row:
-                return row[0]
+                return str(row[0])
     return None
 
 
-def main():
+def main() -> None:
     t_before = datetime(2024, 12, 31, 12, 0, tzinfo=UTC)
     t_after = datetime(2025, 1, 1, 12, 0, tzinfo=UTC)
 

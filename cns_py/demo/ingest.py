@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
+from typing import Any, Dict, Optional
 
 from dateutil.tz import UTC
 from psycopg.types.json import Json
@@ -6,7 +9,7 @@ from psycopg.types.json import Json
 from cns_py.storage.db import get_conn
 
 
-def upsert_atom(cur, kind: str, label: str, text: str | None = None):
+def upsert_atom(cur: Any, kind: str, label: str, text: str | None = None) -> int:
     cur.execute(
         """
         INSERT INTO atoms(kind, label, text)
@@ -25,15 +28,15 @@ def upsert_atom(cur, kind: str, label: str, text: str | None = None):
 
 
 def link_with_validity(
-    cur,
+    cur: Any,
     src_id: int,
     dst_id: int,
     predicate: str,
     valid_from: datetime | None,
     valid_to: datetime | None,
     belief: float | None = 1.0,
-    provenance: dict | None = None,
-):
+    provenance: Dict[str, Any] | None = None,
+) -> None:
     cur.execute(
         """
         INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id
@@ -64,7 +67,7 @@ def link_with_validity(
     return fiber_id
 
 
-def main():
+def main() -> None:
     # Define demo timeline
     cutoff = datetime(2025, 1, 1, tzinfo=UTC)
 
