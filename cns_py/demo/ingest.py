@@ -21,10 +21,11 @@ def upsert_atom(cur: Any, kind: str, label: str, text: str | None = None) -> int
     )
     row = cur.fetchone()
     if row:
-        return row[0]
+        return int(row[0])
     # fetch existing id
     cur.execute("SELECT id FROM atoms WHERE kind=%s AND label=%s", (kind, label))
-    return cur.fetchone()[0]
+    result = cur.fetchone()
+    return int(result[0])
 
 
 def link_with_validity(
@@ -36,14 +37,14 @@ def link_with_validity(
     valid_to: datetime | None,
     belief: float | None = 1.0,
     provenance: Dict[str, Any] | None = None,
-) -> None:
+) -> int:
     cur.execute(
         """
         INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id
         """,
         (src_id, dst_id, predicate),
     )
-    fiber_id = cur.fetchone()[0]
+    fiber_id = int(cur.fetchone()[0])
     if provenance is None:
         provenance = {
             "source_id": f"demo_seed:fiber:{fiber_id}",
