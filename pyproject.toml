@@ -3,7 +3,11 @@ name = "cns"
 version = "0.0.1"
 description = "Cognition-Native Store"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+  "psycopg[binary]>=3.1",
+  "pgvector>=0.2.5",
+  "python-dateutil>=2.9.0",
+]
 
 [project.optional-dependencies]
 dev = [
