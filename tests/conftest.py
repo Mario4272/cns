@@ -20,7 +20,7 @@ def ensure_db_and_demo_ready():
         _run(["docker", "compose", "-f", "docker/docker-compose.yml", "down"])
     except subprocess.CalledProcessError:
         pass  # Ignore if nothing to clean up
-    
+
     # Bring up docker services (idempotent). Retry once if docker is waking up.
     for attempt in range(2):
         try:
