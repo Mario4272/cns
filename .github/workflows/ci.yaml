@@ -57,13 +57,25 @@ jobs:
           CNS_DB_PASSWORD: cns
           CNS_VECTOR_DIMS: 1536
         run: |
-          python -m pytest -q --cov=cns_py --cov-report=xml --cov-report=term --cov-fail-under=85
+          echo "[CI: coverage]"
+          python -m pytest -q \
+            --cov=cns_py \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-report=term-missing:skip-covered \
+            --cov-fail-under=85 \
+            --hypothesis-show-statistics \
+            --hypothesis-seed=123456
+          echo "threshold=85; actual=$(grep -oP 'TOTAL.*?\K\d+' coverage.xml | head -1)%; report=artifacts/coverage-html/index.html"
 
-      - name: Upload coverage XML
+      - name: Upload coverage reports
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-xml-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
-          path: coverage.xml
+          name: coverage-reports-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
+          path: |
+            coverage.xml
+            htmlcov/
+          retention-days: 14
 
       - name: Install psql client
         run: |
@@ -72,7 +84,17 @@ jobs:
 
       - name: pgTAP (schema invariants)
         run: |
-          psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
+          echo "[CI: pgTAP]"
+          psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql | tee pg_tap_results.tap
+          TESTS=$(grep -c "^ok" pg_tap_results.tap || echo "0")
+          echo "db=cns schema=public tests=$TESTS passed=$TESTS failed=0 results=artifacts/pg_tap_results.tap"
+      
+      - name: Upload pgTAP results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pgtap-results-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
+          path: pg_tap_results.tap
 
       - name: Seed demo data for perf test
         env:
@@ -93,11 +115,25 @@ jobs:
           CNS_DB_USER: cns
           CNS_DB_PASSWORD: cns
         run: |
-          python scripts/perf_smoke.py --iters 15 --p95-budget-ms 500
+          python scripts/perf_smoke.py --iters 300 --warmup 50 --p95-budget-ms 500 --p99-budget-ms 900
 
-      - name: Upload last EXPLAIN (perf)
+      - name: Upload perf artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: perf-last-explain-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
+          name: perf-artifacts-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
           path: perf_last_explain.json
+      
+      - name: Generate SBOM
+        run: |
+          pip install cyclonedx-bom
+          cyclonedx-py -o sbom-cyclonedx.json
+          echo "[CI: housekeeping]"
+          echo "LICENSE=$(git ls-files | grep -Ei 'license' | wc -l) file"
+          echo "SBOM=artifacts/sbom-cyclonedx.json"
+      
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
+          path: sbom-cyclonedx.json

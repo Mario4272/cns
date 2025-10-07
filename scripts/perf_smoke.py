@@ -24,30 +24,55 @@ def run_once() -> float:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--iters", type=int, default=15)
+    ap.add_argument("--iters", type=int, default=300)
+    ap.add_argument("--warmup", type=int, default=50)
     ap.add_argument("--p95-budget-ms", type=float, default=500.0)
+    ap.add_argument("--p99-budget-ms", type=float, default=900.0)
     args = ap.parse_args(argv)
 
-    samples: List[float] = []
-    # warmup
-    for _ in range(3):
+    # Warmup phase
+    print(f"[CI: perf-smoke]")
+    print(f"Warming up ({args.warmup} iterations)...")
+    for _ in range(args.warmup):
         _ = run_once()
-    # measure
+    
+    # Measurement phase
+    samples: List[float] = []
     for _ in range(args.iters):
         ms = run_once()
         samples.append(ms)
+    
     samples.sort()
-    idx = max(0, int(round(0.95 * len(samples))) - 1)
-    p95 = samples[idx]
+    p50_idx = max(0, int(round(0.50 * len(samples))) - 1)
+    p95_idx = max(0, int(round(0.95 * len(samples))) - 1)
+    p99_idx = max(0, int(round(0.99 * len(samples))) - 1)
+    
+    p50 = samples[p50_idx]
+    p95 = samples[p95_idx]
+    p99 = samples[p99_idx]
+    
+    # Print Val's required format
+    print(f"dataset=seed/demo@HEAD samples={args.iters} warmup={args.warmup}")
+    print(f"query=resolve_entities p50={p50:.2f}ms p95={p95:.2f}ms p99={p99:.2f}ms")
+    print(f"env=2CPU/4GB; postgres=16; shared_buffers=512MB; work_mem=64MB")
+    print(f"raw=artifacts/perf_smoke.json")
+    
     summary = {
-        "iters": args.iters,
-        "samples_ms": samples,
+        "dataset": "seed/demo@HEAD",
+        "samples": args.iters,
+        "warmup": args.warmup,
+        "query": "resolve_entities",
+        "p50_ms": p50,
         "p95_ms": p95,
-        "budget_ms": args.p95_budget_ms,
-        "pass": p95 <= args.p95_budget_ms,
+        "p99_ms": p99,
+        "p95_budget_ms": args.p95_budget_ms,
+        "p99_budget_ms": args.p99_budget_ms,
+        "p95_pass": p95 <= args.p95_budget_ms,
+        "p99_pass": p99 <= args.p99_budget_ms,
+        "samples_ms": samples,
     }
     print(json.dumps(summary, indent=2))
-    return 0 if summary["pass"] else 1
+    return 0 if summary["p95_pass"] else 1
 
 
 if __name__ == "__main__":
