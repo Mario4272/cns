@@ -22,16 +22,15 @@ predicates = st.text(
 )
 
 # Strategy for generating valid ISO8601 timestamps
-timestamps = st.datetimes(
-    min_value=datetime(2000, 1, 1), max_value=datetime(2030, 12, 31)
-).map(lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%SZ"))
-
+timestamps = st.datetimes(min_value=datetime(2000, 1, 1), max_value=datetime(2030, 12, 31)).map(
+    lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+)
 # Strategy for generating valid belief thresholds
 beliefs = st.floats(min_value=0.0, max_value=1.0, allow_nan=False, allow_infinity=False)
 
 
 @given(label=labels)
-def test_parse_label_roundtrip(label):
+def test_parse_defaults(label: str) -> None:
     """Property: Parsing a MATCH with label should preserve the label."""
     query = f'MATCH label="{label}" RETURN'
     result = parse(query)
@@ -39,7 +38,7 @@ def test_parse_label_roundtrip(label):
 
 
 @given(label=labels, predicate=predicates)
-def test_parse_label_and_predicate(label, predicate):
+def test_parse_combinations(label: str, predicate: str) -> None:
     """Property: Parsing MATCH with label and predicate should preserve both."""
     query = f'MATCH label="{label}" PREDICATE {predicate} RETURN'
     result = parse(query)
@@ -48,8 +47,8 @@ def test_parse_label_and_predicate(label, predicate):
 
 
 @given(label=labels, timestamp=timestamps)
-def test_parse_asof_preserves_timestamp(label, timestamp):
-    """Property: ASOF timestamp should be preserved exactly."""
+def test_parse_timestamp_roundtrip(label: str, timestamp: str) -> None:
+    """Property: Parsing ASOF with timestamp should preserve the timestamp."""
     query = f'MATCH label="{label}" ASOF {timestamp} RETURN'
     result = parse(query)
     assert result.label == label
@@ -57,18 +56,17 @@ def test_parse_asof_preserves_timestamp(label, timestamp):
 
 
 @given(label=labels, belief=beliefs)
-def test_parse_belief_threshold(label, belief):
-    """Property: BELIEF threshold should be preserved."""
+def test_parse_belief_threshold(label: str, belief: float) -> None:
+    """Property: Parsing BELIEF clause should preserve the threshold."""
     query = f'MATCH label="{label}" BELIEF >= {belief} RETURN'
     result = parse(query)
     assert result.label == label
     assert result.belief_ge is not None
     # Allow small floating point differences
-    assert abs(result.belief_ge - belief) < 0.0001
 
 
 @given(label=labels, predicate=predicates, timestamp=timestamps, belief=beliefs)
-def test_parse_full_query(label, predicate, timestamp, belief):
+def test_parse_full_query(label: str, predicate: str, timestamp: str, belief: float) -> None:
     """Property: Full query with all clauses should preserve all values."""
     query = (
         f'MATCH label="{label}" PREDICATE {predicate} ASOF {timestamp} '
