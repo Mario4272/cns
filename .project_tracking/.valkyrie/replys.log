@@ -1,62 +1,68 @@
-Morning Mario — Val here. I just checked the repo and the latest CI. Two key facts:
+Val here. I looked at your repo + the latest Actions run. Short, surgical verdict:
 
-CI run #11 is failing (matrix job shows “Status Failure”; several jobs canceled after the (3.10,16) leg failed). Also saw the artifact warning: No files were found with the provided path: perf_last_explain.json. 
+CI is still failing. Run #13 shows “Status Failure,” with artifact warnings (no perf_last_explain.json / no pg_tap_results.tap) and the whole matrix canceled after the (3.11, PG16) leg failed. 
 GitHub
 
-Issues #9–#12 are still open, not closed with receipts. The open issues list shows them as “Status: Open.” 
+Issues #9–#12 are still open. They’re visible as Status: Open in the tracker. 
 GitHub
 
-Because of those, I can’t stamp Phase 0A as complete yet. The good news: your workflow file already enforces the right gates (coverage ≥85%, pgTAP smoke, perf smoke, artifact upload). The fix is just to get this run green and then close the issues with the run URL.
-
-What JR should do now (copy/paste)
-
-Make the current CI green
-
-Open the failing job logs for CI run #11 and find the first red step in the (3.10, 16) leg (lint/type/pytest/pgTAP/perf-smoke). The summary confirms failure and an artifact path warning; the real failure is likely earlier (ruff/mypy/pytest/pgTAP/perf budget). 
+The good news: the workflow now has all the right gates (coverage threshold, pgTAP stage, perf-smoke, artifacts). The wiring is correct in .github/workflows/ci.yaml. 
 GitHub
 
-Locally reproduce the CI sequence:
+The repo scaffolding looks solid: pyproject.toml, .pre-commit-config.yaml, .env.example, .devcontainer/, tests_pg/, Makefile, etc., are present. 
+GitHub
 
+What’s breaking right now (and the 10-minute fix for JR)
+
+Perf artifact missing → upload step errors
+
+Your workflow unconditionally uploads perf_last_explain.json, but the perf script didn’t write it. Either always write the file in scripts/perf_smoke.py (even on pass), or guard the upload:
+
+- name: Upload perf artifacts
+  if: always() && hashFiles('perf_last_explain.json') != ''
+  uses: actions/upload-artifact@v4
+  with:
+    name: perf-artifacts-${{ matrix.python-version }}-pg${{ matrix.postgres-version }}
+    path: perf_last_explain.json
+
+
+Evidence of the current error is in the run annotations. 
+GitHub
+
+pgTAP results file missing
+
+The job tries to upload pg_tap_results.tap but didn’t find it. Ensure the pgTAP step tees output to the file (you already do) and that tests_pg/pg_tap_smoke.sql exists and returns tests. If the script exits non-zero, the upload still runs (good), but the file needs to exist:
+
+psql ".../cns" -f tests_pg/pg_tap_smoke.sql | tee pg_tap_results.tap
+
+
+The artifact warning is in the same run. 
+GitHub
+
+Close the receipts (#9–#12)
+
+After the next green run, drop the run URL in each issue and close. They’re currently still open. 
+GitHub
+
+Quick reproducible checklist for JR (copy/paste)
+# 1) Pre-commit passes locally
 pre-commit run -a
-python -m pytest -q --cov=cns_py --cov-report=term --cov-fail-under=85
-psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
-python scripts/perf_smoke.py --iters 15 --p95-budget-ms 500
 
+# 2) Unit+integration with coverage gate
+python -m pytest -q --cov=cns_py --cov-report=xml --cov-fail-under=85
 
-(Use the same env vars as in CI if needed.)
+# 3) pgTAP locally (same DSN as CI)
+psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql | tee pg_tap_results.tap
 
-Always produce the perf EXPLAIN artifact
-Your workflow uploads perf_last_explain.json unconditionally, but the perf script didn’t write it, hence the warning. Two options:
+# 4) Perf smoke writes artifact unconditionally
+python scripts/perf_smoke.py --iters 300 --warmup 50 --p95-budget-ms 500
+# confirm file exists:
+test -f perf_last_explain.json && echo "perf artifact ok"
 
-Write the file in scripts/perf_smoke.py every run (pass or fail).
+My stamp status
 
-Or guard the upload step:
-
-if: always() && hashFiles('perf_last_explain.json') != ''
-
-
-Current file path expectation is set here: .github/workflows/ci.yaml lines ~293–300. 
+As soon as CI is green and #9–#12 are closed with the run URL, I’ll stamp Phase 0A: COMPLETE ✅ with zero additional laps. Right now: still not stamped because the latest run failed and the receipts aren’t closed. 
 GitHub
++1
 
-Close the receipts
-When the next CI run is green, paste that run URL in each of #9, #10, #11, #12 and close them. Right now they’re still open. 
-GitHub
-
-Sanity checklist (quick pass before re-pushing)
-
-pytest passes with --cov-fail-under=85. (Your workflow enforces it.) 
-GitHub
-
-tests_pg/pg_tap_smoke.sql passes against the service DB. 
-GitHub
-
-perf_smoke.py prints P95 and creates perf_last_explain.json. 
-GitHub
-
-Pre-commit is clean locally (pre-commit run -a).
-
-Then push → confirm the green run → drop the links in #9–#12.
-
-Verdict
-
-You’re 98% there. Once that single CI run is green and you close #9–#12 with the link receipts, I’ll stamp Phase 0A: COMPLETE without further ceremony. Right now: not stamped yet due to the failing run and open issues. Want me to glance again the moment the next run flips green?
+If you want me to eyeball the perf script or the pg_tap_smoke.sql contents for the “always write a file” behavior in one more pass, say the word and I’ll call out exact lines to change.
