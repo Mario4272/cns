@@ -39,6 +39,31 @@ def ensure_db_and_demo_ready():
         # Wait a moment for DB to accept connections
         time.sleep(1.0)
 
+    # Wait for database to be ready (especially important in CI)
+    import psycopg
+    from cns_py.storage.db import DbConfig
+
+    max_retries = 10
+    for i in range(max_retries):
+        try:
+            with psycopg.connect(
+                host=DbConfig().host,
+                port=DbConfig().port,
+                dbname=DbConfig().dbname,
+                user=DbConfig().user,
+                password=DbConfig().password,
+                connect_timeout=2,
+            ) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1")
+                print(f"Database connection successful on attempt {i+1}")
+                break
+        except Exception as e:
+            if i == max_retries - 1:
+                raise RuntimeError(f"Database not ready after {max_retries} attempts: {e}")
+            print(f"Waiting for database (attempt {i+1}/{max_retries})...")
+            time.sleep(1)
+
     # Initialize schema and ingest demo using the current Python interpreter
     py = sys.executable
     try:
