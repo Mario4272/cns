@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -23,7 +24,9 @@ def _sigmoid(x: float) -> float:
         return 0.0 if x < 0 else 1.0
 
 
-def _recency_term(observed_at: Optional[datetime], now: Optional[datetime], half_life_days: float) -> float:
+def _recency_term(
+    observed_at: Optional[datetime], now: Optional[datetime], half_life_days: float
+) -> float:
     if not observed_at:
         return 0.0
     now = now or datetime.now(timezone.utc)
@@ -32,7 +35,11 @@ def _recency_term(observed_at: Optional[datetime], now: Optional[datetime], half
     return max(0.0, min(1.0, 0.5 ** (dt / max(1e-6, half_life_days))))
 
 
-def compute(base_belief: Optional[float], observed_at: Optional[datetime], cfg: Optional[BeliefConfig] = None) -> tuple[float, Dict[str, Any]]:
+def compute(
+    base_belief: Optional[float],
+    observed_at: Optional[datetime],
+    cfg: Optional[BeliefConfig] = None,
+) -> tuple[float, Dict[str, Any]]:
     """
     Compute final confidence using a logistic over weighted components.
     Inputs:

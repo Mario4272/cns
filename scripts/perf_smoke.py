@@ -1,7 +1,7 @@
 from __future__ import annotations
+
 import argparse
 import json
-import statistics
 import time
 from typing import List
 
@@ -38,32 +38,32 @@ def main(argv: list[str]) -> int:
         pass
 
     # Warmup phase
-    print(f"[CI: perf-smoke]")
+    print("[CI: perf-smoke]")
     print(f"Warming up ({args.warmup} iterations)...")
     for _ in range(args.warmup):
         _ = run_once()
-    
+
     # Measurement phase
     samples: List[float] = []
     for _ in range(args.iters):
         ms = run_once()
         samples.append(ms)
-    
+
     samples.sort()
     p50_idx = max(0, int(round(0.50 * len(samples))) - 1)
     p95_idx = max(0, int(round(0.95 * len(samples))) - 1)
     p99_idx = max(0, int(round(0.99 * len(samples))) - 1)
-    
+
     p50 = samples[p50_idx]
     p95 = samples[p95_idx]
     p99 = samples[p99_idx]
-    
+
     # Print Val's required format
     print(f"dataset=seed/demo@HEAD samples={args.iters} warmup={args.warmup}")
     print(f"query=resolve_entities p50={p50:.2f}ms p95={p95:.2f}ms p99={p99:.2f}ms")
-    print(f"env=2CPU/4GB; postgres=16; shared_buffers=512MB; work_mem=64MB")
-    print(f"raw=artifacts/perf_smoke.json")
-    
+    print("env=2CPU/4GB; postgres=16; shared_buffers=512MB; work_mem=64MB")
+    print("raw=artifacts/perf_smoke.json")
+
     summary = {
         "dataset": "seed/demo@HEAD",
         "samples": args.iters,

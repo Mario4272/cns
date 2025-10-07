@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from datetime import datetime
-from dateutil.tz import UTC
 from typing import Optional
+
+from dateutil.tz import UTC
 
 from cns_py.storage.db import get_conn
 

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from cns_py.cql.belief import compute, BeliefConfig
+
+from cns_py.cql.belief import BeliefConfig, compute
 
 
 def test_belief_sigmoid_monotonic():

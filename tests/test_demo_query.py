@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from dateutil.tz import UTC
 
 from cns_py.demo.query import tls_supported_as_of

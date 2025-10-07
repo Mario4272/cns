@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
-from dateutil.tz import UTC
 
 import pytest
+from dateutil.tz import UTC
 
 from cns_py.cql.contradict import (
-    detect_fiber_contradictions,
-    detect_atom_text_contradictions,
     detect_all_contradictions,
+    detect_atom_text_contradictions,
+    detect_fiber_contradictions,
 )
 from cns_py.storage.db import get_conn
 
@@ -19,102 +19,106 @@ def setup_contradiction_data():
             # Clean up any existing test data
             cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
             cur.execute("DELETE FROM fibers")
-            cur.execute("DELETE FROM atoms WHERE label LIKE 'TestEntity%' OR label LIKE 'TestValue%'")
-            
+            cur.execute(
+                "DELETE FROM atoms WHERE label LIKE 'TestEntity%' OR label LIKE 'TestValue%'"
+            )
+
             # Create test atoms
             cur.execute(
                 "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
-                ("Entity", "TestEntity1", "Original text")
+                ("Entity", "TestEntity1", "Original text"),
             )
             entity1_id = cur.fetchone()[0]
-            
+
             cur.execute(
                 "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
-                ("Concept", "TestValue1", "Value A")
+                ("Concept", "TestValue1", "Value A"),
             )
             value1_id = cur.fetchone()[0]
-            
+
             cur.execute(
                 "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
-                ("Concept", "TestValue2", "Value B")
+                ("Concept", "TestValue2", "Value B"),
             )
             value2_id = cur.fetchone()[0]
-            
+
             # Create contradicting fibers: entity1 -> value1 and entity1 -> value2
             # Both valid during overlapping time periods
             now = datetime.now(tz=UTC)
             past = now - timedelta(days=30)
             future = now + timedelta(days=30)
-            
+
             # Fiber 1: entity1 -> value1 (valid from past to future)
             cur.execute(
                 "INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id",
-                (entity1_id, value1_id, "has_value")
+                (entity1_id, value1_id, "has_value"),
             )
             fiber1_id = cur.fetchone()[0]
-            
+
             cur.execute(
                 """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief)
                    VALUES ('fiber', %s, %s, %s, %s)""",
-                (fiber1_id, past, future, 0.9)
+                (fiber1_id, past, future, 0.9),
             )
-            
+
             # Fiber 2: entity1 -> value2 (valid from now to future+60)
             cur.execute(
                 "INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id",
-                (entity1_id, value2_id, "has_value")
+                (entity1_id, value2_id, "has_value"),
             )
             fiber2_id = cur.fetchone()[0]
-            
+
             cur.execute(
                 """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief)
                    VALUES ('fiber', %s, %s, %s, %s)""",
-                (fiber2_id, now, future + timedelta(days=60), 0.85)
+                (fiber2_id, now, future + timedelta(days=60), 0.85),
             )
-            
+
             # Create atoms with text contradictions
             cur.execute(
                 "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
-                ("Entity", "TestEntity2", "First version of text")
+                ("Entity", "TestEntity2", "First version of text"),
             )
             atom1_id = cur.fetchone()[0]
-            
+
             cur.execute(
                 "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
-                ("Entity", "TestEntity2", "Second version of text")
+                ("Entity", "TestEntity2", "Second version of text"),
             )
             atom2_id = cur.fetchone()[0]
-            
+
             # Add aspects with overlapping validity
             cur.execute(
                 """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief)
                    VALUES ('atom', %s, %s, %s, %s)""",
-                (atom1_id, past, now + timedelta(days=15), 0.8)
+                (atom1_id, past, now + timedelta(days=15), 0.8),
             )
-            
+
             cur.execute(
                 """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief)
                    VALUES ('atom', %s, %s, %s, %s)""",
-                (atom2_id, now, future, 0.75)
+                (atom2_id, now, future, 0.75),
             )
-    
+
     yield
-    
+
     # Cleanup after test
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
             cur.execute("DELETE FROM fibers")
-            cur.execute("DELETE FROM atoms WHERE label LIKE 'TestEntity%' OR label LIKE 'TestValue%'")
+            cur.execute(
+                "DELETE FROM atoms WHERE label LIKE 'TestEntity%' OR label LIKE 'TestValue%'"
+            )
 
 
 def test_detect_fiber_contradictions(setup_contradiction_data):
     """Test detection of fiber contradictions."""
     contradictions = detect_fiber_contradictions(subject_label="TestEntity1", predicate="has_value")
-    
+
     assert len(contradictions) >= 1
     contra = contradictions[0]
-    
+
     assert contra.subject_label == "TestEntity1"
     assert contra.predicate == "has_value"
     assert {contra.object1_label, contra.object2_label} == {"TestValue1", "TestValue2"}
@@ -126,10 +130,10 @@ def test_detect_fiber_contradictions(setup_contradiction_data):
 def test_detect_atom_text_contradictions(setup_contradiction_data):
     """Test detection of atom text contradictions."""
     contradictions = detect_atom_text_contradictions(kind="Entity", label="TestEntity2")
-    
+
     assert len(contradictions) >= 1
     contra = contradictions[0]
-    
+
     assert contra.subject_label == "TestEntity2"
     assert contra.predicate == "text_mismatch"
     assert "First version" in contra.object1_label or "Second version" in contra.object1_label
@@ -139,10 +143,10 @@ def test_detect_atom_text_contradictions(setup_contradiction_data):
 def test_detect_all_contradictions(setup_contradiction_data):
     """Test detection of all contradiction types."""
     contradictions = detect_all_contradictions(limit=100)
-    
+
     # Should find both fiber and atom contradictions
     assert len(contradictions) >= 2
-    
+
     # Check we have different types
     predicates = {c.predicate for c in contradictions}
     assert "has_value" in predicates or "text_mismatch" in predicates
@@ -156,58 +160,56 @@ def test_no_contradictions_without_overlap():
             cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
             cur.execute("DELETE FROM fibers")
             cur.execute("DELETE FROM atoms WHERE label = 'TestNoOverlap'")
-            
+
             # Create entity and values
             cur.execute(
                 "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id",
-                ("Entity", "TestNoOverlap")
+                ("Entity", "TestNoOverlap"),
             )
             entity_id = cur.fetchone()[0]
-            
+
             cur.execute(
-                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id",
-                ("Concept", "ValueA")
+                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id", ("Concept", "ValueA")
             )
             value_a_id = cur.fetchone()[0]
-            
+
             cur.execute(
-                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id",
-                ("Concept", "ValueB")
+                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id", ("Concept", "ValueB")
             )
             value_b_id = cur.fetchone()[0]
-            
+
             now = datetime.now(tz=UTC)
             past = now - timedelta(days=60)
             middle = now - timedelta(days=30)
-            
+
             # Fiber 1: valid from past to middle
             cur.execute(
                 "INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id",
-                (entity_id, value_a_id, "has_value")
+                (entity_id, value_a_id, "has_value"),
             )
             fiber1_id = cur.fetchone()[0]
             cur.execute(
                 """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief)
                    VALUES ('fiber', %s, %s, %s, %s)""",
-                (fiber1_id, past, middle, 0.9)
+                (fiber1_id, past, middle, 0.9),
             )
-            
+
             # Fiber 2: valid from middle+1 day to now (no overlap)
             cur.execute(
                 "INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id",
-                (entity_id, value_b_id, "has_value")
+                (entity_id, value_b_id, "has_value"),
             )
             fiber2_id = cur.fetchone()[0]
             cur.execute(
                 """INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to, belief)
                    VALUES ('fiber', %s, %s, %s, %s)""",
-                (fiber2_id, middle + timedelta(days=1), now, 0.85)
+                (fiber2_id, middle + timedelta(days=1), now, 0.85),
             )
-    
+
     # Should find no contradictions since ranges don't overlap
     contradictions = detect_fiber_contradictions(subject_label="TestNoOverlap")
     assert len(contradictions) == 0
-    
+
     # Cleanup
     with get_conn() as conn:
         with conn.cursor() as cur:
@@ -221,7 +223,7 @@ def test_detect_contradictions_with_filters():
     # Test with non-existent label should return empty
     contradictions = detect_fiber_contradictions(subject_label="NonExistentLabel")
     assert len(contradictions) == 0
-    
+
     # Test with non-existent predicate should return empty
     contradictions = detect_fiber_contradictions(predicate="non_existent_predicate")
     assert len(contradictions) == 0

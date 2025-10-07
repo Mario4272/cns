@@ -5,7 +5,9 @@ Validates simple JSON provenance fields and prints a summary for a given fiber i
 Usage:
   python scripts/prov_verify.py --fiber-id 123
 """
+
 from __future__ import annotations
+
 import argparse
 import json
 from typing import Any
