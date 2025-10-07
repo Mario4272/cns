@@ -17,7 +17,7 @@ def _run(cmd: list[str]) -> None:
 def ensure_db_and_demo_ready():
     # Skip Docker Compose if running in CI (GitHub Actions provides postgres service)
     is_ci = os.getenv("CI") == "true" or os.getenv("GITHUB_ACTIONS") == "true"
-    
+
     if not is_ci:
         # Clean up any existing containers first (handles port conflicts from previous runs)
         try:
