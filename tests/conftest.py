@@ -43,9 +43,16 @@ def ensure_db_and_demo_ready():
     py = sys.executable
     try:
         _run([py, "-m", "cns_py.storage.db", "--init"])
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
         # If already initialized, continue
+        print(f"Schema init returned non-zero (may already exist): {e}")
         pass
-    _run([py, "-m", "cns_py.demo.ingest"])
+
+    # Ingest demo data - fail loudly if this doesn't work
+    try:
+        _run([py, "-m", "cns_py.demo.ingest"])
+    except subprocess.CalledProcessError as e:
+        print(f"FATAL: Demo ingest failed: {e}")
+        raise
 
     yield
