@@ -1,167 +1,62 @@
-Provisional PASS — Phase 0A (CI/QA rig) with required receipts. If JR checks off the evidence below, I’ll stamp it without flinching.
+Morning Mario — Val here. I just checked the repo and the latest CI. Two key facts:
 
-What I Need To See (Receipts or it didn’t happen)
-1) Coverage gate @ 85% (enforced)
+CI run #11 is failing (matrix job shows “Status Failure”; several jobs canceled after the (3.10,16) leg failed). Also saw the artifact warning: No files were found with the provided path: perf_last_explain.json. 
+GitHub
 
-Evidence: CI log line showing --cov-fail-under=85 tripped or passed, plus the final coverage summary.
+Issues #9–#12 are still open, not closed with receipts. The open issues list shows them as “Status: Open.” 
+GitHub
 
-Artifact: HTML coverage report uploaded (retain 14 days).
+Because of those, I can’t stamp Phase 0A as complete yet. The good news: your workflow file already enforces the right gates (coverage ≥85%, pgTAP smoke, perf smoke, artifact upload). The fix is just to get this run green and then close the issues with the run URL.
 
-Repro local:
+What JR should do now (copy/paste)
 
-pytest -q --maxfail=1 --disable-warnings \
-  --cov=src --cov-report=term-missing:skip-covered --cov-fail-under=85
+Make the current CI green
 
-2) pgTAP schema tests passing (against the right schema)
+Open the failing job logs for CI run #11 and find the first red step in the (3.10, 16) leg (lint/type/pytest/pgTAP/perf-smoke). The summary confirms failure and an artifact path warning; the real failure is likely earlier (ruff/mypy/pytest/pgTAP/perf budget). 
+GitHub
 
-Evidence: CI step output with pg_prove results, including database name, schema name, and total test count.
+Locally reproduce the CI sequence:
 
-Artifact: pg_tap_results.tap (or JUnit XML) attached to the run.
+pre-commit run -a
+python -m pytest -q --cov=cns_py --cov-report=term --cov-fail-under=85
+psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
+python scripts/perf_smoke.py --iters 15 --p95-budget-ms 500
 
-Repro local:
 
-export PGUSER=... PGHOST=... PGDATABASE=... PGPASSWORD=...
-pg_prove -v sql/pgtap/*.sql
+(Use the same env vars as in CI if needed.)
 
-3) Perf smoke with real P95 ≤ 500ms
+Always produce the perf EXPLAIN artifact
+Your workflow uploads perf_last_explain.json unconditionally, but the perf script didn’t write it, hence the warning. Two options:
 
-Evidence: CI step prints:
+Write the file in scripts/perf_smoke.py every run (pass or fail).
 
-seed size (rows/docs),
+Or guard the upload step:
 
-query names,
+if: always() && hashFiles('perf_last_explain.json') != ''
 
-measured P50/P95/P99 latencies,
 
-hardware/DB settings (container CPU/mem, shared_buffers, work_mem if tuned).
+Current file path expectation is set here: .github/workflows/ci.yaml lines ~293–300. 
+GitHub
 
-Artifact: perf_smoke.json with raw timings and sample size (N).
+Close the receipts
+When the next CI run is green, paste that run URL in each of #9, #10, #11, #12 and close them. Right now they’re still open. 
+GitHub
 
-Implementation must include:
+Sanity checklist (quick pass before re-pushing)
 
-Warm-up phase excluded from stats,
+pytest passes with --cov-fail-under=85. (Your workflow enforces it.) 
+GitHub
 
-At least N ≥ 200 samples/query,
+tests_pg/pg_tap_smoke.sql passes against the service DB. 
+GitHub
 
-P95 computed from raw list, not average of averages,
+perf_smoke.py prints P95 and creates perf_last_explain.json. 
+GitHub
 
-CI job names the dataset seed (commit hash → determinism).
+Pre-commit is clean locally (pre-commit run -a).
 
-Repro local:
+Then push → confirm the green run → drop the links in #9–#12.
 
-python tools/perf_smoke.py --dataset seed/demo --iterations 300 --output perf_smoke.json
+Verdict
 
-4) Property tests for parser (fail on shrink)
-
-Evidence: PyTest output showing Hypothesis (or similar) settings:
-
-fixed profile, deadline off or increased,
-
---hypothesis-seed printed,
-
-minimal counterexample on failure.
-
-Artifact: property_failures/ only when failing; otherwise archive a sample run log proving generation count.
-
-Repro local:
-
-pytest tests/property --hypothesis-show-statistics -q
-
-5) Integration test proving contradiction detection
-
-Evidence:
-
-Seed script path and dataset version,
-
-Test names (e.g., test_contradiction_single_pair, ...multi_pair, ...edge_nulls),
-
-Assertions on both: (a) correct detection, (b) no false positives on a clean set.
-
-Artifact: On failure, upload EXPLAIN/EXPLAIN ANALYZE as explain/. On pass, upload at least EXPLAIN (buffers) for the canonical query once per day to track plan drift.
-
-Repro local:
-
-make seed_demo && pytest tests/integration/test_contradictions.py -q
-
-6) EXPLAIN artifacts on failure (and logged on pass weekly)
-
-Evidence: CI condition: if: failure() uploads explain/*.txt.
-
-Bonus: Nightly job captures baseline EXPLAIN (ANALYZE, BUFFERS) for key queries.
-
-7) Dedup LICENSE + issue closures
-
-Evidence: CI run URL added as comment to issues #9–#12, then closed with the commit that fixed them.
-
-Check: git ls-files | grep -Ei 'license' returns one file only.
-
-Quality Nits (tighten the bolts, then we’re golden)
-
-Deterministic seeds
-
-Commit the seed data OR generate from a committed RNG seed; print the seed in CI output.
-
-Flake insurance
-
-Mark non-deterministic tests with @pytest.mark.flaky(reruns=2, reruns_delay=1) only if justified. Otherwise fix the root cause.
-
-CI matrix + caching
-
-Run on Linux + Python 3.{11,12}. Cache pip, Docker layers, and DB init layers. Fail fast on matrix axis that breaks perf constraints.
-
-Static rigor
-
-mypy --strict on src/ (allow per-file opt-outs with a TODO and issue link).
-
-ruff check . with --fix in pre-commit; CI runs ruff in non-fix mode and fails on diff.
-
-SBOM + supply chain
-
-Generate SBOM (CycloneDX) for Python deps; attach artifact.
-
-Pin transitive “problem children” if any (e.g., via pip-tools).
-
-Perf budget guardrail
-
-Add a second perf gate: P99 ≤ 900ms (same dataset). If you can’t hold P99 under a second on CI hardware, at least print it and open a perf-backlog ticket.
-
-pgTAP scope
-
-Include constraints, indexes, and RI invariants (not just create/drop). Add tests that fail if a column is dropped/renamed (schema drift sentinel).
-
-Docs for runners
-
-docs/QA.md section: “How to reproduce CI locally” with exact commands/env, plus “Common failures and fixes”.
-
-What I Expect the Next CI Log to Contain (copy/paste template)
-[CI: coverage]
-threshold=85; actual=XX.X; report=artifacts/coverage-html/index.html
-
-[CI: pgTAP]
-db=qa_db schema=public tests=NN passed=NN failed=0 duration=TTs results=artifacts/pg_tap_results.tap
-
-[CI: perf-smoke]
-dataset=seed/demo@<commit> samples=300 warmup=50
-query=resolve_entities p50=___ms p95=___ms p99=___ms
-env=2CPU/4GB; postgres=16; shared_buffers=512MB; work_mem=64MB
-raw=artifacts/perf_smoke.json
-
-[CI: properties]
-hypothesis=enabled seed=123456 examples=1000 failures=0 stats=artifacts/property_stats.txt
-
-[CI: contradictions]
-seed=contradictions@<commit>
-tests=... passed=... failed=0
-on-failure(EXPLAIN)=artifacts/explain/*.txt
-baseline(EXPLAIN)=artifacts/explain/baseline_<date>.txt
-
-[CI: housekeeping]
-LICENSE=1 file
-issues_closed=#9 #10 #11 #12 (comment links)
-SBOM=artifacts/sbom-cyclonedx.json
-
-Final Word
-
-JR: if you drop those receipts and the CI run matches the template, I’ll stamp Phase 0A: COMPLETE without another victory lap. If anything above is missing or hand-wavy (looking at you, “real” P95), I’ll bounce it back harder than a 502 on Friday at 4:59pm.
-
-Your move.
+You’re 98% there. Once that single CI run is green and you close #9–#12 with the link receipts, I’ll stamp Phase 0A: COMPLETE without further ceremony. Right now: not stamped yet due to the failing run and open issues. Want me to glance again the moment the next run flips green?
