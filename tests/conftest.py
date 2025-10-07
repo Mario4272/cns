@@ -121,6 +121,23 @@ def ensure_db_and_demo_ready():
             for row in cur.fetchall():
                 print(f"  Fiber {row[0]}: {row[1]} --{row[2]}--> {row[3]}")
 
+            # Debug: Test the actual JOIN that's failing
+            cur.execute(
+                "SELECT f.id, a_src.label, f.predicate, a_dst.label, "
+                "asp.valid_from, asp.valid_to, asp.belief "
+                "FROM fibers f "
+                "JOIN atoms a_src ON a_src.id = f.src "
+                "JOIN atoms a_dst ON a_dst.id = f.dst "
+                "JOIN aspects asp ON asp.subject_kind='fiber' AND asp.subject_id=f.id "
+                "WHERE a_src.label = 'FrameworkX'"
+            )
+            print("[CONFTEST] JOIN test (FrameworkX fibers with aspects):")
+            for row in cur.fetchall():
+                print(
+                    f"  Fiber {row[0]}: {row[1]} --{row[2]}--> {row[3]}, "
+                    f"valid_from={row[4]}, valid_to={row[5]}, belief={row[6]}"
+                )
+
             if atom_count == 0:
                 raise RuntimeError("FATAL: Demo ingest succeeded but no atoms in database!")
 
