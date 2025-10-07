@@ -92,12 +92,13 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                     base_select + "WHERE a_src.label = %(label)s AND f.predicate = %(predicate)s"
                 )
                 test_params = {"label": q.label, "predicate": q.predicate}
+                print(f"[CQL DEBUG] Test SQL: {test_sql}")
+                print(f"[CQL DEBUG] Test params: {test_params}")
                 cur.execute(test_sql, test_params)
                 test_rows = cur.fetchall()
                 print(f"[CQL DEBUG] Without temporal filter: {len(test_rows)} rows")
                 for row in test_rows:
-                    vf = row[4] if len(row) > 4 else "N/A"
-                    print(f"  {row[0]} --{row[1]}--> {row[2]}, belief={row[3]}, valid_from={vf}")
+                    print(f"  Row: {row}")
 
             # Debug: print SQL and params to diagnose empty results
             print(f"[CQL DEBUG] SQL: {sql}")
