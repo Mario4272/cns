@@ -1,25 +1,27 @@
 """Property-based tests for CQL parser using hypothesis."""
-from hypothesis import given, strategies as st
+
+from hypothesis import given
+from hypothesis import strategies as st
 
 from cns_py.cql.parser import parse
 
-
 # Strategy for generating valid labels
-labels = st.text(min_size=1, max_size=50, alphabet=st.characters(
-    whitelist_categories=("Lu", "Ll", "Nd"),
-    whitelist_characters="_-"
-))
+labels = st.text(
+    min_size=1,
+    max_size=50,
+    alphabet=st.characters(whitelist_categories=("Lu", "Ll", "Nd"), whitelist_characters="_-"),
+)
 
 # Strategy for generating valid predicates
-predicates = st.text(min_size=1, max_size=30, alphabet=st.characters(
-    whitelist_categories=("Lu", "Ll", "Nd"),
-    whitelist_characters="_"
-))
+predicates = st.text(
+    min_size=1,
+    max_size=30,
+    alphabet=st.characters(whitelist_categories=("Lu", "Ll", "Nd"), whitelist_characters="_"),
+)
 
 # Strategy for generating valid ISO8601 timestamps
 timestamps = st.datetimes(
-    min_value=st.datetime(2000, 1, 1),
-    max_value=st.datetime(2030, 12, 31)
+    min_value=st.datetime(2000, 1, 1), max_value=st.datetime(2030, 12, 31)
 ).map(lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%SZ"))
 
 # Strategy for generating valid belief thresholds
@@ -94,7 +96,7 @@ def test_parse_empty_components():
     # Just MATCH with no other clauses
     result = parse('MATCH label="Test"')
     assert result.label == "Test"
-    
+
     # RETURN without MATCH should still parse (even if semantically invalid)
-    result = parse('RETURN EXPLAIN')
+    result = parse("RETURN EXPLAIN")
     assert result.explain is True

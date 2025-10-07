@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import time
 from dataclasses import asdict
 from datetime import datetime
@@ -7,9 +8,10 @@ from typing import Any, Dict, List, Optional, Tuple
 from dateutil.parser import isoparse
 
 from cns_py.storage.db import get_conn
+
 from .belief import compute as belief_compute
 from .parser import CqlQuery
-from .types import Provenance, ExplainStep, ExplainReport, ResultItem
+from .types import ExplainReport, ExplainStep, Provenance, ResultItem
 
 
 def _asof_bounds(asof_iso: Optional[str]) -> Tuple[Optional[datetime], Optional[datetime]]:
@@ -33,9 +35,11 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     t_mask0 = time.perf_counter()
     ts_from, ts_to = _asof_bounds(q.asof_iso)
     t_mask1 = time.perf_counter()
-    steps.append(ExplainStep(name="temporal_mask", ms=(t_mask1 - t_mask0) * 1000.0, extra={
-        "asof": q.asof_iso
-    }))
+    steps.append(
+        ExplainStep(
+            name="temporal_mask", ms=(t_mask1 - t_mask0) * 1000.0, extra={"asof": q.asof_iso}
+        )
+    )
 
     # Step 3: graph traverse and filters
     t_trav0 = time.perf_counter()
@@ -84,7 +88,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
         with conn.cursor() as cur:
             try:
                 cur.execute(sql, params)
-            except Exception as e:
+            except Exception:
                 # Debug output to help diagnose SQL/params issues during early Phase 1
                 debug = {
                     "sql": sql,
@@ -120,7 +124,15 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                         )
                     )
                 else:
-                    prov.append(Provenance(source_id=f"fiber:{fiber_id}", uri=None, line_span=None, fetched_at=None, hash=None))
+                    prov.append(
+                        Provenance(
+                            source_id=f"fiber:{fiber_id}",
+                            uri=None,
+                            line_span=None,
+                            fetched_at=None,
+                            hash=None,
+                        )
+                    )
 
                 results.append(
                     ResultItem(
@@ -134,18 +146,22 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 )
 
     t_trav1 = time.perf_counter()
-    steps.append(ExplainStep(name="graph_traverse", ms=(t_trav1 - t_trav0) * 1000.0, extra={
-        "rows": len(results)
-    }))
+    steps.append(
+        ExplainStep(
+            name="graph_traverse", ms=(t_trav1 - t_trav0) * 1000.0, extra={"rows": len(results)}
+        )
+    )
 
     # Belief compute step (aggregate)
     extra = {"items": belief_items}
     if belief_items > 0:
-        extra.update({
-            "avg_base_belief": _sum_base / belief_items,
-            "avg_confidence": _sum_conf / belief_items,
-            "avg_recency": _sum_rec / belief_items,
-        })
+        extra.update(
+            {
+                "avg_base_belief": _sum_base / belief_items,
+                "avg_confidence": _sum_conf / belief_items,
+                "avg_recency": _sum_rec / belief_items,
+            }
+        )
     steps.append(ExplainStep(name="belief_compute", ms=0.0, extra=extra))
 
     total_ms = (time.perf_counter() - t0) * 1000.0
@@ -173,5 +189,6 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
 
 def cql(query: str) -> Dict[str, Any]:
     from .parser import parse
+
     q = parse(query)
     return execute(q)

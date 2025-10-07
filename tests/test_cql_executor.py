@@ -1,5 +1,6 @@
 import json
 import os
+
 from cns_py.cql.executor import cql
 
 
@@ -46,6 +47,7 @@ def test_cql_golden_belief_empty():
     assert "results" in out
     if g.get("expect_empty"):
         assert len(out["results"]) == 0
+
 
 def test_cql_golden_asof_2024():
     g = load_golden("cql_asof_2024.json")

@@ -1,8 +1,9 @@
 from datetime import datetime
+
 from dateutil.tz import UTC
+from psycopg.types.json import Json
 
 from cns_py.storage.db import get_conn
-from psycopg.types.json import Json
 
 
 def upsert_atom(cur, kind: str, label: str, text: str | None = None):
@@ -23,10 +24,16 @@ def upsert_atom(cur, kind: str, label: str, text: str | None = None):
     return cur.fetchone()[0]
 
 
-def link_with_validity(cur, src_id: int, dst_id: int, predicate: str,
-                        valid_from: datetime | None, valid_to: datetime | None,
-                        belief: float | None = 1.0,
-                        provenance: dict | None = None):
+def link_with_validity(
+    cur,
+    src_id: int,
+    dst_id: int,
+    predicate: str,
+    valid_from: datetime | None,
+    valid_to: datetime | None,
+    belief: float | None = 1.0,
+    provenance: dict | None = None,
+):
     cur.execute(
         """
         INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id
