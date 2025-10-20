@@ -12,7 +12,7 @@ CNS stores and reasons over **Atoms** (facts, entities, rules, programs) and **F
 * `provenance` — signed source chains
 * `tape` — bitemporal: `valid_from`, `valid_to`, `observed_at`
 
-Learning happens **inside** the store (entity resolution, contradiction detection, summarization, belief updates) and is addressable via **CQL**, a cognition query language blending similarity, structure, time, and executable rules.
+Learning happens **inside** the store (resolution, contradiction detection, summarization, belief updates) and is addressable via **CQL**, a cognition query language blending similarity, structure, time, and executable rules.
 
 ---
 
