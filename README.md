@@ -164,7 +164,7 @@ cp .env.example .env
 
 ## Learning jobs (in-store)
 
-* **ER**: semantic + symbolic + graph features → merge/same-as fibers
+* **Resolution**: semantic + symbolic + graph features → merge/same-as fibers
 * **Contradiction detection**: rule-backed diffs over overlapping `tape_valid`
 * **Summarization**: compress neighborhood → `summary` atoms with provenance
 * **Belief update**: scheduled recalculation after new evidence
