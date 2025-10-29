@@ -113,7 +113,7 @@ Copy the example and adjust:
 ```bash
 cp .env.example .env
 # minimally set:
-# CNS_DB_URL=postgres://cns:cns@localhost:5432/cns?sslmode=disable
+# CNS_DB_URL=postgres://cns:cns@localhost:5432/cns?sslmode=disable  # pragma: allowlist secret
 # CNS_API_PORT=8080
 # CNS_VECTOR_DIMS=1536
 ```

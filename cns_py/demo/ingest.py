@@ -100,7 +100,7 @@ def main() -> None:
                 belief=0.98,
             )
 
-    print("Demo data ingested: FrameworkX → TLS1.2 before 2025, TLS1.3 after 2025.")
+    print("Demo data ingested: FrameworkX -> TLS1.2 before 2025, TLS1.3 after 2025.")
 
 
 if __name__ == "__main__":

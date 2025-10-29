@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 import psycopg
@@ -9,11 +9,24 @@ import psycopg
 
 @dataclass
 class DbConfig:
-    host: str = os.getenv("CNS_DB_HOST", "127.0.0.1")
-    port: int = int(os.getenv("CNS_DB_PORT", "5433"))
-    dbname: str = os.getenv("CNS_DB_NAME", "cns")
-    user: str = os.getenv("CNS_DB_USER", "cns")
-    password: str = os.getenv("CNS_DB_PASSWORD", "cns")
+    host: Optional[str] = field(default=None)
+    port: Optional[int] = field(default=None)
+    dbname: Optional[str] = field(default=None)
+    user: Optional[str] = field(default=None)
+    password: Optional[str] = field(default=None)
+
+    def __post_init__(self) -> None:
+        # Resolve from environment at instantiation time (supports per-test overrides)
+        if self.host is None:
+            self.host = os.getenv("CNS_DB_HOST", "127.0.0.1")
+        if self.port is None:
+            self.port = int(os.getenv("CNS_DB_PORT", "5433"))
+        if self.dbname is None:
+            self.dbname = os.getenv("CNS_DB_NAME", "cns")
+        if self.user is None:
+            self.user = os.getenv("CNS_DB_USER", "cns")
+        if self.password is None:
+            self.password = os.getenv("CNS_DB_PASSWORD", "cns")
 
 
 def get_conn(cfg: Optional[DbConfig] = None) -> psycopg.Connection:

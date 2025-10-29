@@ -1,0 +1,4 @@
+# file: C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\cql\executor.py
+# hypothesis_version: 6.142.4
+
+[0.0, 1000.0, ' AND ', 'FrameworkX', 'WHERE ', 'after', 'ann_shortlist', 'asof', 'avg_base_belief', 'avg_confidence', 'avg_recency', 'before', 'belief_compute', 'belief_ge', 'belief_terms', 'confidence', 'explain', 'fetched_at', 'graph_traverse', 'hash', 'items', 'label', 'line_span', 'object_label', 'params', 'predicate', 'provenance', 'recency', 'results', 'rows', 'source_id', 'sql', 'steps', 'subject_label', 'temporal_mask', 'terms', 'total_ms', 'ts_from', 'ts_to', 'uri']

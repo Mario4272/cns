@@ -3,6 +3,12 @@
 Owner: JR (+ Val/Mario as backseat drivers)  
 Goal: Ship a cognition-native substrate that proves value over “just a DB” in 90 days, then harden.
 
+## Project Overview
+Short orientation and pointers to canonical docs:
+- Vision: see `docs/01-vision.md`.
+- Architecture: see `docs/02-architecture.md`.
+- Roadmap: this document is the single source of truth.
+
 ---
 
 ## Phase 0 — Bootstrap (Week 0) ✅ COMPLETE
@@ -215,9 +221,8 @@ make e2e          # Playwright demo script
 - Bundles: parameterize size/coverage; auto-demotion heuristics.
 - Flight integration: columnar result frames; zero-copy to frontend.
 - Security: signed provenance toggle; export scrubber (license-aware).
-  208→- Visualization: saved layouts; provenance color filters; “why/why-not” overlays.
-  209→
-  210→
+- Visualization: saved layouts; provenance color filters; “why/why-not” overlays.
+
 ---
 
 # Global Contracts
@@ -238,3 +243,37 @@ make e2e          # Playwright demo script
 ### 4. Hypothesis vs Claim
 - Claim requires provenance and is returned by default.
 - Hypothesis mode (off by default) can surface unproven suggestions; must be clearly labeled and carry separate priors.
+
+---
+
+## Appendix: Phase 0A Receipts (Summary)
+
+- Coverage gate ≥ 85%
+  - Command: `pytest --cov=cns_py --cov-report=xml --cov-report=html --cov-fail-under=85`
+  - Artifacts: `coverage-reports-*/coverage.xml`, `coverage-reports-*/htmlcov/`
+
+- pgTAP schema tests
+  - Command: `psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql`
+  - Artifact: `pgtap-results-*/pg_tap_results.tap`
+
+- Performance smoke (P95 ≤ 500ms; P99 ≤ 900ms)
+  - Command: `python scripts/perf_smoke.py --iters 300 --warmup 50 --p95-budget-ms 500 --p99-budget-ms 900`
+  - Example output:
+    ```
+    [CI: perf-smoke]
+    dataset=seed/demo@HEAD samples=300 warmup=50
+    query=resolve_entities p50=XXms p95=XXms p99=XXms
+    env=2CPU/4GB; postgres=16; shared_buffers=512MB; work_mem=64MB
+    raw=artifacts/perf_smoke.json
+    ```
+
+- Property tests (Hypothesis)
+  - Command: `pytest --hypothesis-show-statistics --hypothesis-seed=123456`
+
+- Contradictions integration
+  - Test: `tests/test_contradiction_integration.py` (generates EXPLAIN on failure)
+
+- SBOM & housekeeping
+  - Command: `cyclonedx-py -o sbom-cyclonedx.json`
+
+- CI Run URL: [Pending]

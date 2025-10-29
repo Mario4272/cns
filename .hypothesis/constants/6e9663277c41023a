@@ -1,0 +1,4 @@
+# file: C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\cql\contradict.py
+# hypothesis_version: 6.142.4
+
+[100, ' AND ', 'a1.kind = %(kind)s', 'a1.label = %(label)s', 'kind', 'label', 'predicate', 'subject_label', 'text_mismatch']

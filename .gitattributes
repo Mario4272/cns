@@ -1,0 +1,41 @@
+# Normalize text files to LF in repo, and let Git convert on checkout per core.autocrlf if desired
+* text=auto eol=lf
+
+# Explicitly enforce LF for source files
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.sql text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=lf
+*.psm1 text eol=lf
+*.psd1 text eol=lf
+*.json text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+
+# Mark binaries to avoid EOL/encoding transforms
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.7z binary
+*.mp4 binary
+*.mov binary
+
+# Keep generated coverage and artifacts unmodified
+coverage-*/** -text
+perf-*/** -text
+artifacts/** -text
