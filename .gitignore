@@ -38,3 +38,6 @@ cns.egg-info/
 artifacts/
 sbom-cyclonedx.json
 
+# Local temp files
+comment*.txt
+
