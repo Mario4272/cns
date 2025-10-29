@@ -178,13 +178,14 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
             "after": float(conf),
             "terms": dict(details),
         }
+        prov_dict: Dict[str, Any] = prov_json if isinstance(prov_json, dict) else {}
         prov: List[Provenance] = [
             Provenance(
-                source_id=prov_json.get("source_id") or f"fiber:{fiber_id}",
-                uri=prov_json.get("uri"),
-                line_span=prov_json.get("line_span"),
-                fetched_at=prov_json.get("fetched_at"),
-                hash=prov_json.get("hash"),
+                source_id=prov_dict.get("source_id") or f"fiber:{fiber_id}",
+                uri=prov_dict.get("uri"),
+                line_span=prov_dict.get("line_span"),
+                fetched_at=prov_dict.get("fetched_at"),
+                hash=prov_dict.get("hash"),
             )
         ]
         results.append(
