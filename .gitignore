@@ -2,6 +2,9 @@
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Rust/Build
 target/
@@ -18,4 +21,20 @@ cns_pg/
 
 # Logs
 .logs/
+
+# Test/Perf artifacts
+.hypothesis/
+htmlcov/
+coverage.xml
+coverage-*/
+perf_last_explain.json
+perf_summary.md
+pg_tap_results.tap
+
+# Packaging metadata
+cns.egg-info/
+
+# CI artifacts
+artifacts/
+sbom-cyclonedx.json
 
