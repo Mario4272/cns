@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: cns
       POSTGRES_USER: cns
-      POSTGRES_PASSWORD: cns
+      POSTGRES_PASSWORD: cns  # pragma: allowlist secret
     ports:
       - "5433:5432"
     volumes:

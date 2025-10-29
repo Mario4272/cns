@@ -82,7 +82,7 @@ start htmlcov/index.html  # Windows
 
 **CI Command:**
 ```bash
-psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
+psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql  # pragma: allowlist secret
 ```
 
 **Local Reproduction:**
@@ -91,7 +91,7 @@ psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
 make up
 
 # Run pgTAP tests
-psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql
+psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql  # pragma: allowlist secret
 
 # Or use pg_prove (if installed)
 pg_prove -U cns -h 127.0.0.1 -p 5433 -d cns tests_pg/*.sql

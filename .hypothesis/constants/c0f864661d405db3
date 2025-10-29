@@ -1,0 +1,4 @@
+# file: C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\storage\db.py
+# hypothesis_version: 6.142.4
+
+['--init', '127.0.0.1', '5433', 'CNS DB utilities', 'CNS_DB_HOST', 'CNS_DB_NAME', 'CNS_DB_PASSWORD', 'CNS_DB_PORT', 'CNS_DB_USER', 'Initialize schema', '__main__', 'cns', 'store_true']

@@ -10,6 +10,7 @@
   "python.testing.pytestArgs": [
     "tests"
   ],
+  "python.testing.pytestPath": "${workspaceFolder}/.venv/Scripts/pytest.exe",
   "python.linting.enabled": true,
   "python.linting.ruffEnabled": true,
   "python.formatting.provider": "black",

@@ -16,9 +16,23 @@ def setup_contradiction_data():
     """Set up test data with known contradictions."""
     with get_conn() as conn:
         with conn.cursor() as cur:
-            # Clean up any existing test data
-            cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
-            cur.execute("DELETE FROM fibers")
+            # Clean up any existing test data (scoped to this test labels only)
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN ("
+                " SELECT f.id FROM fibers f "
+                " JOIN atoms a_src ON a_src.id=f.src "
+                " JOIN atoms a_dst ON a_dst.id=f.dst "
+                " WHERE a_src.label LIKE 'TestEntity%' OR a_dst.label LIKE 'TestValue%')"
+            )
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN ("
+                " SELECT a.id FROM atoms a WHERE a.label LIKE 'TestEntity%')"
+            )
+            cur.execute(
+                "DELETE FROM fibers USING atoms a_src, atoms a_dst "
+                " WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst "
+                " AND (a_src.label LIKE 'TestEntity%' OR a_dst.label LIKE 'TestValue%')"
+            )
             cur.execute(
                 "DELETE FROM atoms WHERE label LIKE 'TestEntity%' OR label LIKE 'TestValue%'"
             )
@@ -102,11 +116,24 @@ def setup_contradiction_data():
 
     yield
 
-    # Cleanup after test
+    # Cleanup after test (scoped)
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
-            cur.execute("DELETE FROM fibers")
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN ("
+                " SELECT f.id FROM fibers f JOIN atoms a_src ON a_src.id=f.src "
+                " JOIN atoms a_dst ON a_dst.id=f.dst "
+                " WHERE a_src.label LIKE 'TestEntity%' OR a_dst.label LIKE 'TestValue%')"
+            )
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN ("
+                " SELECT a.id FROM atoms a WHERE a.label LIKE 'TestEntity%')"
+            )
+            cur.execute(
+                "DELETE FROM fibers USING atoms a_src, atoms a_dst "
+                " WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst "
+                " AND (a_src.label LIKE 'TestEntity%' OR a_dst.label LIKE 'TestValue%')"
+            )
             cur.execute(
                 "DELETE FROM atoms WHERE label LIKE 'TestEntity%' OR label LIKE 'TestValue%'"
             )
@@ -156,10 +183,23 @@ def test_no_contradictions_without_overlap():
     """Test that non-overlapping temporal ranges don't trigger contradictions."""
     with get_conn() as conn:
         with conn.cursor() as cur:
-            # Clean up
-            cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
-            cur.execute("DELETE FROM fibers")
-            cur.execute("DELETE FROM atoms WHERE label = 'TestNoOverlap'")
+            # Clean up (scoped)
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN ("
+                " SELECT f.id FROM fibers f JOIN atoms a_src ON a_src.id=f.src "
+                " JOIN atoms a_dst ON a_dst.id=f.dst "
+                " WHERE a_src.label = 'TestNoOverlap' OR a_dst.label IN ('ValueA','ValueB'))"
+            )
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN ("
+                " SELECT a.id FROM atoms a WHERE a.label IN ('TestNoOverlap','ValueA','ValueB'))"
+            )
+            cur.execute(
+                "DELETE FROM fibers USING atoms a_src, atoms a_dst "
+                " WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst "
+                " AND (a_src.label='TestNoOverlap' OR a_dst.label IN ('ValueA','ValueB'))"
+            )
+            cur.execute("DELETE FROM atoms WHERE label IN ('TestNoOverlap','ValueA','ValueB')")
 
             # Create entity and values
             cur.execute(
@@ -210,11 +250,24 @@ def test_no_contradictions_without_overlap():
     contradictions = detect_fiber_contradictions(subject_label="TestNoOverlap")
     assert len(contradictions) == 0
 
-    # Cleanup
+    # Cleanup (scoped)
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
-            cur.execute("DELETE FROM fibers")
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN ("
+                " SELECT f.id FROM fibers f JOIN atoms a_src ON a_src.id=f.src "
+                " JOIN atoms a_dst ON a_dst.id=f.dst "
+                " WHERE a_src.label='TestNoOverlap' OR a_dst.label IN ('ValueA','ValueB'))"
+            )
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN ("
+                " SELECT a.id FROM atoms a WHERE a.label IN ('TestNoOverlap','ValueA','ValueB'))"
+            )
+            cur.execute(
+                "DELETE FROM fibers USING atoms a_src, atoms a_dst "
+                " WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst "
+                " AND (a_src.label='TestNoOverlap' OR a_dst.label IN ('ValueA','ValueB'))"
+            )
             cur.execute("DELETE FROM atoms WHERE label IN ('TestNoOverlap', 'ValueA', 'ValueB')")
 
 

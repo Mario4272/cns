@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: cns
+Version: 0.0.1
+Summary: Cognition-Native Store
+Requires-Python: >=3.10
+License-File: LICENSE
+Requires-Dist: psycopg[binary]>=3.1
+Requires-Dist: pgvector>=0.2.5
+Requires-Dist: python-dateutil>=2.9.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.2.0; extra == "dev"
+Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
+Requires-Dist: hypothesis>=6.112.0; extra == "dev"
+Requires-Dist: testcontainers[postgres]>=4.9.0; extra == "dev"
+Requires-Dist: ruff>=0.6.9; extra == "dev"
+Requires-Dist: black>=24.8.0; extra == "dev"
+Requires-Dist: mypy>=1.10.0; extra == "dev"
+Requires-Dist: types-python-dateutil>=2.8.0; extra == "dev"
+Dynamic: license-file

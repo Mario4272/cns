@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from dateutil.parser import isoparse
 
+from cns_py import config as cns_config
 from cns_py.storage.db import get_conn
 
 from .belief import compute as belief_compute
@@ -24,6 +25,21 @@ def _asof_bounds(asof_iso: Optional[str]) -> Tuple[Optional[datetime], Optional[
 def execute(q: CqlQuery) -> Dict[str, Any]:
     steps: List[ExplainStep] = []
     t0 = time.perf_counter()
+
+    # Planner step (simple heuristic estimates for now)
+    plan_extra: Dict[str, Any] = {}
+    if q.label:
+        plan_extra["filter_label"] = q.label
+    if q.predicate:
+        plan_extra["predicate"] = q.predicate
+    if q.asof_iso:
+        plan_extra["asof"] = q.asof_iso
+    if q.belief_ge is not None:
+        plan_extra["belief_ge"] = q.belief_ge
+    # naive estimates
+    plan_extra["est_base"] = 1 if q.label else 10
+    plan_extra["est_fanout"] = 2 if q.predicate else 5
+    steps.append(ExplainStep(name="planner", ms=0.0, extra=plan_extra))
 
     # Step 1: ANN shortlist (placeholder for Phase 1; 0ms)
     t_ann0 = time.perf_counter()
@@ -54,7 +70,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
         "FROM fibers f "
         "JOIN atoms a_src ON a_src.id = f.src "
         "JOIN atoms a_dst ON a_dst.id = f.dst "
-        "JOIN aspects asp ON asp.subject_kind='fiber' AND asp.subject_id=f.id "
+        "LEFT JOIN aspects asp ON asp.subject_kind='fiber' AND asp.subject_id=f.id "
     )
     where_clauses: list[str] = []
     params: dict[str, object] = {}
@@ -68,7 +84,9 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     if ts_from is not None:
         where_clauses.append("COALESCE(asp.valid_from, '-infinity'::timestamptz) <= %(ts_from)s")
         params["ts_from"] = ts_from
-        where_clauses.append("COALESCE(asp.valid_to,   'infinity'::timestamptz)  >  %(ts_to)s")
+        # Configurable end boundary predicate
+        end_pred = cns_config.temporal_predicate()
+        where_clauses.append(end_pred)
         params["ts_to"] = ts_to
     if q.belief_ge is not None:
         where_clauses.append("COALESCE(asp.belief, 0.0) >= %(belief_ge)s")
@@ -80,10 +98,9 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     sql += "ORDER BY COALESCE(asp.belief, 0.0) DESC LIMIT 100"
 
     results: List[ResultItem] = []
-    belief_items = 0
-    _sum_base = 0.0
-    _sum_conf = 0.0
-    _sum_rec = 0.0
+    raw_rows: List[
+        Tuple[str, str, str, float, Optional[datetime], Optional[Dict[str, Any]], int]
+    ] = []
     with get_conn() as conn:
         with conn.cursor() as cur:
             # Debug: Test if the query works without temporal filter
@@ -117,50 +134,15 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
             print(f"[CQL DEBUG] Rows returned: {len(rows)}")
             for row in rows:
                 subj, pred, obj, base_conf, observed_at, prov_json, fiber_id = row
-                # Belief v0 compute
-                conf, details = belief_compute(base_conf, observed_at)
-                belief_items += 1
-                try:
-                    _sum_base += float(base_conf or 0.0)
-                except Exception:
-                    pass
-                _sum_conf += float(conf)
-                try:
-                    _sum_rec += float(details.get("recency", 0.0))
-                except Exception:
-                    pass
-
-                # Provenance enrichment
-                prov: List[Provenance] = []
-                if prov_json and isinstance(prov_json, dict):
-                    prov.append(
-                        Provenance(
-                            source_id=prov_json.get("source_id") or f"fiber:{fiber_id}",
-                            uri=prov_json.get("uri"),
-                            line_span=prov_json.get("line_span"),
-                            fetched_at=prov_json.get("fetched_at"),
-                            hash=prov_json.get("hash"),
-                        )
-                    )
-                else:
-                    prov.append(
-                        Provenance(
-                            source_id=f"fiber:{fiber_id}",
-                            uri=None,
-                            line_span=None,
-                            fetched_at=None,
-                            hash=None,
-                        )
-                    )
-
-                results.append(
-                    ResultItem(
-                        subject_label=subj,
-                        predicate=pred,
-                        object_label=obj,
-                        confidence=conf,
-                        provenance=prov,
-                        belief_details=details,
+                raw_rows.append(
+                    (
+                        subj,
+                        pred,
+                        obj,
+                        float(base_conf or 0.0),
+                        observed_at,
+                        prov_json,
+                        int(fiber_id),
                     )
                 )
 
@@ -171,8 +153,52 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
         )
     )
 
-    # Belief compute step (aggregate)
-    extra: Dict[str, Any] = {"items": belief_items}
+    # Belief compute step (aggregate) with timing and citations enforcement
+    t_bel0 = time.perf_counter()
+    belief_items = 0
+    _sum_base = 0.0
+    _sum_conf = 0.0
+    _sum_rec = 0.0
+    belief_terms: Dict[int, Dict[str, Any]] = {}
+    for subj, pred, obj, base_conf, observed_at, prov_json, fiber_id in raw_rows:
+        # Enforce citations: require provenance JSON dict with at least one informative field
+        has_citation = isinstance(prov_json, dict) and (
+            bool(prov_json.get("source_id")) or bool(prov_json.get("uri"))
+        )
+        if not has_citation:
+            continue
+        conf, details = belief_compute(base_conf, observed_at)
+        belief_items += 1
+        _sum_base += float(base_conf or 0.0)
+        _sum_conf += float(conf)
+        _sum_rec += float(details.get("recency", 0.0))
+        # record terms breakdown by fiber_id
+        belief_terms[fiber_id] = {
+            "before": float(base_conf or 0.0),
+            "after": float(conf),
+            "terms": dict(details),
+        }
+        prov: List[Provenance] = [
+            Provenance(
+                source_id=prov_json.get("source_id") or f"fiber:{fiber_id}",
+                uri=prov_json.get("uri"),
+                line_span=prov_json.get("line_span"),
+                fetched_at=prov_json.get("fetched_at"),
+                hash=prov_json.get("hash"),
+            )
+        ]
+        results.append(
+            ResultItem(
+                subject_label=subj,
+                predicate=pred,
+                object_label=obj,
+                confidence=conf,
+                provenance=prov,
+                belief_details=details,
+            )
+        )
+    t_bel1 = time.perf_counter()
+    extra: Dict[str, Any] = {"items": belief_items, "belief_terms": belief_terms}
     if belief_items > 0:
         extra.update(
             {
@@ -181,7 +207,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 "avg_recency": _sum_rec / belief_items,
             }
         )
-    steps.append(ExplainStep(name="belief_compute", ms=0.0, extra=extra))
+    steps.append(ExplainStep(name="belief_compute", ms=(t_bel1 - t_bel0) * 1000.0, extra=extra))
 
     total_ms = (time.perf_counter() - t0) * 1000.0
     report = ExplainReport(steps=steps, total_ms=total_ms)

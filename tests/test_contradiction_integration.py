@@ -16,9 +16,24 @@ def seed_contradiction_scenario():
     """Seed a realistic contradiction scenario for testing."""
     with get_conn() as conn:
         with conn.cursor() as cur:
-            # Clean up any existing test data
-            cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
-            cur.execute("DELETE FROM fibers")
+            # Clean up any existing test data (scoped to this test labels only)
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN ("
+                " SELECT f.id FROM fibers f "
+                " JOIN atoms a_src ON a_src.id=f.src "
+                " JOIN atoms a_dst ON a_dst.id=f.dst "
+                " WHERE a_src.label LIKE 'TestFramework%' OR a_dst.label LIKE 'TestTLS%')"
+            )
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN ("
+                " SELECT a.id FROM atoms a WHERE label LIKE 'TestFramework%' "
+                " OR label LIKE 'TestTLS%')"
+            )
+            cur.execute(
+                "DELETE FROM fibers USING atoms a_src, atoms a_dst "
+                " WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst "
+                " AND (a_src.label LIKE 'TestFramework%' OR a_dst.label LIKE 'TestTLS%')"
+            )
             cur.execute(
                 "DELETE FROM atoms WHERE label LIKE 'TestFramework%' OR label LIKE 'TestTLS%'"
             )
@@ -228,12 +243,29 @@ def test_no_contradiction_without_overlap():
     """Test that non-overlapping temporal ranges don't trigger false positives."""
     with get_conn() as conn:
         with conn.cursor() as cur:
-            # Clean up
-            cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
-            cur.execute("DELETE FROM fibers")
-            cur.execute("DELETE FROM atoms WHERE label = 'TestNoConflict'")
+            # Clean up (scoped to this test's labels only)
+            cur.execute(
+                """DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN (
+                SELECT f.id FROM fibers f 
+                JOIN atoms a_src ON a_src.id=f.src 
+                JOIN atoms a_dst ON a_dst.id=f.dst 
+                WHERE a_src.label='TestNoConflict' OR a_dst.label IN ('TLS1.2_NC','TLS1.3_NC'))"""
+            )
+            cur.execute(
+                """DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN (
+                SELECT a.id FROM atoms a 
+                WHERE label IN ('TestNoConflict','TLS1.2_NC','TLS1.3_NC'))"""
+            )
+            cur.execute(
+                """DELETE FROM fibers USING atoms a_src, atoms a_dst 
+                WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst 
+                AND (a_src.label='TestNoConflict' OR a_dst.label IN ('TLS1.2_NC','TLS1.3_NC'))"""
+            )
+            cur.execute(
+                """DELETE FROM atoms WHERE label IN ('TestNoConflict', 'TLS1.2_NC', 'TLS1.3_NC')"""
+            )
 
-            # Create framework and TLS versions
+            # Create framework and TLS versions (scoped labels to avoid touching global demo atoms)
             cur.execute(
                 "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id",
                 ("Entity", "TestNoConflict"),
@@ -241,12 +273,14 @@ def test_no_contradiction_without_overlap():
             framework_id = cur.fetchone()[0]
 
             cur.execute(
-                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id", ("Concept", "TLS1.2")
+                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id",
+                ("Concept", "TLS1.2_NC"),
             )
             tls12_id = cur.fetchone()[0]
 
             cur.execute(
-                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id", ("Concept", "TLS1.3")
+                "INSERT INTO atoms(kind, label) VALUES (%s, %s) RETURNING id",
+                ("Concept", "TLS1.3_NC"),
             )
             tls13_id = cur.fetchone()[0]
 
@@ -282,9 +316,26 @@ def test_no_contradiction_without_overlap():
     contradictions = detect_fiber_contradictions(subject_label="TestNoConflict")
     assert len(contradictions) == 0
 
-    # Cleanup
+    # Cleanup (scoped to this test's atoms)
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("DELETE FROM aspects WHERE subject_kind IN ('atom', 'fiber')")
-            cur.execute("DELETE FROM fibers")
-            cur.execute("DELETE FROM atoms WHERE label IN ('TestNoConflict', 'TLS1.2', 'TLS1.3')")
+            cur.execute(
+                """DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN (
+                SELECT f.id FROM fibers f 
+                JOIN atoms a_src ON a_src.id=f.src 
+                JOIN atoms a_dst ON a_dst.id=f.dst 
+                WHERE a_src.label='TestNoConflict' OR a_dst.label IN ('TLS1.2_NC','TLS1.3_NC'))"""
+            )
+            cur.execute(
+                """DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN (
+                SELECT a.id FROM atoms a 
+                WHERE label IN ('TestNoConflict','TLS1.2_NC','TLS1.3_NC'))"""
+            )
+            cur.execute(
+                """DELETE FROM fibers USING atoms a_src, atoms a_dst 
+                WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst 
+                AND (a_src.label='TestNoConflict' OR a_dst.label IN ('TLS1.2_NC','TLS1.3_NC'))"""
+            )
+            cur.execute(
+                "DELETE FROM atoms WHERE label IN ('TestNoConflict', 'TLS1.2_NC', 'TLS1.3_NC')"
+            )
