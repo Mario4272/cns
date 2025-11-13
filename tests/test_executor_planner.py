@@ -16,17 +16,17 @@ def test_explain_contains_planner_step_with_estimates_and_params():
     )
     assert "explain" in out
     steps = _steps_by_name(out["explain"])
-    # Planner step is expected; if present, validate structure
-    if "planner" in steps:
-        planner = steps["planner"]
-        assert planner.get("ms") is not None
-        extra = planner.get("extra", {})
-        # Heuristic estimates
-        assert "est_base" in extra
-        assert "est_fanout" in extra
-        # Query parameters echoed back for explain readability (when present)
-        for key in ("label", "predicate", "asof"):
-            if key in extra:
-                assert extra[key] is not None
-        if "belief_ge" in extra:
-            assert isinstance(extra["belief_ge"], (int, float))
+    # Planner step is required and must have structure
+    assert "planner" in steps
+    planner = steps["planner"]
+    assert planner.get("ms") is not None
+    extra = planner.get("extra", {})
+    # Heuristic estimates
+    assert "est_base" in extra
+    assert "est_fanout" in extra
+    # Query parameters echoed back for explain readability (when present)
+    for key in ("label", "predicate", "asof"):
+        if key in extra:
+            assert extra[key] is not None
+    if "belief_ge" in extra:
+        assert isinstance(extra["belief_ge"], (int, float))
