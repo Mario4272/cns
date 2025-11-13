@@ -29,7 +29,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     # Planner step (simple heuristic estimates for now)
     plan_extra: Dict[str, Any] = {}
     if q.label:
-        plan_extra["filter_label"] = q.label
+        plan_extra["label"] = q.label
     if q.predicate:
         plan_extra["predicate"] = q.predicate
     if q.asof_iso:
