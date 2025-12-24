@@ -5,9 +5,9 @@ import time
 
 import psycopg
 import pytest
+from admin_db import drop_db, ensure_template_exists, make_ephemeral_db
 
 from cns_py.storage.db import DbConfig
-from tests.admin_db import drop_db, ensure_template_exists, make_ephemeral_db
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(ROOT, os.pardir))
