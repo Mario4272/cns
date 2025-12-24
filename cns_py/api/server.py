@@ -35,7 +35,6 @@ class GraphNeighborhoodResponse(BaseModel):  # type: ignore[misc]
 app = FastAPI(title="CNS API", version="0.1")
 
 
-@app.post("/cql")  # type: ignore[misc]
 def run_cql(req: CqlRequest) -> Dict[str, Any]:
     """Execute a CQL query and return the raw executor payload.
 
@@ -50,7 +49,6 @@ def run_cql(req: CqlRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-@app.get("/graph/neighborhood", response_model=GraphNeighborhoodResponse)  # type: ignore[misc]
 def graph_neighborhood(label: str, hops: int = 1, limit: int = 100) -> GraphNeighborhoodResponse:
     """Return a small graph neighborhood for a given atom label.
 
@@ -93,6 +91,11 @@ def graph_neighborhood(label: str, hops: int = 1, limit: int = 100) -> GraphNeig
         graph_edges.append(GraphEdge(src_id=src_id, dst_id=dst_id, predicate=pred))
 
     return GraphNeighborhoodResponse(nodes=nodes, edges=graph_edges)
+
+
+# Register routes imperatively to keep decorators out of mypy's way.
+app.post("/cql")(run_cql)
+app.get("/graph/neighborhood", response_model=GraphNeighborhoodResponse)(graph_neighborhood)
 
 
 def get_app() -> FastAPI:
