@@ -3,7 +3,7 @@
 SHELL := /bin/sh
 DC := docker compose -f docker/docker-compose.yml
 
-.PHONY: up down logs psql init-db test verify tap bench e2e
+.PHONY: up down logs psql init-db test verify tap bench e2e run-api
 
 up:
 	$(DC) up -d
@@ -47,3 +47,7 @@ bench:
 
 e2e:
 	@echo "[e2e] Playwright demo placeholder"
+
+run-api:
+	@echo "[run-api] Starting FastAPI server"
+	python scripts/run_api.py
