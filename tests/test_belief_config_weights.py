@@ -15,7 +15,8 @@ def test_belief_config_higher_recency_weight_increases_influence():
     conf_low, d_low = compute(0.5, old, cfg_low)
     conf_high, d_high = compute(0.5, old, cfg_high)
 
-    assert d_low["recency"] == d_high["recency"]
+    # Recency term is the same function of timestamps; allow for tiny float noise.
+    assert abs(d_low["recency"] - d_high["recency"]) < 1e-9
     assert conf_high > conf_low
 
 
