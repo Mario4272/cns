@@ -119,3 +119,51 @@ def test_graph_neighborhood_respects_limit_and_sets_truncated_flag():
     # We do not assert exact True/False to avoid coupling to fixture size if it
     # ever changes, but we at least exercise the path.
     assert "truncated" in payload
+
+
+def test_graph_neighborhood_asof_changes_tls_edges_across_cutover():
+    """ASOF before vs after the TLS cutover should yield different supports_tls edges.
+
+    Demo ingest seeds FrameworkX so that it supports TLS1.2 before 2025-01-01 and
+    TLS1.3 from 2025-01-01 onward. This test checks that the neighborhood
+    endpoint reflects that temporal split.
+    """
+
+    # One second before and after the demo cutoff in cns_py.demo.ingest.
+    asof_before = "2024-12-31T23:59:59Z"
+    asof_after = "2025-01-01T00:00:01Z"
+
+    params_common = {"label": "FrameworkX", "hops": 1, "limit": 20}
+
+    resp_before = client.get("/graph/neighborhood", params={**params_common, "asof": asof_before})
+    resp_after = client.get("/graph/neighborhood", params={**params_common, "asof": asof_after})
+
+    assert resp_before.status_code == 200
+    assert resp_after.status_code == 200
+
+    payload_before = resp_before.json()
+    payload_after = resp_after.json()
+
+    # Build id->label maps to interpret edge endpoints.
+    labels_before = {n["id"]: n["label"] for n in payload_before["nodes"]}
+    labels_after = {n["id"]: n["label"] for n in payload_after["nodes"]}
+
+    def edge_signatures(payload: dict, id_to_label: dict[int, str]) -> set[tuple[str, str]]:
+        sigs: set[tuple[str, str]] = set()
+        for e in payload["edges"]:
+            dst_label = id_to_label.get(e["dst_id"])
+            if dst_label is None:
+                continue
+            sigs.add((e["predicate"], dst_label))
+        return sigs
+
+    sigs_before = edge_signatures(payload_before, labels_before)
+    sigs_after = edge_signatures(payload_after, labels_after)
+
+    # Before cutover: expect supports_tls -> TLS1.2 and not TLS1.3
+    assert ("supports_tls", "TLS1.2") in sigs_before
+    assert ("supports_tls", "TLS1.3") not in sigs_before
+
+    # After cutover: expect supports_tls -> TLS1.3 and not TLS1.2
+    assert ("supports_tls", "TLS1.3") in sigs_after
+    assert ("supports_tls", "TLS1.2") not in sigs_after

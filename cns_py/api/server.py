@@ -101,19 +101,37 @@ def graph_neighborhood(
     if limit < 1:
         raise HTTPException(status_code=400, detail="limit must be >= 1")
 
-    ids = nn_search(label, k=limit)
-    if not ids:
-        return GraphNeighborhoodEnvelope(
-            center_node_id=None,
-            hops=hops,
-            asof=asof,
-            truncated=False,
-            nodes=[],
-            edges=[],
-        )
+    # When an ASOF instant is provided, prefer the CQL engine as the single
+    # source of truth for temporal semantics. We construct a minimal CQL
+    # query that asks for outgoing edges from the labeled node at that time
+    # and adapt the result into the neighborhood DTO.
+    edges_raw: List[tuple[str, str, str]]
+    if asof is not None:
+        # Use ISO format expected by the CQL executor.
+        cql_query = f'MATCH label="{label}" ASOF {asof.isoformat()} RETURN'
+        try:
+            cql_payload = cql(cql_query)
+        except Exception as exc:  # pragma: no cover - defensive; detailed tests elsewhere
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        results = cql_payload.get("results", [])
+        edges_raw = [
+            (str(item["subject_label"]), str(item["predicate"]), str(item["object_label"]))
+            for item in results
+        ]
+    else:
+        ids = nn_search(label, k=limit)
+        if not ids:
+            return GraphNeighborhoodEnvelope(
+                center_node_id=None,
+                hops=hops,
+                asof=asof,
+                truncated=False,
+                nodes=[],
+                edges=[],
+            )
 
-    # traverse_from returns (src_label, predicate, dst_label)
-    edges_raw = traverse_from(ids, hops=hops, predicates=None, limit=limit)
+        # traverse_from returns (src_label, predicate, dst_label)
+        edges_raw = traverse_from(ids, hops=hops, predicates=None, limit=limit)
 
     # Collect unique labels and assign synthetic integer IDs for Explorer consumption.
     label_set: set[str] = set()
