@@ -50,4 +50,4 @@ e2e:
 
 run-api:
 	@echo "[run-api] Starting FastAPI server"
-	python scripts/run_api.py
+	python -m scripts.run_api

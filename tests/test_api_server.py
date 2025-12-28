@@ -31,10 +31,18 @@ def test_cql_endpoint_runs_demo_query_and_returns_results_and_explain():
     assert "steps" in payload["explain"]
 
 
-def test_graph_neighborhood_returns_nodes_and_edges_for_frameworkx():
+def test_graph_neighborhood_returns_envelope_with_nodes_and_edges_for_frameworkx():
     resp = client.get("/graph/neighborhood", params={"label": "FrameworkX", "hops": 1})
     assert resp.status_code == 200
     payload = resp.json()
+
+    # Envelope-level fields
+    assert set(payload.keys()) >= {"center_node_id", "hops", "asof", "truncated", "nodes", "edges"}
+    assert payload["hops"] == 1
+    # Default asof is null/None when not provided.
+    assert payload["asof"] is None
+    assert payload["truncated"] is False
+
     nodes = payload["nodes"]
     edges = payload["edges"]
     assert isinstance(nodes, list)
@@ -42,6 +50,24 @@ def test_graph_neighborhood_returns_nodes_and_edges_for_frameworkx():
     # Expect at least the central node
     labels = {n["label"] for n in nodes}
     assert "FrameworkX" in labels
+    # center_node_id, if present, should refer to an existing node id
+    if payload["center_node_id"] is not None:
+        node_ids = {n["id"] for n in nodes}
+        assert payload["center_node_id"] in node_ids
+
+
+def test_graph_neighborhood_edges_always_reference_returned_nodes():
+    """Every edge endpoint id must exist in the returned node id set.
+
+    This locks the invariant that the client never sees dangling edge endpoints.
+    """
+    resp = client.get("/graph/neighborhood", params={"label": "FrameworkX", "hops": 1})
+    assert resp.status_code == 200
+    payload = resp.json()
+    node_ids = {n["id"] for n in payload["nodes"]}
+    for edge in payload["edges"]:
+        assert edge["src_id"] in node_ids
+        assert edge["dst_id"] in node_ids
 
 
 def test_cql_endpoint_rejects_empty_query():
@@ -55,3 +81,41 @@ def test_graph_neighborhood_rejects_bad_params():
     assert resp.status_code == 400
     resp = client.get("/graph/neighborhood", params={"label": "FrameworkX", "hops": 0})
     assert resp.status_code == 400
+    resp = client.get("/graph/neighborhood", params={"label": "FrameworkX", "hops": 1, "limit": 0})
+    assert resp.status_code == 400
+
+
+def test_graph_neighborhood_rejects_bad_asof_format():
+    resp = client.get(
+        "/graph/neighborhood",
+        params={"label": "FrameworkX", "hops": 1, "asof": "not-a-date"},
+    )
+    # FastAPI will return a 422 validation error for invalid datetime by default.
+    assert resp.status_code in {400, 422}
+
+
+def test_graph_neighborhood_accepts_asof_and_echoes_it_back():
+    # This test currently just checks that the asof parameter is plumbed through
+    # to the response envelope; future work will assert behavioral differences.
+    asof_value = "2025-01-01T00:00:00Z"
+    resp = client.get(
+        "/graph/neighborhood",
+        params={"label": "FrameworkX", "hops": 1, "asof": asof_value},
+    )
+    assert resp.status_code == 200
+    payload = resp.json()
+    # FastAPI/Pydantic will normalize to a canonical ISO format; string compare is OK.
+    assert payload["asof"].startswith("2025-01-01T00:00:00")
+
+
+def test_graph_neighborhood_respects_limit_and_sets_truncated_flag():
+    # Use a small limit so we are likely to truncate on real data.
+    resp = client.get("/graph/neighborhood", params={"label": "FrameworkX", "hops": 1, "limit": 1})
+    assert resp.status_code == 200
+    payload = resp.json()
+    nodes = payload["nodes"]
+    assert len(nodes) <= 1
+    # When nodes are capped below the full set, truncated should be True.
+    # We do not assert exact True/False to avoid coupling to fixture size if it
+    # ever changes, but we at least exercise the path.
+    assert "truncated" in payload

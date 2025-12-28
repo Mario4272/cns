@@ -180,6 +180,33 @@ make e2e          # Playwright demo script
   - Stand up a minimal Explorer UI that consumes `/cql` and `/graph/neighborhood` and renders a very simple graph view (no time slider yet).
   - Wire a basic time-slider control to the existing `ASOF` machinery via CQL, even if visuals remain minimal.
 
+#### Priority 0–2 breakdown (Explorer roadmap)
+
+- **Priority 0 – Contract first (backend DTOs)**
+
+  - Define a stable DTO for `GET /graph/neighborhood`:
+    - Node: `id, kind, label, text_preview?` and basic belief / temporal / provenance summaries.
+    - Edge: `id, src, dst, predicate, belief.p, tape(...), is_contradiction, contradicts_edge_ids?`.
+    - Response wrapper: `center_node_id, hops, asof, nodes[], edges[], truncated?`.
+  - Update implementation to emit real atom/fiber IDs where possible (synthetic only as a last resort).
+  - Expand `tests/test_api_server.py` to assert the exact response shape, `asof` behavior on demo data, and any limit/truncation behavior.
+  - Add an `asof` parameter to `/graph/neighborhood` (internally uses the existing ASOF mask machinery).
+
+- **Priority 1 – Make Explorer “truthy” (semantics)**
+
+  - Add `GET /graph/node/{id}?asof=...` returning:
+    - Node fields + aspects summary.
+    - Provenance list (capped to N) and optional related contradictions count.
+  - Add contradiction plumbing into the neighborhood DTO:
+    - `edge.is_contradiction` boolean.
+    - Optional `edge.contradicts_edge_ids` array.
+
+- **Priority 2 – Thin UI slice (Explorer frontend)**
+  - Update `explorer/` to call:
+    - `/graph/neighborhood` with `label`, `hops`, and `asof`.
+    - `/graph/node/{id}` on click to populate a right-hand detail panel.
+  - Render minimal 3D/2D graph plus a node detail pane; refine visuals and interaction later.
+
 ---
 
 ## Phase 5 — Rust Engine Alpha (Weeks 9–12)

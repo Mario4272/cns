@@ -53,9 +53,9 @@
         display: block;
       }
     </style>
-    <!-- Three.js and OrbitControls from CDN -->
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Three.js and OrbitControls from CDN (pinned to a version where UMD OrbitControls attaches to THREE) -->
+    <script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.149.0/examples/js/controls/OrbitControls.js"></script>
   </head>
   <body>
     <header>
@@ -74,6 +74,15 @@
           style="width: 3rem"
         />
       </label>
+      <label>
+        ASOF:
+        <input
+          id="asof-input"
+          type="text"
+          placeholder="2025-01-01T00:00:00Z"
+          style="width: 14rem"
+        />
+      </label>
       <button id="load-btn">Load Neighborhood</button>
       <div id="status"></div>
     </header>
@@ -86,6 +95,7 @@
       const statusEl = document.getElementById("status");
       const labelInput = document.getElementById("label-input");
       const hopsInput = document.getElementById("hops-input");
+      const asofInput = document.getElementById("asof-input");
       const loadBtn = document.getElementById("load-btn");
 
       let scene, camera, renderer, controls;
@@ -106,9 +116,13 @@
         container.innerHTML = "";
         container.appendChild(renderer.domElement);
 
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.08;
+        if (THREE.OrbitControls) {
+          controls = new THREE.OrbitControls(camera, renderer.domElement);
+          controls.enableDamping = true;
+          controls.dampingFactor = 0.08;
+        } else {
+          controls = null;
+        }
 
         const ambient = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambient);
@@ -142,13 +156,20 @@
         }
       }
 
-      function layoutNodes(nodes) {
-        // Simple deterministic layout: place nodes around a circle, central label near origin.
+      function layoutNodes(nodes, centerNodeId) {
+        // Simple deterministic layout: place nodes around a circle, central node near origin.
         const positions = new Map();
         const n = nodes.length;
         const radius = Math.max(10, 4 + n * 0.5);
 
-        const central = nodes.find((n) => n.label === labelInput.value.trim());
+        let central = null;
+        if (centerNodeId != null) {
+          central = nodes.find((n) => n.id === centerNodeId) || null;
+        }
+        if (!central) {
+          // Fallback to label match for now if center_node_id is not present.
+          central = nodes.find((n) => n.label === labelInput.value.trim()) || null;
+        }
         if (central) {
           positions.set(central.id, new THREE.Vector3(0, 0, 0));
         }
@@ -177,10 +198,9 @@
           return;
         }
 
-        const positions = layoutNodes(nodes);
+        const positions = layoutNodes(nodes, data.center_node_id ?? null);
 
-        const centralLabel = labelInput.value.trim();
-        const centralNode = nodes.find((n) => n.label === centralLabel);
+        const centerId = data.center_node_id ?? null;
 
         const sphereGeom = new THREE.SphereGeometry(0.6, 16, 16);
         const matCentral = new THREE.MeshStandardMaterial({ color: 0x38bdf8 });
@@ -188,7 +208,7 @@
 
         for (const node of nodes) {
           const pos = positions.get(node.id) || new THREE.Vector3();
-          const isCentral = centralNode && node.id === centralNode.id;
+          const isCentral = centerId != null && node.id === centerId;
           const mesh = new THREE.Mesh(
             sphereGeom,
             isCentral ? matCentral : matOther
@@ -213,21 +233,27 @@
           edgeGroup.add(line);
         }
 
-        statusEl.textContent = `Rendered ${nodes.length} nodes and ${edges.length} edges.`;
+        const truncatedSuffix = data.truncated ? " (truncated)" : "";
+        statusEl.textContent = `Rendered ${nodes.length} nodes and ${edges.length} edges${truncatedSuffix}.`;
       }
 
       async function loadNeighborhood() {
         const label = labelInput.value.trim();
         const hops = parseInt(hopsInput.value || "1", 10) || 1;
+        const asofRaw = asofInput.value.trim();
         if (!label) {
           statusEl.textContent = "Enter a label first.";
           return;
         }
         statusEl.textContent = "Loading neighborhood…";
         try {
-          const url = `${API_BASE}/graph/neighborhood?label=${encodeURIComponent(
-            label
-          )}&hops=${hops}`;
+          const params = new URLSearchParams();
+          params.set("label", label);
+          params.set("hops", String(hops));
+          if (asofRaw) {
+            params.set("asof", asofRaw);
+          }
+          const url = `${API_BASE}/graph/neighborhood?${params.toString()}`;
           const resp = await fetch(url);
           if (!resp.ok) {
             const detail = await resp.json().catch(() => ({}));
