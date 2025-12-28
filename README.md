@@ -4,13 +4,13 @@
 
 CNS stores and reasons over **Atoms** (facts, entities, rules, programs) and **Fibers** (typed relations) with co-resident **Aspects**:
 
-* `vector[]` — multi-space semantics (pgvector/N dims)
-* `symbol` — AST / Datalog / SMT terms
-* `text` — canonical and free-form strings
-* `media` — blobs + typed metadata
-* `belief` — confidence, evidence, contradictions, recency
-* `provenance` — signed source chains
-* `tape` — bitemporal: `valid_from`, `valid_to`, `observed_at`
+- `vector[]` — multi-space semantics (pgvector/N dims)
+- `symbol` — AST / Datalog / SMT terms
+- `text` — canonical and free-form strings
+- `media` — blobs + typed metadata
+- `belief` — confidence, evidence, contradictions, recency
+- `provenance` — signed source chains
+- `tape` — bitemporal: `valid_from`, `valid_to`, `observed_at`
 
 Learning happens **inside** the store (resolution, contradiction detection, summarization, belief updates) and is addressable via **CQL**, a cognition query language blending similarity, structure, time, and executable rules.
 
@@ -37,9 +37,9 @@ cns/
 
 ### 0) Prereqs
 
-* Docker + Docker Compose
-* `make`
-* (Optional) `psql` CLI for local poking
+- Docker + Docker Compose
+- `make`
+- (Optional) `psql` CLI for local poking
 
 ### 1) Bring up Postgres (with pgvector) and CNS
 
@@ -53,10 +53,10 @@ make up
 
 The `make up` target will:
 
-* start `postgres` with `pgvector` installed
-* run migrations in `migrations/`
-* seed minimal system rows (builtin spaces, root rules)
-* start `cns-api` on `http://localhost:8080`
+- start `postgres` with `pgvector` installed
+- run migrations in `migrations/`
+- seed minimal system rows (builtin spaces, root rules)
+- start `cns-api` on `http://localhost:8080`
 
 If you prefer it verbose:
 
@@ -124,50 +124,50 @@ cp .env.example .env
 
 **Atoms** (`cns.atom`)
 
-* `id uuid pk`
-* `kind text` — `entity|fact|rule|program`
-* `label text` — type name (e.g., `person`, `company`, `address`)
-* `text text` — canonical text form
-* `symbol jsonb` — AST/terms (nullable)
-* `media bytea` + `media_type text` (nullable)
-* `vector vector` — length = `CNS_VECTOR_DIMS` (nullable)
-* `created_at timestamptz`
-* `updated_at timestamptz`
+- `id uuid pk`
+- `kind text` — `entity|fact|rule|program`
+- `label text` — type name (e.g., `person`, `company`, `address`)
+- `text text` — canonical text form
+- `symbol jsonb` — AST/terms (nullable)
+- `media bytea` + `media_type text` (nullable)
+- `vector vector` — length = `CNS_VECTOR_DIMS` (nullable)
+- `created_at timestamptz`
+- `updated_at timestamptz`
 
 **Fibers** (`cns.fiber`)
 
-* `src uuid fk → atom.id`
-* `dst uuid fk → atom.id`
-* `rel text` — relation type (e.g., `knows`, `located_in`)
-* `weight real` — soft strength
-* `tape_valid tstzrange` — bitemporal validity
-* `observed_at timestamptz`
-* `provenance jsonb` — signed chain
-* `belief jsonb` — `{p, evidence[], contradictions[]}`
+- `src uuid fk → atom.id`
+- `dst uuid fk → atom.id`
+- `rel text` — relation type (e.g., `knows`, `located_in`)
+- `weight real` — soft strength
+- `tape_valid tstzrange` — bitemporal validity
+- `observed_at timestamptz`
+- `provenance jsonb` — signed chain
+- `belief jsonb` — `{p, evidence[], contradictions[]}`
 
 **Indices**
 
-* GIN on `symbol`, `provenance`
-* HNSW/ivfflat on `vector`
-* B-tree on `label`, `(src,rel,dst)`, `observed_at`
+- GIN on `symbol`, `provenance`
+- HNSW/ivfflat on `vector`
+- B-tree on `label`, `(src,rel,dst)`, `observed_at`
 
 ---
 
 ## Belief & Tape (bitemporal)
 
-* `belief.p` in `[0,1]`; Bayesian update with source reliability
-* `contradictions[]` carry pointers to conflicting atoms/fibers
-* `tape_valid` uses `tstzrange(valid_from, valid_to)`
-* `observed_at` anchors when we first saw it (ingest clock)
+- `belief.p` in `[0,1]`; Bayesian update with source reliability
+- `contradictions[]` carry pointers to conflicting atoms/fibers
+- `tape_valid` uses `tstzrange(valid_from, valid_to)`
+- `observed_at` anchors when we first saw it (ingest clock)
 
 ---
 
 ## Learning jobs (in-store)
 
-* **Resolution**: semantic + symbolic + graph features → merge/same-as fibers
-* **Contradiction detection**: rule-backed diffs over overlapping `tape_valid`
-* **Summarization**: compress neighborhood → `summary` atoms with provenance
-* **Belief update**: scheduled recalculation after new evidence
+- **Resolution**: semantic + symbolic + graph features → merge/same-as fibers
+- **Contradiction detection**: rule-backed diffs over overlapping `tape_valid`
+- **Summarization**: compress neighborhood → `summary` atoms with provenance
+- **Belief update**: scheduled recalculation after new evidence
 
 Run locally:
 
@@ -216,7 +216,7 @@ AND tape_overlap(a1, a2);
 ## Make targets (run from repo root)
 
 ```bash
-make up            # compose up + migrate + seed + api
+make up            # compose up + migrate + seed + core API (legacy)
 make down          # stop containers
 make logs          # tail api + db logs
 make migrate/up    # apply migrations
@@ -224,36 +224,40 @@ make migrate/down  # rollback last migration
 make seed          # load minimal builtin spaces + rules
 make dev           # hot-reload api (watchexec/nodemon/go-run etc.)
 make jobs          # run all learning jobs once
+make run-api       # run FastAPI demo API (CQL + /graph/neighborhood) locally
 ```
 
 ---
 
 ## Local development notes
 
-* **Where to run things**
+- **Where to run things**
 
-  * All `make` commands: **repo root**
-  * SQL pokes: `scripts/psql.sh -c "..."` (wraps `psql` with env)
-* **Vector dims** must match your embedder. Default `1536` (OpenAI-like). Change `CNS_VECTOR_DIMS` and re-migrate if you switch.
-* **Idempotency**: seeds and jobs are idempotent; safe to rerun.
-* **Zero-trust provenance**: signers/keys recorded in `provenance`; verification runs on ingest and prior to merges.
+  - All `make` commands: **repo root**
+  - SQL pokes: `scripts/psql.sh -c "..."` (wraps `psql` with env)
+  - FastAPI demo API: `make run-api` (serves `/cql` and `/graph/neighborhood` on `http://127.0.0.1:8000`)
+  - Desktop Explorer: see `cns_ui/README.md` for the Tauri-based IB Explorer UI
+
+- **Vector dims** must match your embedder. Default `1536` (OpenAI-like). Change `CNS_VECTOR_DIMS` and re-migrate if you switch.
+- **Idempotency**: seeds and jobs are idempotent; safe to rerun.
+- **Zero-trust provenance**: signers/keys recorded in `provenance`; verification runs on ingest and prior to merges.
 
 ---
 
 ## Security (dev default)
 
-* Dev brings up Postgres without TLS and API with no auth. Please don’t point it at the internet (hi, future you).
-* Prod profile: mTLS between API and DB, signed provenance enforcement, audit log on all rule executions, row-level security on tenants.
+- Dev brings up Postgres without TLS and API with no auth. Please don’t point it at the internet (hi, future you).
+- Prod profile: mTLS between API and DB, signed provenance enforcement, audit log on all rule executions, row-level security on tenants.
 
 ---
 
 ## Roadmap (short)
 
-* [ ] CQL planner heuristics v1 (vector + symbolic co-planning)
-* [ ] Online ER (streaming merges with quarantine)
-* [ ] Belief math plugin API
-* [ ] Snapshot/restore of bitemporal slices
-* [ ] Multi-embedder spaces per aspect
+- [ ] CQL planner heuristics v1 (vector + symbolic co-planning)
+- [ ] Online ER (streaming merges with quarantine)
+- [ ] Belief math plugin API
+- [ ] Snapshot/restore of bitemporal slices
+- [ ] Multi-embedder spaces per aspect
 
 ---
 
