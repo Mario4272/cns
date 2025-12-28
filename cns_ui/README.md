@@ -2,8 +2,16 @@
 
 This is a small desktop Explorer UI for CNS, built with **Tauri + vanilla TypeScript**.
 
-It connects to the FastAPI demo backend and visualizes graph neighborhoods returned by
-`GET /graph/neighborhood`, including **ASOF** time filtering.
+Repo layout context:
+
+```text
+cns/
+├─ cns_py/      # Python core, FastAPI demo API
+└─ cns_ui/      # this Tauri + TS desktop Explorer
+```
+
+The Explorer connects to the FastAPI demo backend and visualizes graph neighborhoods
+returned by `GET /graph/neighborhood`, including **ASOF** time filtering.
 
 ---
 

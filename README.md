@@ -20,13 +20,12 @@ Learning happens **inside** the store (resolution, contradiction detection, summ
 
 ```
 cns/
-├─ api/                 # HTTP/gRPC adapters, auth, request → CQL
-├─ cql/                 # parser, planner, rule engine, builtin ops
-├─ core/                # atoms, fibers, aspects, belief math
-├─ store/               # Postgres schema, views, triggers, pgvector ops
-├─ jobs/                # ER, contradiction detection, summarization
+├─ cns_py/              # Python core: CQL executor, graph, demo API, helpers
+│  ├─ api/              # FastAPI demo server (/cql, /graph/neighborhood)
+│  └─ cql/, graph/, ... # planner, traversal, belief math, etc.
 ├─ migrations/          # SQL migrations (golang-migrate style)
 ├─ scripts/             # local dev helpers (bash/ps1)
+├─ cns_ui/              # Tauri + TS desktop Explorer (IB Explorer Alpha)
 ├─ Makefile             # see targets below
 └─ .env.example         # sample config
 ```
