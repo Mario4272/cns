@@ -70,6 +70,28 @@ def test_graph_neighborhood_edges_always_reference_returned_nodes():
         assert edge["dst_id"] in node_ids
 
 
+def test_graph_neighborhood_ids_are_stable_across_identical_requests():
+    """Node IDs should be stable for the same params and ASOF.
+
+    This does not assume anything about the specific numeric values or
+    contiguity of IDs; it just asserts that repeated calls yield the same
+    sorted id set.
+    """
+
+    params = {"label": "FrameworkX", "hops": 1, "limit": 20}
+
+    resp1 = client.get("/graph/neighborhood", params=params)
+    resp2 = client.get("/graph/neighborhood", params=params)
+
+    assert resp1.status_code == 200
+    assert resp2.status_code == 200
+
+    ids1 = sorted(n["id"] for n in resp1.json()["nodes"])
+    ids2 = sorted(n["id"] for n in resp2.json()["nodes"])
+
+    assert ids1 == ids2
+
+
 def test_cql_endpoint_rejects_empty_query():
     resp = client.post("/cql", json={"query": "  "})
     assert resp.status_code == 400
@@ -167,3 +189,56 @@ def test_graph_neighborhood_asof_changes_tls_edges_across_cutover():
     # After cutover: expect supports_tls -> TLS1.3 and not TLS1.2
     assert ("supports_tls", "TLS1.3") in sigs_after
     assert ("supports_tls", "TLS1.2") not in sigs_after
+
+
+def _get_frameworkx_node_id() -> int:
+    resp = client.get("/graph/neighborhood", params={"label": "FrameworkX", "hops": 1})
+    assert resp.status_code == 200
+    payload = resp.json()
+    for n in payload["nodes"]:
+        if n["label"] == "FrameworkX":
+            return int(n["id"])
+    pytest.skip("FrameworkX node not present in neighborhood response")
+
+
+def test_graph_node_detail_returns_200_for_valid_id():
+    node_id = _get_frameworkx_node_id()
+    resp = client.get(f"/graph/node/{node_id}")
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["node"]["id"] == node_id
+    assert payload["node"]["label"] == "FrameworkX"
+    assert "aspects" in payload
+    assert "provenance" in payload
+    assert "assertions_count" in payload["provenance"]
+    assert "sources_count" in payload["provenance"]
+
+
+def test_graph_node_detail_returns_404_for_unknown_id():
+    resp = client.get("/graph/node/999999999")
+    assert resp.status_code == 404
+
+
+def test_graph_node_detail_asof_changes_tls_across_cutover():
+    node_id = _get_frameworkx_node_id()
+
+    asof_before = "2024-12-31T23:59:59Z"
+    asof_after = "2025-01-01T00:00:01Z"
+
+    resp_before = client.get(f"/graph/node/{node_id}", params={"asof": asof_before})
+    resp_after = client.get(f"/graph/node/{node_id}", params={"asof": asof_after})
+
+    assert resp_before.status_code == 200
+    assert resp_after.status_code == 200
+
+    def tls_targets(payload: dict) -> set[str]:
+        return {a["dst_label"] for a in payload["aspects"] if a["predicate"] == "supports_tls"}
+
+    before_targets = tls_targets(resp_before.json())
+    after_targets = tls_targets(resp_after.json())
+
+    assert "TLS1.2" in before_targets
+    assert "TLS1.3" not in before_targets
+
+    assert "TLS1.3" in after_targets
+    assert "TLS1.2" not in after_targets
