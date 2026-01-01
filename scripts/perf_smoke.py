@@ -37,7 +37,8 @@ def run_once(query: str) -> Tuple[float, Dict]:
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--iters", type=int, default=100)
-    ap.add_argument("--warmup", type=int, default=20)
+    ap.add_argument("--warmup", type=int, default=50)
+    # Conservative local target: flag if p95 exceeds ~500ms.
     ap.add_argument("--p95-budget-ms", type=float, default=500.0)
     ap.add_argument("--p99-budget-ms", type=float, default=900.0)
     args = ap.parse_args(argv)
@@ -77,12 +78,27 @@ def main(argv: list[str]) -> int:
         samples: List[float] = []
         last_explain: Dict = {}
         last_rows = 0
+        # For determinism we care about the stable identity of winners, not
+        # volatile fields like timestamps or provenance payloads. Use a
+        # canonical sorted list of fiber_ids as the comparison key.
+        canonical_fiber_ids: List[int] | None = None
+        deterministic = True
         for _ in range(args.iters):
             ms, out = run_once(q)
             samples.append(ms)
             if isinstance(out, dict):
                 last_explain = out.get("explain", {}) or {}
-                last_rows = len(out.get("results", []))
+                results = out.get("results", []) or []
+                last_rows = len(results)
+
+                # Determinism check: build a stable signature from fiber_ids when present.
+                fiber_ids = sorted(
+                    int(r["fiber_id"]) for r in results if r.get("fiber_id") is not None
+                )
+                if canonical_fiber_ids is None:
+                    canonical_fiber_ids = fiber_ids
+                elif deterministic and fiber_ids != canonical_fiber_ids:
+                    deterministic = False
 
         samples.sort()
         p50_idx = max(0, int(round(0.50 * len(samples))) - 1)
@@ -106,18 +122,22 @@ def main(argv: list[str]) -> int:
             "p95_ms": p95,
             "p99_ms": p99,
             "rows": last_rows,
+            "deterministic": deterministic,
             **timings,
         }
         result_rows.append(row)
 
     # Summarize
     summary_lines = ["# Perf Smoke Summary"]
+    any_nondet = any(not r["deterministic"] for r in result_rows)
+
     for r in result_rows:
         summary_lines.append(
             (
                 f"- **{r['name']}**: p50={r['p50_ms']:.1f}ms "
                 f"p95={r['p95_ms']:.1f}ms p99={r['p99_ms']:.1f}ms "
-                f"· rows={r['rows']} · ann/mask/trav/rules="
+                f"· rows={r['rows']} · deterministic={r['deterministic']} "
+                f"· ann/mask/trav/rules="
                 f"{r['ann_ms']:.1f}/{r['mask_ms']:.1f}/"
                 f"{r['traverse_ms']:.1f}/{r['rules_ms']:.1f}ms"
             )
@@ -128,8 +148,12 @@ def main(argv: list[str]) -> int:
     except Exception:
         pass
 
-    # Gate on worst p95 across queries
+    # Gate on determinism and worst p95 across queries
     worst_p95 = max(r["p95_ms"] for r in result_rows) if result_rows else 0.0
+    if any_nondet:
+        print("[perf-smoke] Non-deterministic results detected; failing.")
+        return 1
+
     return 0 if worst_p95 <= args.p95_budget_ms else 1
 
 

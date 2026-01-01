@@ -44,3 +44,10 @@ comment*.txt
 # Node / frontend artifacts (accidental for this Python repo)
 node_modules/
 package-lock.json
+
+#AI Comms
+.valkyrie/
+.valkyrie/*
+.valkyrie/.*
+
+

@@ -28,6 +28,10 @@ class GraphNode(BaseModel):  # type: ignore[misc]
     id: int
     label: str
     kind: Optional[str] = None
+    belief: Optional[float] = None
+    x: Optional[float] = None
+    y: Optional[float] = None
+    z: Optional[float] = None
 
 
 class GraphEdge(BaseModel):  # type: ignore[misc]
@@ -36,6 +40,7 @@ class GraphEdge(BaseModel):  # type: ignore[misc]
     This will eventually surface belief and contradiction flags.
     """
 
+    id: int
     src_id: int
     dst_id: int
     predicate: str
@@ -62,7 +67,7 @@ class NodeAspect(BaseModel):  # type: ignore[misc]
     predicate: str
     dst_id: int
     dst_label: str
-    confidence: Optional[float] = None
+    belief: Optional[float] = None
     valid_from: Optional[datetime] = None
     valid_to: Optional[datetime] = None
 
@@ -110,6 +115,7 @@ def graph_neighborhood(
     hops: int = 1,
     limit: int = 100,
     asof: Optional[datetime] = None,
+    policy: str = "all",
 ) -> GraphNeighborhoodEnvelope:
     """Return a small graph neighborhood for a given atom label.
 
@@ -124,11 +130,17 @@ def graph_neighborhood(
     if limit < 1:
         raise HTTPException(status_code=400, detail="limit must be >= 1")
 
+    policy_normalized = policy.lower().strip()
+    allowed_policies = {"all", "latest", "highest_confidence"}
+    if policy_normalized not in allowed_policies:
+        raise HTTPException(status_code=400, detail="invalid policy")
+
     # When an ASOF instant is provided, prefer the CQL engine as the single
     # source of truth for temporal semantics. We construct a minimal CQL
     # query that asks for outgoing edges from the labeled node at that time
     # and adapt the result into the neighborhood DTO.
-    edges_raw: List[tuple[str, str, str]]
+    # subject_label, predicate, object_label, confidence, fiber_id, observed_at_iso
+    edges_raw: List[tuple[str, str, str, Optional[float], Optional[int], Optional[str]]]
     if asof is not None:
         # Use ISO format expected by the CQL executor.
         cql_query = f'MATCH label="{label}" ASOF {asof.isoformat()} RETURN'
@@ -137,10 +149,23 @@ def graph_neighborhood(
         except Exception as exc:  # pragma: no cover - defensive; detailed tests elsewhere
             raise HTTPException(status_code=500, detail=str(exc)) from exc
         results = cql_payload.get("results", [])
-        edges_raw = [
-            (str(item["subject_label"]), str(item["predicate"]), str(item["object_label"]))
-            for item in results
-        ]
+        edges_raw = []
+        for item in results:
+            subj = str(item.get("subject_label"))
+            pred = str(item.get("predicate"))
+            obj = str(item.get("object_label"))
+            conf = item.get("confidence")
+            try:
+                conf_f = float(conf) if conf is not None else None
+            except (TypeError, ValueError):
+                conf_f = None
+            fiber_id = item.get("fiber_id")
+            try:
+                fiber_id_i = int(fiber_id) if fiber_id is not None else None
+            except (TypeError, ValueError):
+                fiber_id_i = None
+            observed_at_iso = item.get("observed_at")
+            edges_raw.append((subj, pred, obj, conf_f, fiber_id_i, observed_at_iso))
     else:
         ids = nn_search(label, k=limit)
         if not ids:
@@ -154,11 +179,12 @@ def graph_neighborhood(
             )
 
         # traverse_from returns (src_label, predicate, dst_label)
-        edges_raw = traverse_from(ids, hops=hops, predicates=None, limit=limit)
+        edges_simple = traverse_from(ids, hops=hops, predicates=None, limit=limit)
+        edges_raw = [(subj, pred, obj, None, None, None) for subj, pred, obj in edges_simple]
 
     # Collect unique labels and resolve them to real CNS atom IDs for Explorer consumption.
     label_set: set[str] = set()
-    for subj, _pred, obj in edges_raw:
+    for subj, _pred, obj, _conf, _fid, _obs in edges_raw:
         label_set.add(subj)
         label_set.add(obj)
     # Ensure central label is present even if it has no outbound edges.
@@ -188,15 +214,71 @@ def graph_neighborhood(
 
     nodes_all: List[GraphNode] = []
     for lbl, atom_id in label_to_id.items():
-        nodes_all.append(GraphNode(id=atom_id, kind=None, label=lbl))
+        nodes_all.append(
+            GraphNode(
+                id=atom_id,
+                kind=None,
+                label=lbl,
+                belief=1.0,  # Atoms are logically true if they exist; refinement later.
+                x=None,
+                y=None,
+                z=None,
+            )
+        )
 
     edges_all: List[GraphEdge] = []
-    for subj_label, pred, obj_label in edges_raw:
+    for subj_label, pred, obj_label, conf, fiber_id, observed_at_iso in edges_raw:
         src_id = label_to_id.get(subj_label)
         dst_id = label_to_id.get(obj_label)
         if src_id is None or dst_id is None:
             continue
-        edges_all.append(GraphEdge(src_id=src_id, dst_id=dst_id, predicate=pred))
+        # For ANN path we may not have a backing fiber id; synthesize a stable
+        # id from the src/dst/predicate triple. This keeps the API contract
+        # while making it clear that only ASOF/CQL-backed edges map directly to
+        # real fibers.
+        edge_id = fiber_id if fiber_id is not None else abs(hash((src_id, dst_id, pred)))
+        edges_all.append(
+            GraphEdge(
+                id=int(edge_id),
+                src_id=src_id,
+                dst_id=dst_id,
+                predicate=pred,
+                confidence=conf,
+            )
+        )
+
+    # Apply truth policy at the slot level when we have real fiber-backed
+    # edges (ASOF/CQL path). The ANN path may synthesize ids but cannot
+    # compute effective_time, so policy=all is effectively a no-op there.
+    if policy_normalized != "all" and asof is not None:
+        from datetime import timezone
+
+        def _effective_time(edge: GraphEdge) -> datetime:
+            if edge.confidence is None and asof is not None:
+                return asof
+            # We do not currently surface observed_at at the neighborhood
+            # level; fall back to ASOF for deterministic ordering.
+            return asof or datetime.min.replace(tzinfo=timezone.utc)
+
+        keyed: Dict[tuple[int, str], List[GraphEdge]] = {}
+        for e in edges_all:
+            key = (e.src_id, e.predicate)
+            keyed.setdefault(key, []).append(e)
+
+        selected: List[GraphEdge] = []
+        for (_src, _pred), group in keyed.items():
+
+            def sort_key(edge: GraphEdge) -> tuple[float, float, int, int]:
+                conf_val = 0.0 if edge.confidence is None else float(edge.confidence)
+                eff_time = _effective_time(edge)
+                if policy_normalized == "latest":
+                    return (-eff_time.timestamp(), -conf_val, edge.dst_id, edge.id)
+                # highest_confidence
+                return (-conf_val, -eff_time.timestamp(), edge.dst_id, edge.id)
+
+            winner = sorted(group, key=sort_key)[0]
+            selected.append(winner)
+        edges_all = selected
 
     # Determine whether we need to truncate. We cap nodes to `limit`; edges are
     # then filtered to only those whose endpoints are present.
@@ -218,6 +300,137 @@ def graph_neighborhood(
         truncated=truncated,
         nodes=nodes_capped,
         edges=edges_capped,
+    )
+
+
+class EdgeReceipt(BaseModel):  # type: ignore[misc]
+    id: int
+    src_id: int
+    dst_id: int
+    predicate: str
+    confidence: Optional[float] = None
+    valid_from: Optional[datetime] = None
+    valid_to: Optional[datetime] = None
+    observed_at: Optional[datetime] = None
+
+
+class EdgeReceiptEnvelope(BaseModel):  # type: ignore[misc]
+    edge: EdgeReceipt
+    src_label: Optional[str]
+    dst_label: Optional[str]
+    provenance: NodeProvenanceSummary
+    contradictions: List[int]
+
+
+def graph_edge_detail(edge_id: int, asof: Optional[datetime] = None) -> EdgeReceiptEnvelope:
+    if edge_id <= 0:
+        raise HTTPException(status_code=400, detail="id must be positive")
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            # Load edge + aspect
+            base_sql = (
+                "SELECT f.id, f.src, f.dst, f.predicate, "
+                "asp.belief AS confidence, asp.valid_from, asp.valid_to, asp.observed_at, "
+                "a_src.label AS src_label, a_dst.label AS dst_label, asp.provenance "
+                "FROM fibers f "
+                "JOIN atoms a_src ON a_src.id = f.src "
+                "JOIN atoms a_dst ON a_dst.id = f.dst "
+                "LEFT JOIN aspects asp ON asp.subject_kind='fiber' AND asp.subject_id=f.id "
+            )
+
+            where_clauses: List[str] = ["f.id = %(edge_id)s"]
+            params: Dict[str, Any] = {"edge_id": edge_id}
+
+            if asof is not None:
+                where_clauses.append(
+                    "COALESCE(asp.valid_from, '-infinity'::timestamptz) <= %(ts_from)s"
+                )
+                params["ts_from"] = asof
+                end_pred = cns_config.temporal_predicate()
+                where_clauses.append(end_pred)
+                params["ts_to"] = asof
+
+            sql = base_sql + "WHERE " + " AND ".join(where_clauses) + " LIMIT 1"
+            cur.execute(sql, params)
+            row = cur.fetchone()
+            if row is None:
+                raise HTTPException(status_code=404, detail="edge not found")
+
+            (
+                f_id,
+                src_id,
+                dst_id,
+                predicate,
+                confidence,
+                valid_from,
+                valid_to,
+                observed_at,
+                src_label,
+                dst_label,
+                prov_json,
+            ) = row
+
+            edge = EdgeReceipt(
+                id=int(f_id),
+                src_id=int(src_id),
+                dst_id=int(dst_id),
+                predicate=str(predicate),
+                confidence=float(confidence) if confidence is not None else None,
+                valid_from=valid_from,
+                valid_to=valid_to,
+                observed_at=observed_at,
+            )
+
+            assertions_count = 1 if prov_json is not None else 0
+            sources: set[str] = set()
+            if isinstance(prov_json, dict):
+                src_field = prov_json.get("source_id")
+                if src_field is not None:
+                    sources.add(str(src_field))
+
+            provenance = NodeProvenanceSummary(
+                assertions_count=assertions_count,
+                sources_count=len(sources),
+            )
+
+            # For now, compute contradictions cheaply by looking for competing
+            # fibers with the same (src, predicate) but different dst under the
+            # same ASOF mask. This reuses the temporal predicate from config.
+            contradictions: List[int] = []
+            contra_sql = (
+                "SELECT f2.id FROM fibers f2 "
+                "LEFT JOIN aspects asp2 ON asp2.subject_kind='fiber' AND asp2.subject_id=f2.id "
+                "WHERE f2.src = %(src_id)s AND f2.predicate = %(predicate)s "
+                "AND f2.dst <> %(dst_id)s"
+            )
+            contra_params: Dict[str, Any] = {
+                "src_id": src_id,
+                "dst_id": dst_id,
+                "predicate": predicate,
+            }
+            if asof is not None:
+                contra_sql += (
+                    " AND COALESCE(asp2.valid_from, '-infinity'::timestamptz) <= %(ts_from)s"
+                )
+                contra_params["ts_from"] = asof
+                end_pred2 = cns_config.temporal_predicate().replace("asp.", "asp2.")
+                contra_sql += " AND " + end_pred2
+                contra_params["ts_to"] = asof
+
+            cur.execute(contra_sql, contra_params)
+            for (other_id,) in cur.fetchall():
+                try:
+                    contradictions.append(int(other_id))
+                except Exception:
+                    continue
+
+    return EdgeReceiptEnvelope(
+        edge=edge,
+        src_label=str(src_label) if src_label is not None else None,
+        dst_label=str(dst_label) if dst_label is not None else None,
+        provenance=provenance,
+        contradictions=contradictions,
     )
 
 
@@ -290,7 +503,7 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
                 predicate=str(predicate),
                 dst_id=int(dst_id),
                 dst_label=str(dst_label),
-                confidence=float(confidence) if confidence is not None else None,
+                belief=float(confidence) if confidence is not None else None,
                 valid_from=valid_from,
                 valid_to=valid_to,
             )
@@ -319,6 +532,7 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
 app.post("/cql")(run_cql)
 app.get("/graph/neighborhood", response_model=GraphNeighborhoodEnvelope)(graph_neighborhood)
 app.get("/graph/node/{node_id}", response_model=NodeDetailEnvelope)(graph_node_detail)
+app.get("/graph/edge/{edge_id}", response_model=EdgeReceiptEnvelope)(graph_edge_detail)
 
 
 def get_app() -> FastAPI:

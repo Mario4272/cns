@@ -44,6 +44,11 @@ def test_graph_neighborhood_returns_envelope_with_nodes_and_edges_for_frameworkx
     assert payload["truncated"] is False
 
     nodes = payload["nodes"]
+    assert isinstance(nodes, list)
+    if nodes:
+        sample_node = nodes[0]
+        # Ensure new fields are present (even if None)
+        assert set(sample_node.keys()) >= {"id", "label", "kind", "belief", "x", "y", "z"}
     edges = payload["edges"]
     assert isinstance(nodes, list)
     assert isinstance(edges, list)
@@ -242,3 +247,271 @@ def test_graph_node_detail_asof_changes_tls_across_cutover():
 
     assert "TLS1.3" in after_targets
     assert "TLS1.2" not in after_targets
+
+
+def test_graph_neighborhood_edges_have_ids_and_round_trip_to_edge_endpoint():
+    asof_value = "2025-01-01T00:00:01Z"
+    resp = client.get(
+        "/graph/neighborhood",
+        params={"label": "FrameworkX", "hops": 1, "asof": asof_value},
+    )
+    assert resp.status_code == 200
+    payload = resp.json()
+    edges = payload["edges"]
+    if not edges:
+        pytest.skip("No edges returned for FrameworkX neighborhood")
+    edge = edges[0]
+    edge_id = edge["id"]
+
+    resp_edge = client.get(f"/graph/edge/{edge_id}", params={"asof": asof_value})
+    assert resp_edge.status_code == 200
+    edge_payload = resp_edge.json()
+    assert "edge" in edge_payload
+    assert "provenance" in edge_payload
+    assert "contradictions" in edge_payload
+    e = edge_payload["edge"]
+    assert isinstance(edge_payload["contradictions"], list)
+    assert e["id"] == edge_id
+
+
+def test_graph_neighborhood_rejects_invalid_policy():
+    resp = client.get(
+        "/graph/neighborhood",
+        params={"label": "FrameworkX", "hops": 1, "policy": "bogus"},
+    )
+    assert resp.status_code in {400, 422}
+
+
+def test_policy_latest_respects_tls_cutover_for_frameworkx():
+    asof_before = "2024-12-31T23:59:59Z"
+    asof_after = "2025-01-01T00:00:01Z"
+
+    params_common = {"label": "FrameworkX", "hops": 1, "limit": 20, "policy": "latest"}
+
+    resp_before = client.get("/graph/neighborhood", params={**params_common, "asof": asof_before})
+    resp_after = client.get("/graph/neighborhood", params={**params_common, "asof": asof_after})
+
+    assert resp_before.status_code == 200
+    assert resp_after.status_code == 200
+
+    def tls_targets(payload: dict) -> set[str]:
+        targets: set[str] = set()
+        id_to_label = {n["id"]: n["label"] for n in payload["nodes"]}
+        for e in payload["edges"]:
+            dst_label = id_to_label.get(e["dst_id"])
+            if dst_label is not None and e["predicate"] == "supports_tls":
+                targets.add(dst_label)
+        return targets
+
+    before_targets = tls_targets(resp_before.json())
+    after_targets = tls_targets(resp_after.json())
+
+    assert before_targets == {"TLS1.2"}
+    assert after_targets == {"TLS1.3"}
+
+
+def _seed_testframeworky_contradiction() -> None:
+    from datetime import datetime, timedelta
+
+    from dateutil.tz import UTC
+
+    from cns_py.storage.db import get_conn
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='fiber' AND subject_id IN ("
+                " SELECT f.id FROM fibers f "
+                " JOIN atoms a_src ON a_src.id=f.src "
+                " JOIN atoms a_dst ON a_dst.id=f.dst "
+                " WHERE a_src.label LIKE 'TestFramework%' OR a_dst.label LIKE 'TestTLS%')"
+            )
+            cur.execute(
+                "DELETE FROM aspects WHERE subject_kind='atom' AND subject_id IN ("
+                " SELECT a.id FROM atoms a WHERE label LIKE 'TestFramework%' "
+                " OR label LIKE 'TestTLS%')"
+            )
+            cur.execute(
+                "DELETE FROM fibers USING atoms a_src, atoms a_dst "
+                " WHERE a_src.id=fibers.src AND a_dst.id=fibers.dst "
+                " AND (a_src.label LIKE 'TestFramework%' OR a_dst.label LIKE 'TestTLS%')"
+            )
+            cur.execute(
+                "DELETE FROM atoms WHERE label LIKE 'TestFramework%' OR label LIKE 'TestTLS%'"
+            )
+
+            cur.execute(
+                "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
+                ("Entity", "TestFrameworkY", "A test security framework"),
+            )
+            framework_id = cur.fetchone()[0]
+
+            cur.execute(
+                "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
+                ("Concept", "TestTLS1.2", "TLS version 1.2"),
+            )
+            tls12_id = cur.fetchone()[0]
+
+            cur.execute(
+                "INSERT INTO atoms(kind, label, text) VALUES (%s, %s, %s) RETURNING id",
+                ("Concept", "TestTLS1.3", "TLS version 1.3"),
+            )
+            tls13_id = cur.fetchone()[0]
+
+            now = datetime.now(tz=UTC)
+            past = now - timedelta(days=60)
+            future = now + timedelta(days=60)
+
+            cur.execute(
+                "INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id",
+                (framework_id, tls12_id, "supports_tls"),
+            )
+            fiber1_id = cur.fetchone()[0]
+
+            cur.execute(
+                """
+                INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to,
+                                    belief, provenance)
+                VALUES ('fiber', %s, %s, %s, %s, %s)
+                """,
+                (
+                    fiber1_id,
+                    past,
+                    future,
+                    0.90,
+                    "{}",
+                ),
+            )
+
+            cur.execute(
+                "INSERT INTO fibers(src, dst, predicate) VALUES (%s, %s, %s) RETURNING id",
+                (framework_id, tls13_id, "supports_tls"),
+            )
+            fiber2_id = cur.fetchone()[0]
+
+            overlap_start = now - timedelta(days=30)
+            overlap_end = future + timedelta(days=30)
+
+            cur.execute(
+                """
+                INSERT INTO aspects(subject_kind, subject_id, valid_from, valid_to,
+                                    belief, provenance)
+                VALUES ('fiber', %s, %s, %s, %s, %s)
+                """,
+                (
+                    fiber2_id,
+                    overlap_start,
+                    overlap_end,
+                    0.95,
+                    "{}",
+                ),
+            )
+
+
+def test_policy_highest_confidence_treats_null_as_lowest():
+    from cns_py.storage.db import get_conn
+
+    _seed_testframeworky_contradiction()
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE aspects SET belief=NULL
+                WHERE subject_kind='fiber' AND subject_id IN (
+                    SELECT f.id FROM fibers f
+                    JOIN atoms a_src ON a_src.id=f.src
+                    WHERE a_src.label='TestFrameworkY' AND f.predicate='supports_tls'
+                    ORDER BY f.id ASC LIMIT 1
+                )
+                """
+            )
+
+    asof_value = "2025-06-01T00:00:00Z"
+    resp = client.get(
+        "/graph/neighborhood",
+        params={
+            "label": "TestFrameworkY",
+            "hops": 1,
+            "limit": 10,
+            "policy": "highest_confidence",
+            "asof": asof_value,
+        },
+    )
+    assert resp.status_code == 200
+    payload = resp.json()
+    id_to_label = {n["id"]: n["label"] for n in payload["nodes"]}
+    tls_edges = [
+        e
+        for e in payload["edges"]
+        if e["predicate"] == "supports_tls" and id_to_label.get(e["dst_id"]) is not None
+    ]
+    if not tls_edges:
+        pytest.skip("No supports_tls edges for TestFrameworkY at chosen ASOF")
+    tls_targets = {id_to_label[e["dst_id"]] for e in tls_edges}
+    # Under highest_confidence, the winner for the contradictory slot should
+    # be the non-NULL confidence edge (TestTLS1.3). We allow other non-slot
+    # edges, but TLS1.2 should not be the winner for this policy.
+    assert "TestTLS1.3" in tls_targets
+    assert "TestTLS1.2" not in tls_targets
+
+
+def test_policy_tie_break_determinism():
+    from cns_py.storage.db import get_conn
+
+    _seed_testframeworky_contradiction()
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE aspects SET belief=0.9
+                WHERE subject_kind='fiber' AND subject_id IN (
+                    SELECT f.id FROM fibers f
+                    JOIN atoms a_src ON a_src.id=f.src
+                    WHERE a_src.label='TestFrameworkY' AND f.predicate='supports_tls'
+                )
+                """
+            )
+
+    resp = client.get(
+        "/graph/neighborhood",
+        params={
+            "label": "TestFrameworkY",
+            "hops": 1,
+            "limit": 10,
+            "policy": "highest_confidence",
+        },
+    )
+    assert resp.status_code == 200
+    payload = resp.json()
+
+    # Call twice to ensure stability.
+    resp2 = client.get(
+        "/graph/neighborhood",
+        params={
+            "label": "TestFrameworkY",
+            "hops": 1,
+            "limit": 10,
+            "policy": "highest_confidence",
+        },
+    )
+    assert resp2.status_code == 200
+
+    def winner_id(response_json: dict) -> int | None:
+        id_to_label = {n["id"]: n["label"] for n in response_json["nodes"]}
+        tls_edges = [
+            e
+            for e in response_json["edges"]
+            if e["predicate"] == "supports_tls"
+            and id_to_label.get(e["dst_id"]) in {"TestTLS1.2", "TestTLS1.3"}
+        ]
+        if not tls_edges:
+            return None
+        # Winner is the first element; policy ordering should be deterministic.
+        return tls_edges[0]["id"]
+
+    w1 = winner_id(payload)
+    w2 = winner_id(resp2.json())
+    assert w1 is not None and w2 is not None
+    assert w1 == w2

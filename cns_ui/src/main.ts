@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 const API_BASE = "http://127.0.0.1:8000"; // CNS FastAPI server
 
@@ -17,6 +18,7 @@ let debugModeSelect: HTMLSelectElement | null;
 let scene: THREE.Scene | null = null;
 let camera: THREE.PerspectiveCamera | null = null;
 let renderer: THREE.WebGLRenderer | null = null;
+let controls: OrbitControls | null = null;
 let nodeGroup: THREE.Group | null = null;
 let edgeGroup: THREE.Group | null = null;
 
@@ -37,6 +39,9 @@ function initScene() {
   canvasContainer.innerHTML = "";
   canvasContainer.appendChild(renderer.domElement);
 
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+
   const ambient = new THREE.AmbientLight(0xffffff, 0.6);
   scene.add(ambient);
   const dir = new THREE.DirectionalLight(0xffffff, 0.8);
@@ -53,13 +58,28 @@ function initScene() {
 
 function animate() {
   requestAnimationFrame(animate);
+  if (controls) controls.update();
   if (renderer && scene && camera) {
     renderer.render(scene, camera);
   }
 }
 
-type NeighborhoodNode = { id: number; label: string; kind?: string | null };
-type NeighborhoodEdge = { src_id: number; dst_id: number; predicate: string };
+type NeighborhoodNode = {
+  id: number;
+  label: string;
+  kind?: string | null;
+  belief?: number | null;
+  x?: number | null;
+  y?: number | null;
+  z?: number | null;
+};
+type NeighborhoodEdge = {
+  id: number;
+  src_id: number;
+  dst_id: number;
+  predicate: string;
+  confidence?: number | null;
+};
 type NeighborhoodResponse = {
   center_node_id: number | null;
   hops: number;
@@ -85,6 +105,11 @@ function layoutNodes(nodes: NeighborhoodNode[], centerId: number | null) {
   let angleIdx = 0;
   for (const node of nodes) {
     if (positions.has(node.id)) continue;
+    if (node.x != null && node.y != null && node.z != null) {
+      positions.set(node.id, new THREE.Vector3(node.x, node.y, node.z));
+      continue;
+    }
+
     const angle = (angleIdx / Math.max(1, n - 1)) * Math.PI * 2;
     const x = radius * Math.cos(angle);
     const y = radius * Math.sin(angle);
@@ -123,24 +148,32 @@ function renderGraph(data: NeighborhoodResponse) {
   }
 
   // Collapse multi-edges by (src_id, dst_id) for rendering clarity.
-  const edgeGroups = new Map<string, { src_id: number; dst_id: number; count: number }>();
+  const edgeGroups = new Map<string, { src_id: number; dst_id: number; count: number; maxConf: number }>();
   for (const e of edges) {
     const key = `${e.src_id}|${e.dst_id}`;
+    const conf = e.confidence ?? 0.5;
     const existing = edgeGroups.get(key);
     if (existing) {
       existing.count += 1;
+      existing.maxConf = Math.max(existing.maxConf, conf);
     } else {
-      edgeGroups.set(key, { src_id: e.src_id, dst_id: e.dst_id, count: 1 });
+      edgeGroups.set(key, { src_id: e.src_id, dst_id: e.dst_id, count: 1, maxConf: conf });
     }
   }
 
-  const edgeMat = new THREE.LineBasicMaterial({ color: 0x4b5563, linewidth: 1 });
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x4b5563, linewidth: 1, transparent: true });
   for (const group of edgeGroups.values()) {
     const srcPos = positions.get(group.src_id);
     const dstPos = positions.get(group.dst_id);
     if (!srcPos || !dstPos) continue;
+
+    // Adjust opacity based on confidence
+    const opacity = Math.max(0.2, group.maxConf);
+    const mat = edgeMat.clone();
+    mat.opacity = opacity;
+
     const geom = new THREE.BufferGeometry().setFromPoints([srcPos, dstPos]);
-    const line = new THREE.Line(geom, edgeMat);
+    const line = new THREE.Line(geom, mat);
     edgeGroup.add(line);
   }
 

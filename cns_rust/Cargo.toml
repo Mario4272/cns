@@ -1,0 +1,15 @@
+[package]
+name = "cns_rust"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+anyhow = "1"
+# arrow = "53.0" # Start with core logic before heavy arrow dependency, or add it now?
+# Adding now as it is core to the engine requirements.
+arrow = "53.0"
+

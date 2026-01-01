@@ -95,7 +95,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     sql = base_select
     if where_clauses:
         sql += "WHERE " + " AND ".join(where_clauses) + " "
-    sql += "ORDER BY COALESCE(asp.belief, 0.0) DESC LIMIT 100"
+    sql += "ORDER BY COALESCE(asp.belief, 0.0) DESC, asp.observed_at DESC, f.id ASC LIMIT 100"
 
     results: List[ResultItem] = []
     raw_rows: List[
@@ -188,12 +188,21 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 hash=prov_dict.get("hash"),
             )
         ]
+        # Normalized observation timestamp for downstream policy and receipts.
+        observed_iso: Optional[str]
+        if isinstance(observed_at, datetime):
+            observed_iso = observed_at.isoformat()
+        else:
+            observed_iso = None
+
         results.append(
             ResultItem(
                 subject_label=subj,
                 predicate=pred,
                 object_label=obj,
                 confidence=conf,
+                fiber_id=fiber_id,
+                observed_at=observed_iso,
                 provenance=prov,
                 belief_details=details,
             )
@@ -220,6 +229,8 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
                 "predicate": r.predicate,
                 "object_label": r.object_label,
                 "confidence": r.confidence,
+                "fiber_id": r.fiber_id,
+                "observed_at": r.observed_at,
                 "provenance": [asdict(p) for p in r.provenance],
             }
             for r in results

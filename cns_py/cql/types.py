@@ -32,6 +32,11 @@ class ResultItem:
     predicate: Optional[str]
     object_label: str
     confidence: Optional[float]
+    # Stable backing edge identifier (fiber id in the graph layer).
+    fiber_id: Optional[int] = None
+    # Optional observation timestamp carried through from aspects.observed_at
+    # for temporal tie-breaks and receipts.
+    observed_at: Optional[str] = None
     provenance: List[Provenance] = field(default_factory=list)
     # Optional belief details for EXPLAIN
     belief_details: Optional[Dict[str, Any]] = None

@@ -47,13 +47,20 @@ def detect_fiber_contradictions(
         a_dst1.label AS object1_label,
         a_dst2.id AS object2_id,
         a_dst2.label AS object2_label,
-        GREATEST(
-            COALESCE(asp1.valid_from, '-infinity'::timestamptz),
-            COALESCE(asp2.valid_from, '-infinity'::timestamptz)
+        /* Map infinite bounds to NULL so psycopg does not raise on '-infinity'/'infinity'. */
+        NULLIF(
+            GREATEST(
+                COALESCE(asp1.valid_from, '-infinity'::timestamptz),
+                COALESCE(asp2.valid_from, '-infinity'::timestamptz)
+            ),
+            '-infinity'::timestamptz
         ) AS overlap_start,
-        LEAST(
-            COALESCE(asp1.valid_to, 'infinity'::timestamptz),
-            COALESCE(asp2.valid_to, 'infinity'::timestamptz)
+        NULLIF(
+            LEAST(
+                COALESCE(asp1.valid_to, 'infinity'::timestamptz),
+                COALESCE(asp2.valid_to, 'infinity'::timestamptz)
+            ),
+            'infinity'::timestamptz
         ) AS overlap_end
     FROM fibers f1
     JOIN fibers f2 ON f1.src = f2.src AND f1.predicate = f2.predicate AND f1.id < f2.id
@@ -150,13 +157,20 @@ def detect_atom_text_contradictions(
         a2.id AS atom2_id,
         a2.label AS atom2_label,
         a2.text AS text2,
-        GREATEST(
-            COALESCE(asp1.valid_from, '-infinity'::timestamptz),
-            COALESCE(asp2.valid_from, '-infinity'::timestamptz)
+        /* Map infinite bounds to NULL so psycopg does not raise on '-infinity'/'infinity'. */
+        NULLIF(
+            GREATEST(
+                COALESCE(asp1.valid_from, '-infinity'::timestamptz),
+                COALESCE(asp2.valid_from, '-infinity'::timestamptz)
+            ),
+            '-infinity'::timestamptz
         ) AS overlap_start,
-        LEAST(
-            COALESCE(asp1.valid_to, 'infinity'::timestamptz),
-            COALESCE(asp2.valid_to, 'infinity'::timestamptz)
+        NULLIF(
+            LEAST(
+                COALESCE(asp1.valid_to, 'infinity'::timestamptz),
+                COALESCE(asp2.valid_to, 'infinity'::timestamptz)
+            ),
+            'infinity'::timestamptz
         ) AS overlap_end
     FROM atoms a1
     JOIN atoms a2 ON a1.kind = a2.kind AND a1.label = a2.label AND a1.id < a2.id
