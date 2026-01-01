@@ -44,7 +44,7 @@ class GraphEdge(BaseModel):  # type: ignore[misc]
     src_id: int
     dst_id: int
     predicate: str
-    confidence: Optional[float] = None
+    belief: Optional[float] = None
 
 
 class GraphNeighborhoodEnvelope(BaseModel):  # type: ignore[misc]
@@ -243,7 +243,7 @@ def graph_neighborhood(
                 src_id=src_id,
                 dst_id=dst_id,
                 predicate=pred,
-                confidence=conf,
+                belief=conf,
             )
         )
 
@@ -254,7 +254,7 @@ def graph_neighborhood(
         from datetime import timezone
 
         def _effective_time(edge: GraphEdge) -> datetime:
-            if edge.confidence is None and asof is not None:
+            if edge.belief is None and asof is not None:
                 return asof
             # We do not currently surface observed_at at the neighborhood
             # level; fall back to ASOF for deterministic ordering.
@@ -269,7 +269,7 @@ def graph_neighborhood(
         for (_src, _pred), group in keyed.items():
 
             def sort_key(edge: GraphEdge) -> tuple[float, float, int, int]:
-                conf_val = 0.0 if edge.confidence is None else float(edge.confidence)
+                conf_val = 0.0 if edge.belief is None else float(edge.belief)
                 eff_time = _effective_time(edge)
                 if policy_normalized == "latest":
                     return (-eff_time.timestamp(), -conf_val, edge.dst_id, edge.id)
@@ -308,7 +308,7 @@ class EdgeReceipt(BaseModel):  # type: ignore[misc]
     src_id: int
     dst_id: int
     predicate: str
-    confidence: Optional[float] = None
+    belief: Optional[float] = None
     valid_from: Optional[datetime] = None
     valid_to: Optional[datetime] = None
     observed_at: Optional[datetime] = None
@@ -376,7 +376,7 @@ def graph_edge_detail(edge_id: int, asof: Optional[datetime] = None) -> EdgeRece
                 src_id=int(src_id),
                 dst_id=int(dst_id),
                 predicate=str(predicate),
-                confidence=float(confidence) if confidence is not None else None,
+                belief=float(confidence) if confidence is not None else None,
                 valid_from=valid_from,
                 valid_to=valid_to,
                 observed_at=observed_at,

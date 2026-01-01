@@ -78,7 +78,7 @@ type NeighborhoodEdge = {
   src_id: number;
   dst_id: number;
   predicate: string;
-  confidence?: number | null;
+  belief?: number | null;
 };
 type NeighborhoodResponse = {
   center_node_id: number | null;
@@ -151,7 +151,7 @@ function renderGraph(data: NeighborhoodResponse) {
   const edgeGroups = new Map<string, { src_id: number; dst_id: number; count: number; maxConf: number }>();
   for (const e of edges) {
     const key = `${e.src_id}|${e.dst_id}`;
-    const conf = e.confidence ?? 0.5;
+    const conf = e.belief ?? 0.5;
     const existing = edgeGroups.get(key);
     if (existing) {
       existing.count += 1;
