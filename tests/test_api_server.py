@@ -595,20 +595,33 @@ def test_graph_edge_detail_respects_validity_interval_frameworkx():
     assert resp_2026.status_code == 404
 
 
-def test_vector_search_integration():
+def test_vector_search_integration(monkeypatch, tmp_path):
     """Verify /graph/similar endpoint with InMemory backend."""
-    from cns_py.api.server import get_vector_index
+    # Ensure enabled for this test and isolated
+    monkeypatch.setenv("VECTOR_INDEX_ENABLED", "1")
+    monkeypatch.setenv("VECTOR_INDEX_BACKEND", "memory")
+    monkeypatch.setenv("VECTOR_INDEX_PATH", str(tmp_path / "api_test_idx"))
+    
+    from cns_py.api.server import _INDEX_MANAGER
+    
+    # Force startup to initialize the inner index (clean state)
+    _INDEX_MANAGER.startup()
+    
+    # Access the inner index directly for white-box seeding
+    idx = _INDEX_MANAGER.index
+    if idx is None:
+        pytest.fail("Vector index not initialized")
 
-    # Seed the index directly (white-box testing the integration)
-    idx = get_vector_index()
     try:
         idx.upsert("vec_a", [1.0, 0.0])
         idx.upsert("vec_b", [0.0, 1.0])
     except Exception:
-        pytest.skip("Vector index backend not ready or failed to upsert")
+        pytest.skip("Vector index backend failed to upsert")
 
     # Query via API for vec_a
     resp = client.post("/graph/similar", json={"vector": [1.0, 0.0], "k": 5})
+    if resp.status_code != 200:
+        pytest.fail(f"Status {resp.status_code}: {resp.text}")
     assert resp.status_code == 200
     payload = resp.json()
     assert "results" in payload

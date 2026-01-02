@@ -156,6 +156,11 @@ make e2e          # Playwright demo script
 - **Budget**: P95 < 250ms (Strict)
 
 ### History
+- **2026-01-02**: Slice 4 (Real Index Lifecycle) Implemented.
+    - Added `IndexManager` with startup/shutdown hooks.
+    - Added Config (`VECTOR_INDEX_ENABLED`, etc.).
+    - Wired API to real DB atoms (enriched response).
+    - Validated Persistence Proof (Restart Test).
 - **2026-01-02**: Slice 3 (Persistence & Filtering) Complete.
     - **3A**: Persistence (`save/load`, npz+json).
     - **3C**: Filtering (Subset Match).

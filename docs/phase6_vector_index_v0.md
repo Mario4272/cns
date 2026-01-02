@@ -18,24 +18,36 @@
     - `ExactInMemoryIndex`: Sort key `(-score, id)`.
     - `PgVectorIndex`: Sort clause `ORDER BY (embedding <=> query) ASC, id ASC`.
 
-## 2. Backends
+## 2. Configuration & Lifecycle (Slice 4)
+### Environment Variables
+- `VECTOR_INDEX_ENABLED` (0/1): Master switch.
+- `VECTOR_INDEX_BACKEND`: `memory` (default) or `pg`.
+- `VECTOR_INDEX_PATH`: Filesystem path for `memory` backend persistence (e.g. `.cns_vector_index/index`).
+
+### IndexManager
+The `IndexManager` singleton handles:
+- **Startup**: Loads persisted index (if `memory` backend and files exist) OR rebuilds index from DB atoms (`Entity` and `Concept` kinds).
+- **Shutdown**: Persists index to disk (if `memory` backend).
+- **Query**: Proxies to the underlying backend and **enriches** results with atom Label/Kind from DB.
+
+## 3. Backends
 ### ExactInMemoryIndex (Default)
 - **Tech**: Numpy / Pure Python.
-- **Usage**: Dev, CI, small datasets.
-- **Persistence**: None (in-memory only).
+- **Persistence**: `np.savez` + `json` metadata (See [Persistence Doc](phase6_vector_index_persistence.md)).
 
 ### PgVectorIndex
 - **Tech**: Postgres `pgvector` extension.
-- **Schema**: Table `vector_store` (`id TEXT PK`, `embedding vector(384)`).
-- **Usage**: Production, large datasets.
-- **Config**: Activated via `CNS_VECTOR_BACKEND=pg`.
+- **Usage**: Production. Requires `vector` extension.
 
-## 3. Integration
+## 4. Integration
 - **API**: `POST /graph/similar`
-- **Payload**: `{"vector": [...], "k": 10}`
-- **Response**: `{"results": [{"id": "...", "score": ...}]}`
+- **Enrichment**: Response includes `label` and `kind` fields fetched from DB.
+- **Filtering**: Supports metadata subset matching (See [Filtering Doc](phase6_vector_filtering.md)).
 
-## 4. Verification
-- **Unit Tests**: `tests/test_vector_index.py` (Covers upsert logic, normalization, determinism).
-- **Integration**: `tests/test_api_server.py` (Covers API wiring).
-- **Perf**: P95 Latency budget < 250ms maintained.
+## 5. Verification
+- **Unit**: `tests/test_vector_index.py`.
+- **Integration**: 
+    - `tests/test_api_server.py`: API wiring & enrichment.
+    - `tests/test_vector_lifecycle.py`: Startup/Shutdown persistence & DB rebuild.
+- **Perf**: P95 < 250ms.
+

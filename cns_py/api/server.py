@@ -571,30 +571,24 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
 
 # ... existing code ...
 
+
 import os
 
-from cns_py.vector import ExactInMemoryIndex, PgVectorIndex, VectorIndex
+from cns_py.vector.manager import IndexManager
 
-# Initialize Vector Index Backend
-_VECTOR_INDEX: Optional[VectorIndex] = None
+# Initialize Vector Index Manager (Singleton)
+_INDEX_MANAGER = IndexManager()
 
+@app.on_event("startup")
+def startup_event() -> None:
+    """Initialize resources on startup."""
+    # This handles loading persistence or rebuilding if needed
+    _INDEX_MANAGER.startup()
 
-def get_vector_index() -> VectorIndex:
-    global _VECTOR_INDEX
-    if _VECTOR_INDEX is None:
-        backend = os.getenv("CNS_VECTOR_BACKEND", "memory").lower()
-        if backend == "pg":
-            try:
-                # Default dimension 384, matching legacy schema hint
-                _VECTOR_INDEX = PgVectorIndex(dim=384)
-                print("Initialized PgVectorIndex for vector search.")
-            except Exception as e:
-                print(f"Failed to init PgVectorIndex: {e}. Falling back to Memory.")
-                _VECTOR_INDEX = ExactInMemoryIndex()
-        else:
-            _VECTOR_INDEX = ExactInMemoryIndex()
-            print("Initialized ExactInMemoryIndex for vector search.")
-    return _VECTOR_INDEX
+@app.on_event("shutdown")
+def shutdown_event() -> None:
+    """Cleanup resources on shutdown."""
+    _INDEX_MANAGER.shutdown()
 
 
 class VectorQuery(BaseModel):
@@ -606,6 +600,9 @@ class VectorQuery(BaseModel):
 class SimilarResult(BaseModel):
     id: str
     score: float
+    # Slice 4: Add explicit fields for easier consumption
+    label: Optional[str] = None
+    kind: Optional[str] = None
 
 
 class SimilarNodesEnvelope(BaseModel):
@@ -613,15 +610,52 @@ class SimilarNodesEnvelope(BaseModel):
 
 
 def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
-    """Find similar items by vector."""
-    idx = get_vector_index()
-    # Query returns list of (id, score)
+    """Find similar items by vector.
+    Delegates to IndexManager.
+    """
     try:
-        raw_results = idx.query(req.vector, k=req.k, filter=req.filter)
+        # IndexManager.query returns List[ScoredResult] i.e. (id, score)
+        # But we want to enrich this eventually. For now, we return what we have.
+        # The Manager query is just a proxy to the index.
+        # To get label/kind, we might need to fetch from DB or store in metadata.
+        # Slice 4 requirement: "Response should include... label... kind"
+        # Since we stored metadata in IndexManager.rebuild(), we can retrieve it if the Index supports it.
+        # But VectorIndex.query only returns (id, score).
+        # We need to fetch details. Or checking if IndexManager can return metadata.
+        
+        # Let's see... ExactInMemoryIndex stores metadata.
+        # But query() interface returns ScoredResult (id, score).
+        # We should probably fetch atoms from DB to be Safe and Real.
+        # OR extend query interface? Contract says: return List[ScoredResult].
+        
+        raw_results = _INDEX_MANAGER.query(req.vector, k=req.k, filter=req.filter)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+    # Enrich results with Label/Kind from DB (or cache if we had one)
+    # Since we need "Real Index Lifecycle", fetching from DB ensures freshness.
+    results = []
+    if raw_results:
+        ids = [r[0] for r in raw_results]
+        # Bulk fetch details
+        atom_details = {}
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT id, label, kind FROM atoms WHERE id::text = ANY(%(ids)s::text[])", # ID is text in Index
+                     # But DB id is int? Wait. 
+                     # IndexManager.rebuild stored str(atom_id_int).
+                     # So we cast back.
+                    {"ids": ids}
+                )
+                for row in cur.fetchall():
+                    atom_id, label, kind = row
+                    atom_details[str(atom_id)] = (label, kind)
 
-    results = [SimilarResult(id=str(r[0]), score=r[1]) for r in raw_results]
+        for doc_id, score in raw_results:
+            label, kind = atom_details.get(doc_id, (None, None))
+            results.append(SimilarResult(id=doc_id, score=score, label=label, kind=kind))
+
     return SimilarNodesEnvelope(results=results)
 
 
@@ -635,5 +669,5 @@ app.post("/graph/similar", response_model=SimilarNodesEnvelope)(find_similar)
 
 def get_app() -> FastAPI:
     """Expose the FastAPI app for ASGI servers/tests."""
-    # Pre-warm the index if possible? No, lazy is fine.
     return app
+
