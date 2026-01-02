@@ -135,99 +135,39 @@ make e2e          # Playwright demo script
 
 ---
 
-## Phase 4 — IB Explorer Alpha (Weeks 7–9)
-
-**Objective:** Give users the multi-dimensional feel (IB not DB) and time travel.
-
-### Deliverables
-
-- **WebGL/Three.js Galaxy**
-  - Atoms as stars (color by kind), Fibers as edges (thickness by belief).
-  - Zoom levels: clusters → subgraphs → atom detail panel (aspects: vector preview, provenance list).
-- **Time Slider**
-  - Scrub to `ASOF` date; graph hides/shows fibers; belief animates.
-  - **Contradiction Mode**
-  - Pulsing lightning edges between `CONTRADICTS`.
-
-### Metrics
-
-- 60 FPS on 10k nodes/edges on a decent laptop (LOD + instancing).
-- “Click atom” panel shows citations and belief history < 100 ms.
-
-**Exit criteria**
-
-- Live demo: switch dates; see TLS claim swap + contradiction animation; click to view sources.
-
-**Status (2025-12-24)**
-
-- Backend API groundwork in place for Explorer:
-  - FastAPI app in `cns_py/api/server.py` with:
-    - `POST /cql` endpoint executing CQL against the existing Python ref engine.
-    - `GET /graph/neighborhood` endpoint returning a small graph JSON (nodes/edges with synthetic IDs) suitable for an initial galaxy view.
-  - Tests in `tests/test_api_server.py` covering happy-path and basic error cases.
-  - Local dev runner `scripts/run_api.py` and `make run-api` target wired into the Makefile.
-- Explorer UI and WebGL/Three.js galaxy view not started yet (backend only).
-
-**Status (2026-01-02)**
-
-- ✅ Configured strict performance budget (250ms P95); confirmed deterministic execution (~70-80ms P95).
-- ✅ Provenance & Edge Receipts delivered via API (Issues #21, #22).
-- ✅ README updated with verified CQL example (Issue #8).
-- 📋 Next: Explorer Frontend (Phase 5).
-
-**Next steps (Phase 4 slice)**
-
-- API shape / data contracts
-  - Refine the `/graph/neighborhood` JSON schema for the Explorer (node/edge attributes, belief values, temporal fields, contradiction flags).
-  - Add any additional lightweight Explorer-oriented endpoints as needed (e.g., node detail by ID/label, saved views stub).
-- Backend hardening
-  - Extend tests to cover more graph patterns and edge cases for the neighborhood endpoint.
-  - Add basic rate-limiting / error-handling ergonomics where helpful for the UI.
-- Frontend skeleton
-  - Stand up a minimal Explorer UI that consumes `/cql` and `/graph/neighborhood` and renders a very simple graph view (no time slider yet).
-  - Wire a basic time-slider control to the existing `ASOF` machinery via CQL, even if visuals remain minimal.
-
-#### Priority 0–2 breakdown (Explorer roadmap)
-
-- **Priority 0 – Contract first (backend DTOs)**
-
-  - Define a stable DTO for `GET /graph/neighborhood`:
-    - Node: `id, kind, label, text_preview?` and basic belief / temporal / provenance summaries.
-    - Edge: `id, src, dst, predicate, belief.p, tape(...), is_contradiction, contradicts_edge_ids?`.
-    - Response wrapper: `center_node_id, hops, asof, nodes[], edges[], truncated?`.
-  - Update implementation to emit real atom/fiber IDs where possible (synthetic only as a last resort).
-  - Expand `tests/test_api_server.py` to assert the exact response shape, `asof` behavior on demo data, and any limit/truncation behavior.
-  - Add an `asof` parameter to `/graph/neighborhood` (internally uses the existing ASOF mask machinery).
-
-- **Priority 1 – Make Explorer “truthy” (semantics)**
-
-  - Add `GET /graph/node/{id}?asof=...` returning:
-    - Node fields + aspects summary.
-    - Provenance list (capped to N) and optional related contradictions count.
-  - Add contradiction plumbing into the neighborhood DTO:
-    - `edge.is_contradiction` boolean.
-    - Optional `edge.contradicts_edge_ids` array.
-
-- **Priority 2 – Thin UI slice (Explorer frontend)**
-  - Update `explorer/` to call:
-    - `/graph/neighborhood` with `label`, `hops`, and `asof`.
-    - `/graph/node/{id}` on click to populate a right-hand detail panel.
-  - Render minimal 3D/2D graph plus a node detail pane; refine visuals and interaction later.
-
----
-
-## Phase 5 — Rust Engine Alpha (Weeks 9–12)
+## Phase 4 — Rust Core Alpha (Weeks 3–6) 📋 PLANNED
 
 **Objective:** Stand up the next-gen substrate core without breaking the API.
 
 ### Deliverables
+- **Journal** (append-only Arrow segments).
+- **Graph engine v1** (CSR + Roaring masks).
+- **Vector engine v1** (IVF-PQ bulk).
+- **Planner v1** (ANN → temporal mask → graph expand).
 
-- **Journal** (append-only Arrow segments; bitemporal headers; replay).
-- **Graph engine v1** (CSR + Roaring masks; 1–2 hop traversals).
-- **Vector engine v1** (IVF-PQ bulk; HNSW hot set).
-- **Planner v1** (ANN → temporal mask → graph expand; cost heuristics).
-- **Wire**: Arrow Flight for result sets; gRPC for control ops.
-- **Python SDK** points to Rust engine (feature flag).
+### Status (2026-01-02)
+- ⚠️ Deferred in favor of Explorer (Phase 5).
+
+---
+
+## Phase 5 — IB Explorer Alpha (Weeks 7–9) ✅ COMPLETE
+
+**Objective:** Give users the multi-dimensional feel (IB not DB) and time travel.
+
+### Deliverables
+- **WebGL/Three.js Galaxy** (Atoms as stars, Fibers as edges).
+- **Detail Panel** (Provenance, Beliefs).
+- **Interactive Graph** (Neighborhood navigation).
+
+### Status (2026-01-02)
+- ✅ Phase 5 Explorer MVP shipped (commit `66614e1`).
+- ✅ Functional 3D graph view + Node Detail sidebar.
+- ✅ Closed Issues: #21 (Edge Receipts), #22 (Provenance).
+
+### Details
+- Frontend: `explorer/index.html` (Three.js + Vanilla JS).
+- Backend: `/graph/neighborhood` and `/graph/node/{id}` endpoints.
+
 
 ### Metrics
 
