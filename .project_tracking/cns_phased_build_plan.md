@@ -168,6 +168,13 @@ make e2e          # Playwright demo script
   - Local dev runner `scripts/run_api.py` and `make run-api` target wired into the Makefile.
 - Explorer UI and WebGL/Three.js galaxy view not started yet (backend only).
 
+**Status (2026-01-02)**
+
+- ✅ Configured strict performance budget (250ms P95); confirmed deterministic execution (~70-80ms P95).
+- ✅ Provenance & Edge Receipts delivered via API (Issues #21, #22).
+- ✅ README updated with verified CQL example (Issue #8).
+- 📋 Next: Explorer Frontend (Phase 5).
+
 **Next steps (Phase 4 slice)**
 
 - API shape / data contracts
@@ -354,9 +361,9 @@ make e2e          # Playwright demo script
   - Command: `psql "postgres://cns:cns@127.0.0.1:5433/cns" -f tests_pg/pg_tap_smoke.sql`
   - Artifact: `pgtap-results-*/pg_tap_results.tap`
 
-- Performance smoke (P95 ≤ 500ms; P99 ≤ 900ms)
+- Performance smoke (P95 ≤ 250ms; P99 ≤ 900ms)
 
-  - Command: `python scripts/perf_smoke.py --iters 300 --warmup 50 --p95-budget-ms 500 --p99-budget-ms 900`
+  - Command: `python scripts/perf_smoke.py --iters 300 --warmup 50 --p95-budget-ms 250 --p99-budget-ms 900`
   - Example output:
     ```
     [CI: perf-smoke]
