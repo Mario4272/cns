@@ -156,10 +156,11 @@ make e2e          # Playwright demo script
 - **Budget**: P95 < 250ms (Strict)
 
 ### History
-- **2026-01-02**: Slice 3A (Vector Persistence) Implemented.
-    - Added `save/load` to `VectorIndex`.
-    - Implemented `ExactInMemoryIndex` persistence (npz+json).
-    - Validated Roundtrip & Determinism.
+- **2026-01-02**: Slice 3 (Persistence & Filtering) Complete.
+    - **3A**: Persistence (`save/load`, npz+json).
+    - **3C**: Filtering (Subset Match).
+    - **3B**: Skipped (Prioritized Filtering).
+    - Validated with `test_vector_persistence.py` & `test_vector_filtering.py`.
 - **2026-01-02**: Slice 2 (Vector Index v0) Implemented.
     - Defined `VectorIndex` contract (ABC).
     - Implemented `ExactInMemoryIndex` and `PgVectorIndex`.

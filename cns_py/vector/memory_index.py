@@ -46,6 +46,20 @@ class ExactInMemoryIndex(VectorIndex):
         scores = []
         # Linear scan (Brute force)
         for doc_id, doc_vec in self._data.items():
+            # Apply Filter if present
+            if filter:
+                doc_meta = self._metadata.get(doc_id)
+                if not doc_meta:
+                    continue  # Filter present but no metadata -> skip
+                # Check subset: all items in filter must equal items in doc_meta
+                match = True
+                for fk, fv in filter.items():
+                    if doc_meta.get(fk) != fv:
+                        match = False
+                        break
+                if not match:
+                    continue
+
             # Dot product of normalized vectors = Cosine Similarity
             score = float(np.dot(q, doc_vec))
             scores.append((doc_id, score))
