@@ -142,7 +142,17 @@ def graph_neighborhood(
     # query that asks for outgoing edges from the labeled node at that time
     # and adapt the result into the neighborhood DTO.
     # subject_label, predicate, object_label, confidence, fiber_id, observed_at_iso, provenance_json
-    edges_raw: List[tuple[str, str, str, Optional[float], Optional[int], Optional[str], Optional[Dict]]]
+    edges_raw: List[
+        tuple[
+            str,
+            str,
+            str,
+            Optional[float],
+            Optional[int],
+            Optional[str],
+            Optional[Dict[str, Any]],
+        ]
+    ]
     if asof is not None:
         # Use ISO format expected by the CQL executor.
         cql_query = f'MATCH label="{label}" ASOF {asof.isoformat()} RETURN'
@@ -236,9 +246,9 @@ def graph_neighborhood(
         dst_id = label_to_id.get(obj_label)
         if src_id is None or dst_id is None:
             continue
-        
+
         edge_id = fiber_id if fiber_id is not None else abs(hash((src_id, dst_id, pred)))
-        
+
         # Provenance Summary
         assertions_count = 1 if prov_json is not None else 0
         sources_count = 0
@@ -248,7 +258,7 @@ def graph_neighborhood(
                 sources_count = 1  # Simplified for now; schema allows richer prov later
 
         prov_summary = NodeProvenanceSummary(
-            assertions_count=assertions_count, 
+            assertions_count=assertions_count,
             sources_count=sources_count,
         )
 
@@ -267,7 +277,7 @@ def graph_neighborhood(
     # We do not have a separate list of contradictions in the raw results, but we can
     # infer them within the retrieved window. This is a "best effort" contradiction list based
     # on the neighborhood view.
-    grouped_by_key: Dict[tuple[int, str], List[int]] = {}
+    grouped_by_key: Dict[tuple[int, str], List[GraphEdge]] = {}
     for e in edges_all:
         grouped_by_key.setdefault((e.src_id, e.predicate), []).append(e)
 

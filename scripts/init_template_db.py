@@ -14,14 +14,13 @@ Usage (from repo root, with .venv activated):
 
 """
 
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from typing import Any
+from dataclasses import dataclass  # noqa: E402
+from datetime import datetime, timedelta  # noqa: E402
 
-import psycopg
-from dateutil.tz import UTC
+import psycopg  # noqa: E402
+from dateutil.tz import UTC  # noqa: E402
 
-from cns_py.storage.db import DbConfig, get_conn
+from cns_py.storage.db import DbConfig, get_conn  # noqa: E402
 
 
 @dataclass
@@ -187,7 +186,10 @@ def recreate_template() -> None:
     cfg = DbConfig()
     with _admin_connect("postgres") as conn:  # type: ignore[call-arg]
         with conn.cursor() as cur:
-            cur.execute("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=%s", ("cns_template",))
+            cur.execute(
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=%s",
+                ("cns_template",),
+            )
             cur.execute("DROP DATABASE IF EXISTS cns_template")
             cur.execute(f"CREATE DATABASE cns_template TEMPLATE {cfg.dbname}")
 

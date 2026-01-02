@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import pytest
 from datetime import datetime, timezone
+
+import pytest
 
 try:
     from fastapi.testclient import TestClient
@@ -535,35 +536,31 @@ def test_graph_neighborhood_structures_include_provenance_and_contradictions():
 
 def test_graph_neighborhood_populates_contradictions_field():
     _seed_testframeworky_contradiction()
-    
+
     asof_now = datetime.now(timezone.utc).isoformat()
     # Fetch with policy=all to get both competing edges
     resp = client.get(
         "/graph/neighborhood",
-        params={
-            "label": "TestFrameworkY",
-            "hops": 1,
-            "policy": "all",
-            "asof": asof_now
-        },
+        params={"label": "TestFrameworkY", "hops": 1, "policy": "all", "asof": asof_now},
     )
     assert resp.status_code == 200
     payload = resp.json()
-    
+
     id_to_label = {n["id"]: n["label"] for n in payload["nodes"]}
     tls_edges = [
-        e for e in payload["edges"] 
+        e
+        for e in payload["edges"]
         if e["predicate"] == "supports_tls" and id_to_label.get(e["dst_id"]) is not None
     ]
-    
+
     assert len(tls_edges) >= 2
-    
+
     for e in tls_edges:
         # Each edge should list the other(s) as contradictions
         assert e["contradictions"] is not None
         assert isinstance(e["contradictions"], list)
         assert len(e["contradictions"]) >= 1
-        
+
         # Verify the contradiction ID actually points to one of the other TLS edges
         other_ids = {other["id"] for other in tls_edges if other["id"] != e["id"]}
         assert set(e["contradictions"]).intersection(other_ids)
@@ -574,8 +571,7 @@ def test_graph_edge_detail_respects_validity_interval_frameworkx():
     # Step 1: Find the internal ID of FrameworkX -> TLS1.2 edge.
     asof_2024 = "2024-12-31T23:59:59Z"
     resp = client.get(
-        "/graph/neighborhood", 
-        params={"label": "FrameworkX", "hops": 1, "asof": asof_2024}
+        "/graph/neighborhood", params={"label": "FrameworkX", "hops": 1, "asof": asof_2024}
     )
     payload = resp.json()
     id_to_label = {n["id"]: n["label"] for n in payload["nodes"]}
@@ -584,15 +580,15 @@ def test_graph_edge_detail_respects_validity_interval_frameworkx():
         if id_to_label.get(e["dst_id"]) == "TLS1.2":
             edge_id_tls12 = e["id"]
             break
-    
+
     assert edge_id_tls12 is not None, "FrameworkX -> TLS1.2 edge should exist in 2024"
-    
+
     # Step 2: Query Detail in 2024 -> Should exist and be valid
     resp_2024 = client.get(f"/graph/edge/{edge_id_tls12}", params={"asof": asof_2024})
     assert resp_2024.status_code == 200
     r_2024 = resp_2024.json()
     assert r_2024["edge"]["belief"] > 0.8
-    
+
     # Step 3: Query Detail in 2026 -> Should be 404 because the edge is not valid at that time
     asof_2026 = "2026-01-01T00:00:00Z"
     resp_2026 = client.get(f"/graph/edge/{edge_id_tls12}", params={"asof": asof_2026})
