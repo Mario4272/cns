@@ -38,9 +38,9 @@ def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--iters", type=int, default=100)
     ap.add_argument("--warmup", type=int, default=50)
-    # Conservative local target: flag if p95 exceeds ~500ms.
-    ap.add_argument("--p95-budget-ms", type=float, default=500.0)
-    ap.add_argument("--p99-budget-ms", type=float, default=900.0)
+    # Conservative local target: flag if p95 exceeds ~250ms.
+    ap.add_argument("--p95-budget-ms", type=float, default=250.0)
+    ap.add_argument("--p99-budget-ms", type=float, default=500.0)
     args = ap.parse_args(argv)
 
     QUERIES: List[Query] = [
