@@ -52,7 +52,82 @@
       canvas {
         display: block;
       }
-    </style>
+      /* Sidebar Styles */
+      #detail-panel {
+        position: fixed;
+        top: 3.5rem; /* Below header */
+        right: 0;
+        bottom: 0;
+        width: 320px;
+        background: #0f172a;
+        border-left: 1px solid #1f2937;
+        padding: 1rem;
+        overflow-y: auto;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        box-shadow: -4px 0 15px rgba(0, 0, 0, 0.5);
+      }
+      #detail-panel.open {
+        transform: translateX(0);
+      }
+      .panel-section {
+        margin-bottom: 1.5rem;
+      }
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 0.5rem;
+      }
+      h2 { margin: 0; font-size: 1.25rem; color: #f8fafc; }
+      h3 { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+      .close-btn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 1.5rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+      }
+      .close-btn:hover { color: #f8fafc; }
+      
+      /* Data attributes */
+      .attr-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+      .attr-label { color: #94a3b8; }
+      .attr-val { color: #e2e8f0; font-family: monospace; }
+      
+      /* Provenance List */
+      .prov-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .prov-item {
+        background: #1e293b;
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        border-left: 3px solid #3b82f6;
+      }
+      .prov-uri {
+        display: block;
+        color: #60a5fa;
+        text-decoration: none;
+        margin-bottom: 0.25rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .prov-meta { color: #64748b; font-size: 0.75rem; }
     <!-- Three.js and OrbitControls from CDN (pinned to a version where UMD OrbitControls attaches to THREE) -->
     <script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.149.0/examples/js/controls/OrbitControls.js"></script>
@@ -87,6 +162,30 @@
       <div id="status"></div>
     </header>
     <div id="scene-container"></div>
+    
+    <!-- Detail Panel Sidebar -->
+    <aside id="detail-panel">
+      <div class="panel-header">
+        <h2 id="panel-title">Node Details</h2>
+        <button class="close-btn" onclick="closePanel()">×</button>
+      </div>
+      <div id="panel-content">
+        <div class="panel-section">
+          <h3>Properties</h3>
+          <div class="attr-grid" id="node-props">
+            <!-- populated by JS -->
+          </div>
+        </div>
+        <div class="panel-section" id="prov-section" style="display:none">
+          <h3>Provenance</h3>
+          <ul class="prov-list" id="prov-list"></ul>
+        </div>
+        <div class="panel-section" id="aspects-section" style="display:none">
+          <h3>Aspects / Beliefs</h3>
+          <div class="attr-grid" id="aspects-list"></div>
+        </div>
+      </div>
+    </aside>
 
     <script>
       const API_BASE = "http://127.0.0.1:8000"; // adjust if needed
@@ -99,7 +198,10 @@
       const loadBtn = document.getElementById("load-btn");
 
       let scene, camera, renderer, controls;
+      let scene, camera, renderer, controls, raycaster, mouse;
       let nodeGroup, edgeGroup;
+      let hoveredNodeId = null;
+      let nodeRefMap = new Map(); // Mesh UUID -> Node Data
 
       function initScene() {
         const width = container.clientWidth || window.innerWidth;
@@ -133,7 +235,14 @@
         nodeGroup = new THREE.Group();
         edgeGroup = new THREE.Group();
         scene.add(nodeGroup);
+        scene.add(nodeGroup);
         scene.add(edgeGroup);
+
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
+        container.addEventListener("pointermove", onPointerMove);
+        container.addEventListener("click", onClick);
 
         window.addEventListener("resize", onWindowResize);
         animate();
@@ -214,7 +323,9 @@
             isCentral ? matCentral : matOther
           );
           mesh.position.copy(pos);
+          mesh.userData = { id: node.id, label: node.label }; // Store ID for raycasting
           nodeGroup.add(mesh);
+          nodeRefMap.set(mesh.uuid, node);
         }
 
         const edgeMat = new THREE.LineBasicMaterial({
@@ -276,6 +387,94 @@
           loadNeighborhood();
         }
       });
+
+      // Interaction Logic
+      function onPointerMove(event) {
+        // Normalize mouse coordinates (0,0 center)
+        const rect = container.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      }
+
+      function onClick() {
+        // Raycast against nodes
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(nodeGroup.children);
+        
+        if (intersects.length > 0) {
+          const selected = intersects[0].object;
+          const nodeId = selected.userData.id;
+          if (nodeId) {
+            console.log("Clicked:", nodeId);
+            fetchNodeDetails(nodeId);
+          }
+        } else {
+          // closePanel(); // Optional: close on click background?
+        }
+      }
+
+      const panel = document.getElementById("detail-panel");
+      const panelTitle = document.getElementById("panel-title");
+      const nodeProps = document.getElementById("node-props");
+      const provList = document.getElementById("prov-list");
+      const provSection = document.getElementById("prov-section");
+      
+      function closePanel() {
+        panel.classList.remove("open");
+      }
+
+      async function fetchNodeDetails(nodeId) {
+        statusEl.textContent = `Loading details for Node ${nodeId}...`;
+        try {
+          const asof = asofInput.value.trim();
+          const url = `${API_BASE}/graph/node/${nodeId}` + (asof ? `?asof=${asof}` : "");
+          
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error(`API ${resp.status}`);
+          
+          const data = await resp.json();
+          renderDetailPanel(data);
+          statusEl.textContent = `Loaded details for ${data.node.label}`;
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Failed to load node details.";
+        }
+      }
+
+      function renderDetailPanel(data) {
+        const node = data.node;
+        const prov = data.provenance; // { assertions_count, sources_count }
+        
+        panelTitle.textContent = node.label;
+        
+        // Basic Props
+        nodeProps.innerHTML = `
+          <span class="attr-label">ID</span> <span class="attr-val">${node.id}</span>
+          <span class="attr-label">Kind</span> <span class="attr-val">${node.kind || "N/A"}</span>
+          <span class="attr-label">Belief</span> <span class="attr-val">${(node.belief ?? 1.0).toFixed(2)}</span>
+        `;
+
+        // Provenance Section (Mocking list since API currently summarizes counts)
+        // Ideally we'd list actual sources if the API returned them in detail response
+        provSection.style.display = "block";
+        provList.innerHTML = "";
+        
+        if (prov) {
+           const item = document.createElement("li");
+           item.className = "prov-item";
+           item.innerHTML = `
+             <div class="prov-uri">Sources Count: ${prov.sources_count}</div>
+             <div class="prov-meta">Assertions: ${prov.assertions_count}</div>
+           `;
+           provList.appendChild(item);
+        } else {
+           provList.innerHTML = "<li style='color:#64748b'>No provenance data</li>";
+        }
+
+        // Aspects (Future Work: Iterate data.aspects)
+        
+        panel.classList.add("open");
+      }
 
       initScene();
     </script>
