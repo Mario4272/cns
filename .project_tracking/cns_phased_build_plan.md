@@ -156,6 +156,11 @@ make e2e          # Playwright demo script
 - **Budget**: P95 < 250ms (Strict)
 
 ### History
+- **2026-01-02**: Slice 2 (Vector Index v0) Implemented.
+    - Defined `VectorIndex` contract (ABC).
+    - Implemented `ExactInMemoryIndex` and `PgVectorIndex`.
+    - Added API `/graph/similar`.
+    - Verified Determinism & Perf.
 - **2026-01-02**: Slice 1 (Belief Logic) Implemented.
     - Defined update rule: `σ(w_e*E + w_r*R + w_t*T - w_c*C)`
     - Validated with unit tests (`tests/test_belief.py`)

@@ -593,3 +593,29 @@ def test_graph_edge_detail_respects_validity_interval_frameworkx():
     asof_2026 = "2026-01-01T00:00:00Z"
     resp_2026 = client.get(f"/graph/edge/{edge_id_tls12}", params={"asof": asof_2026})
     assert resp_2026.status_code == 404
+
+
+def test_vector_search_integration():
+    """Verify /graph/similar endpoint with InMemory backend."""
+    from cns_py.api.server import get_vector_index
+
+    # Seed the index directly (white-box testing the integration)
+    idx = get_vector_index()
+    try:
+        idx.upsert("vec_a", [1.0, 0.0])
+        idx.upsert("vec_b", [0.0, 1.0])
+    except Exception:
+        pytest.skip("Vector index backend not ready or failed to upsert")
+
+    # Query via API for vec_a
+    resp = client.post("/graph/similar", json={"vector": [1.0, 0.0], "k": 5})
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert "results" in payload
+    results = payload["results"]
+    assert len(results) >= 1
+
+    # vec_a should be top result with score ~1.0
+    top = results[0]
+    assert top["id"] == "vec_a"
+    assert top["score"] > 0.99

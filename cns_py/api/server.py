@@ -569,13 +569,71 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
     )
 
 
+# ... existing code ...
+
+import os
+
+from cns_py.vector import ExactInMemoryIndex, PgVectorIndex, VectorIndex
+
+# Initialize Vector Index Backend
+_VECTOR_INDEX: Optional[VectorIndex] = None
+
+
+def get_vector_index() -> VectorIndex:
+    global _VECTOR_INDEX
+    if _VECTOR_INDEX is None:
+        backend = os.getenv("CNS_VECTOR_BACKEND", "memory").lower()
+        if backend == "pg":
+            try:
+                # Default dimension 384, matching legacy schema hint
+                _VECTOR_INDEX = PgVectorIndex(dim=384)
+                print("Initialized PgVectorIndex for vector search.")
+            except Exception as e:
+                print(f"Failed to init PgVectorIndex: {e}. Falling back to Memory.")
+                _VECTOR_INDEX = ExactInMemoryIndex()
+        else:
+            _VECTOR_INDEX = ExactInMemoryIndex()
+            print("Initialized ExactInMemoryIndex for vector search.")
+    return _VECTOR_INDEX
+
+
+class VectorQuery(BaseModel):
+    vector: List[float]
+    k: int = 10
+    filter: Optional[Dict[str, Any]] = None
+
+
+class SimilarResult(BaseModel):
+    id: str
+    score: float
+
+
+class SimilarNodesEnvelope(BaseModel):
+    results: List[SimilarResult]
+
+
+def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
+    """Find similar items by vector."""
+    idx = get_vector_index()
+    # Query returns list of (id, score)
+    try:
+        raw_results = idx.query(req.vector, k=req.k, filter=req.filter)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    results = [SimilarResult(id=str(r[0]), score=r[1]) for r in raw_results]
+    return SimilarNodesEnvelope(results=results)
+
+
 # Register routes imperatively to keep decorators out of mypy's way.
 app.post("/cql")(run_cql)
 app.get("/graph/neighborhood", response_model=GraphNeighborhoodEnvelope)(graph_neighborhood)
 app.get("/graph/node/{node_id}", response_model=NodeDetailEnvelope)(graph_node_detail)
 app.get("/graph/edge/{edge_id}", response_model=EdgeReceiptEnvelope)(graph_edge_detail)
+app.post("/graph/similar", response_model=SimilarNodesEnvelope)(find_similar)
 
 
 def get_app() -> FastAPI:
     """Expose the FastAPI app for ASGI servers/tests."""
+    # Pre-warm the index if possible? No, lazy is fine.
     return app
