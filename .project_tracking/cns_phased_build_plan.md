@@ -150,6 +150,20 @@ make e2e          # Playwright demo script
 
 ---
 
+## Phase 6: Vector Index & Learning (Started)
+- **Status**: Slice 1 Implementation (Belief Propagation)
+- **Goal**: Implement deterministic belief update rule and eventually Vector Index.
+- **Budget**: P95 < 250ms (Strict)
+
+### History
+- **2026-01-02**: Slice 1 (Belief Logic) Implemented.
+    - Defined update rule: `σ(w_e*E + w_r*R + w_t*T - w_c*C)`
+    - Validated with unit tests (`tests/test_belief.py`)
+    - Perf Smoke: P95 ~73ms (Deterministic)
+- **2026-01-02**: Phase 5 Complete (Legacy issues closed).
+
+---
+
 ## Phase 5 — IB Explorer Alpha (Weeks 7–9) ✅ COMPLETE
 
 **Objective:** Give users the multi-dimensional feel (IB not DB) and time travel.
