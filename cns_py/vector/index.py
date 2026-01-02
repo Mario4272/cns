@@ -2,11 +2,13 @@
 Vector Index Interface (Phase 6 Slice 2)
 Contract for vector storage and retrieval.
 """
+
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Optional, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 Vector = List[float]
 ScoredResult = Tuple[str, float]  # (id, score)
+
 
 class VectorIndex(ABC):
     """
@@ -34,7 +36,9 @@ class VectorIndex(ABC):
         pass
 
     @abstractmethod
-    def query(self, vector: Vector, k: int = 10, filter: Optional[Dict[str, Any]] = None) -> List[ScoredResult]:
+    def query(
+        self, vector: Vector, k: int = 10, filter: Optional[Dict[str, Any]] = None
+    ) -> List[ScoredResult]:
         """
         Find k-nearest neighbors.
         :param vector: Query vector.
@@ -49,5 +53,21 @@ class VectorIndex(ABC):
         """
         Efficiently load multiple items.
         :param items: List of (id, vector, metadata) tuples.
+        """
+        pass
+
+    @abstractmethod
+    def save(self, path: str) -> None:
+        """
+        Persist the index to disk.
+        :param path: Directory or file path prefix to save to.
+        """
+        pass
+
+    @abstractmethod
+    def load(self, path: str) -> None:
+        """
+        Load the index from disk.
+        :param path: Directory or file path prefix to load from.
         """
         pass

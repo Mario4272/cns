@@ -2,9 +2,13 @@
 Exact In-Memory Vector Index.
 Baseline implementation using Numpy for exact cosine similarity.
 """
+
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from typing import List, Optional, Dict, Tuple, Any
-from .index import VectorIndex, Vector, ScoredResult
+
+from .index import ScoredResult, Vector, VectorIndex
+
 
 class ExactInMemoryIndex(VectorIndex):
     def __init__(self):
@@ -27,7 +31,9 @@ class ExactInMemoryIndex(VectorIndex):
         if id in self._metadata:
             del self._metadata[id]
 
-    def query(self, vector: Vector, k: int = 10, filter: Optional[Dict[str, Any]] = None) -> List[ScoredResult]:
+    def query(
+        self, vector: Vector, k: int = 10, filter: Optional[Dict[str, Any]] = None
+    ) -> List[ScoredResult]:
         if not self._data:
             return []
 
@@ -53,3 +59,55 @@ class ExactInMemoryIndex(VectorIndex):
     def bulk_load(self, items: List[Tuple[str, Vector, Optional[Dict[str, Any]]]]) -> None:
         for id, vector, metadata in items:
             self.upsert(id, vector, metadata)
+
+    def save(self, path: str) -> None:
+        """
+        Save index to disk.
+        Creates: {path}.npz (vectors) and {path}.meta.json (metadata/ids).
+        """
+        import json
+
+        # Ensure consistent ordering for save
+        sorted_ids = sorted(self._data.keys())
+        vectors = [self._data[id] for id in sorted_ids]
+
+        # Save vectors
+        np.savez_compressed(f"{path}.npz", vectors=np.array(vectors), ids=sorted_ids)
+
+        # Save metadata
+        meta_payload = {
+            "version": "v1",
+            "dim": len(vectors[0]) if vectors else 0,
+            "count": len(vectors),
+            "metadata": self._metadata,
+        }
+        with open(f"{path}.meta.json", "w") as f:
+            json.dump(meta_payload, f, sort_keys=True)
+
+    def load(self, path: str) -> None:
+        """
+        Load index from disk.
+        Reads: {path}.npz and {path}.meta.json.
+        """
+        import json
+
+        # Load vectors
+        with np.load(f"{path}.npz") as data:
+            ids = data["ids"]
+            vectors = data["vectors"]
+
+        # Rebuild dictionary
+        self._data = {}
+        for i, id_ in enumerate(ids):
+            self._data[str(id_)] = vectors[i]
+
+        # Load metadata
+        try:
+            with open(f"{path}.meta.json", "r") as f:
+                meta_payload = json.load(f)
+                # Version check
+                if meta_payload.get("version") != "v1":
+                    raise ValueError(f"Unknown index version: {meta_payload.get('version')}")
+                self._metadata = meta_payload.get("metadata", {})
+        except FileNotFoundError:
+            self._metadata = {}
