@@ -7,8 +7,10 @@ Goal: Replace `pgvector` hybrid search with a high-performance, in-memory Rust e
 ## 2. Algorithm & Metric
 ### Algorithm: HNSW (Hierarchical Navigable Small World)
 - **Why**: Industry standard for recall/latency trade-off (used in Weaviate, Qdrant, Chroma).
-- **Implementation**: We will likely wrap the `faiss` bindings or use a pure Rust crate like `hora` or `ort` (tbd), but for Alpha, we may start with a simple flat index or a focused HNSW crate.
-- **Decision**: **HNSW** for Alpha.
+- **Implementation**:
+    - **Alpha 1**: `FlatIndex` (Exact Search) - Implemented in Phase 6. used for correctness verification.
+    - **Alpha 2**: `HNSW` (ANN) - To be implemented using `hora` or `faiss` bindings.
+- **Decision**: Start with `FlatIndex`, migrate to `HNSW` when N > 10k.
 
 ### Metric: Cosine Similarity
 - **Why**: Standard for semantic search embeddings (OpenAI, etc.).

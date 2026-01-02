@@ -45,6 +45,8 @@ class GraphEdge(BaseModel):  # type: ignore[misc]
     dst_id: int
     predicate: str
     belief: Optional[float] = None
+    provenance: Optional[NodeProvenanceSummary] = None
+    contradictions: Optional[List[int]] = None
 
 
 class GraphNeighborhoodEnvelope(BaseModel):  # type: ignore[misc]
@@ -139,8 +141,8 @@ def graph_neighborhood(
     # source of truth for temporal semantics. We construct a minimal CQL
     # query that asks for outgoing edges from the labeled node at that time
     # and adapt the result into the neighborhood DTO.
-    # subject_label, predicate, object_label, confidence, fiber_id, observed_at_iso
-    edges_raw: List[tuple[str, str, str, Optional[float], Optional[int], Optional[str]]]
+    # subject_label, predicate, object_label, confidence, fiber_id, observed_at_iso, provenance_json
+    edges_raw: List[tuple[str, str, str, Optional[float], Optional[int], Optional[str], Optional[Dict]]]
     if asof is not None:
         # Use ISO format expected by the CQL executor.
         cql_query = f'MATCH label="{label}" ASOF {asof.isoformat()} RETURN'
@@ -165,7 +167,9 @@ def graph_neighborhood(
             except (TypeError, ValueError):
                 fiber_id_i = None
             observed_at_iso = item.get("observed_at")
-            edges_raw.append((subj, pred, obj, conf_f, fiber_id_i, observed_at_iso))
+            observed_at_iso = item.get("observed_at")
+            prov = item.get("provenance_json")
+            edges_raw.append((subj, pred, obj, conf_f, fiber_id_i, observed_at_iso, prov))
     else:
         ids = nn_search(label, k=limit)
         if not ids:
@@ -180,11 +184,11 @@ def graph_neighborhood(
 
         # traverse_from returns (src_label, predicate, dst_label)
         edges_simple = traverse_from(ids, hops=hops, predicates=None, limit=limit)
-        edges_raw = [(subj, pred, obj, None, None, None) for subj, pred, obj in edges_simple]
+        edges_raw = [(subj, pred, obj, None, None, None, None) for subj, pred, obj in edges_simple]
 
     # Collect unique labels and resolve them to real CNS atom IDs for Explorer consumption.
     label_set: set[str] = set()
-    for subj, _pred, obj, _conf, _fid, _obs in edges_raw:
+    for subj, _pred, obj, _conf, _fid, _obs, _prov in edges_raw:
         label_set.add(subj)
         label_set.add(obj)
     # Ensure central label is present even if it has no outbound edges.
@@ -227,16 +231,27 @@ def graph_neighborhood(
         )
 
     edges_all: List[GraphEdge] = []
-    for subj_label, pred, obj_label, conf, fiber_id, observed_at_iso in edges_raw:
+    for subj_label, pred, obj_label, conf, fiber_id, observed_at_iso, prov_json in edges_raw:
         src_id = label_to_id.get(subj_label)
         dst_id = label_to_id.get(obj_label)
         if src_id is None or dst_id is None:
             continue
-        # For ANN path we may not have a backing fiber id; synthesize a stable
-        # id from the src/dst/predicate triple. This keeps the API contract
-        # while making it clear that only ASOF/CQL-backed edges map directly to
-        # real fibers.
+        
         edge_id = fiber_id if fiber_id is not None else abs(hash((src_id, dst_id, pred)))
+        
+        # Provenance Summary
+        assertions_count = 1 if prov_json is not None else 0
+        sources_count = 0
+        if isinstance(prov_json, dict):
+            src_field = prov_json.get("source_id")
+            if src_field is not None:
+                sources_count = 1  # Simplified for now; schema allows richer prov later
+
+        prov_summary = NodeProvenanceSummary(
+            assertions_count=assertions_count, 
+            sources_count=sources_count,
+        )
+
         edges_all.append(
             GraphEdge(
                 id=int(edge_id),
@@ -244,8 +259,24 @@ def graph_neighborhood(
                 dst_id=dst_id,
                 predicate=pred,
                 belief=conf,
+                provenance=prov_summary,
             )
         )
+
+    # Compute contradictions (same src, same pred, different dst)
+    # We do not have a separate list of contradictions in the raw results, but we can
+    # infer them within the retrieved window. This is a "best effort" contradiction list based
+    # on the neighborhood view.
+    grouped_by_key: Dict[tuple[int, str], List[int]] = {}
+    for e in edges_all:
+        grouped_by_key.setdefault((e.src_id, e.predicate), []).append(e)
+
+    for e in edges_all:
+        group = grouped_by_key[(e.src_id, e.predicate)]
+        # Contradictions are other edges in the same group with DIFFERENT dst
+        conflicts = [other.id for other in group if other.dst_id != e.dst_id]
+        if conflicts:
+            e.contradictions = conflicts
 
     # Apply truth policy at the slot level when we have real fiber-backed
     # edges (ASOF/CQL path). The ANN path may synthesize ids but cannot
