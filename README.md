@@ -93,14 +93,39 @@ curl -X POST http://localhost:8080/v1/atom \
 ### 4) Run a tiny CQL query
 
 ```bash
-curl -X POST http://localhost:8080/v1/cql -H "Content-Type: application/json" -d '{
-  "query": "
-    MATCH (p:person)
-    WHERE text ~ \"Paige\"
-    RETURN p, belief(p), tape(p)
-    LIMIT 5
-  "
+curl -X POST http://localhost:8080/cql -H "Content-Type: application/json" -d '{
+  "query": "MATCH label=\"FrameworkX\" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z RETURN EXPLAIN PROVENANCE"
 }'
+```
+
+Output:
+
+```json
+{
+  "results": [
+    {
+      "subject_label": "FrameworkX",
+      "predicate": "supports_tls",
+      "object_label": "TLS1.3",
+      "confidence": 0.958,
+      "fiber_id": 495,
+      "observed_at": "2026-01-02T17:54:09.078654+00:00",
+      "provenance": [
+        {
+          "source_id": "demo_seed:fiber:495",
+          "uri": "https://example.org/demo/tls-policy",
+          "line_span": null,
+          "fetched_at": "2026-01-02T17:54:09.077461+00:00",
+          "hash": "demo-sha256-placeholder"
+        }
+      ]
+    }
+  ],
+  "explain": {
+      "steps": ["... (execution plan) ..."],
+      "total_ms": 12.3
+  }
+}
 ```
 
 ---
