@@ -156,6 +156,10 @@ make e2e          # Playwright demo script
 - **Budget**: P95 < 250ms (Strict)
 
 ### History
+- **2026-01-02**: Slice 5 (ANN & Embeddings) - Partial.
+    - **5A**: Experimental ANN (`HnswVectorIndex`) implemented and benchmarked.
+    - **5B**: Embeddings Pipeline (`EmbeddingProvider`) integrated.
+    - **5C**: Filters v2 Deferred.
 - **2026-01-02**: Slice 4 (Real Index Lifecycle) Implemented.
     - Added `IndexManager` with startup/shutdown hooks.
     - Added Config (`VECTOR_INDEX_ENABLED`, etc.).
