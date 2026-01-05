@@ -604,9 +604,29 @@ def test_vector_search_integration(monkeypatch, tmp_path):
     
     from cns_py.api.server import _INDEX_MANAGER
     
+    # RESET global manager to clean state
+    _INDEX_MANAGER.index = None
+    _INDEX_MANAGER.provider = None
+    _INDEX_MANAGER.dim = 384 # Default
+    
+    # Mock the provider to match our test vectors (2D)
+    from cns_py.vector.embeddings import EmbeddingProvider
+    class TestProv(EmbeddingProvider):
+        @property
+        def dimension(self): return 2
+        def embed_texts(self, t): return [[1.0, 0.0]] * len(t)
+
+    _INDEX_MANAGER.provider = TestProv()
+    _INDEX_MANAGER.dim = 2
+    
     # Force startup to initialize the inner index (clean state)
     _INDEX_MANAGER.startup()
     
+    # Clear any data loaded from DB during startup (to prevent collisions with IDs like '1')
+    if _INDEX_MANAGER.index:
+        _INDEX_MANAGER.index._data = {}
+        _INDEX_MANAGER.index._metadata = {}
+
     # Access the inner index directly for white-box seeding
     idx = _INDEX_MANAGER.index
     if idx is None:

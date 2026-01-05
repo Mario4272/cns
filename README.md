@@ -294,3 +294,15 @@ Pre-alpha. Expect breaking changes. If it breaks, you own both halves (kiddingâ€
 ## Usage instructions
 
 **Coming Soon!!** Once we have something that works, weâ€™ll update that.
+
+## Branching Model
+
+This project follows a strict branching strategy:
+- **`dev`**: The active development branch. All feature work, experiments, and PRs target `dev`.
+- **`main`**: The stable release branch. We only merge `dev` to `main` after all verification gates (tests, lint, perf) are green.
+
+**Submitting Changes**:
+1. Checkout `dev`.
+2. Create your feature branch off `dev`.
+3. Submit PR to `dev`.
+4. After validation, `dev` is promoted to `main`.

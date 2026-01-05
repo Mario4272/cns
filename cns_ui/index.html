@@ -1,75 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/src/main.ts" defer></script>
-  </head>
 
-  <body>
-    <main class="container">
-      <header>
-        <h1>CNS Explorer</h1>
-        <p class="subtitle">Desktop graph viewer for /graph/neighborhood</p>
-      </header>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tauri App</title>
+  <script type="module" src="/src/main.ts" defer></script>
+</head>
 
-      <section class="controls">
-        <form class="controls-form">
-          <label>
-            Label
-            <input id="label-input" type="text" value="FrameworkX" />
-          </label>
-          <label>
-            Hops
-            <input id="hops-input" type="number" min="1" value="1" />
-          </label>
-          <label>
-            Limit
-            <input id="limit-input" type="number" min="1" value="100" />
-          </label>
-          <label>
-            ASOF (ISO)
-            <input
-              id="asof-input"
-              type="text"
-              placeholder="e.g. 2024-12-31T23:59:59Z"
-            />
-          </label>
-          <label>
-            Predicate
-            <input id="predicate-filter" type="text" value="supports_tls" />
-          </label>
-          <label>
-            Debug mode
-            <select id="debug-mode">
-              <option value="unique" selected>Unique</option>
-              <option value="raw">Raw</option>
-            </select>
-          </label>
-          <button id="load-btn" type="button">Load</button>
-        </form>
-        <p id="status" class="status">Idle.</p>
-      </section>
+<body>
+  <main class="container">
+    <header>
+      <h1>CNS Explorer</h1>
+      <p class="subtitle">Desktop graph viewer for /graph/neighborhood</p>
+    </header>
 
-      <section class="viewport">
-        <div id="scene-container" class="scene-container"></div>
-      </section>
+    <section class="controls">
+      <form class="controls-form">
+        <label>
+          Label
+          <input id="label-input" type="text" value="FrameworkX" />
+        </label>
+        <label>
+          Hops
+          <input id="hops-input" type="number" min="1" value="1" />
+        </label>
+        <label>
+          Limit
+          <input id="limit-input" type="number" min="1" value="100" />
+        </label>
+        <label>
+          ASOF (ISO)
+          <input id="asof-input" type="text" placeholder="e.g. 2024-12-31T23:59:59Z" />
+        </label>
+        <label>
+          Predicate
+          <input id="predicate-filter" type="text" value="supports_tls" />
+        </label>
+        <label>
+          Debug mode
+          <select id="debug-mode">
+            <option value="unique" selected>Unique</option>
+            <option value="raw">Raw</option>
+          </select>
+        </label>
+        <button id="load-btn" type="button">Load</button>
+      </form>
+      <p id="status" class="status">Idle.</p>
+    </section>
 
-      <section class="debug-panel" aria-label="Neighborhood debug panel">
-        <h2>Debug</h2>
-        <div class="debug-columns">
-          <div class="debug-column">
-            <h3>Nodes</h3>
-            <pre id="debug-nodes" class="debug-pre"></pre>
-          </div>
-          <div class="debug-column">
-            <h3>Edges</h3>
-            <pre id="debug-edges" class="debug-pre"></pre>
-          </div>
+    <section class="viewport">
+      <div id="scene-container" class="scene-container"></div>
+    </section>
+
+    <section class="debug-panel" aria-label="Neighborhood debug panel">
+      <h2>Debug</h2>
+      <div class="debug-columns">
+        <div class="debug-column">
+          <h3>Nodes</h3>
+          <pre id="debug-nodes" class="debug-pre"></pre>
         </div>
-      </section>
-    </main>
-  </body>
+        <div class="debug-column">
+          <h3>Edges</h3>
+          <pre id="debug-edges" class="debug-pre"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="details-panel" class="details-panel hidden" aria-label="Node details panel">
+      <header class="details-header">
+        <h2 id="detail-title">Node Details</h2>
+        <button id="close-details-btn" class="icon-btn">×</button>
+      </header>
+      <div class="details-content">
+        <div class="detail-row">
+          <span class="detail-label">ID:</span>
+          <span id="detail-id"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Label:</span>
+          <span id="detail-label"></span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Kind:</span>
+          <span id="detail-kind"></span>
+        </div>
+
+        <hr class="separator" />
+
+        <h3>Similar Nodes</h3>
+        <div class="similar-controls">
+          <button id="find-similar-btn">Find Similar (k=10)</button>
+          <span id="similar-status" class="status-tiny"></span>
+        </div>
+        <ul id="similar-results" class="similar-list"></ul>
+      </div>
+    </section>
+  </main>
+</body>
+
 </html>

@@ -1,0 +1,143 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-8.4.2, pluggy-1.6.0
+rootdir: C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.142.4, cov-7.0.0
+collected 24 items
+
+tests\test_api_server.py ................s....F                          [ 91%]
+tests\test_vector_lifecycle.py FF                                        [100%]
+
+================================== FAILURES ===================================
+_______________________ test_vector_search_integration ________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A62E133DF0>
+tmp_path = WindowsPath('C:/Users/mfadmin/AppData/Local/Temp/pytest-of-mfadmin/pytest-13/test_vector_search_integration0')
+
+    def test_vector_search_integration(monkeypatch, tmp_path):
+        """Verify /graph/similar endpoint with InMemory backend."""
+        # Ensure enabled for this test and isolated
+        monkeypatch.setenv("VECTOR_INDEX_ENABLED", "1")
+        monkeypatch.setenv("VECTOR_INDEX_BACKEND", "memory")
+        monkeypatch.setenv("VECTOR_INDEX_PATH", str(tmp_path / "api_test_idx"))
+    
+        from cns_py.api.server import _INDEX_MANAGER
+    
+        # Force startup to initialize the inner index (clean state)
+        _INDEX_MANAGER.startup()
+    
+        # Access the inner index directly for white-box seeding
+        idx = _INDEX_MANAGER.index
+        if idx is None:
+            pytest.fail("Vector index not initialized")
+    
+        try:
+            idx.upsert("vec_a", [1.0, 0.0])
+            idx.upsert("vec_b", [0.0, 1.0])
+        except Exception:
+            pytest.skip("Vector index backend failed to upsert")
+    
+        # Query via API for vec_a
+        resp = client.post("/graph/similar", json={"vector": [1.0, 0.0], "k": 5})
+        if resp.status_code != 200:
+>           pytest.fail(f"Status {resp.status_code}: {resp.text}")
+E           Failed: Status 500: {"detail":"shapes (2,) and (384,) not aligned: 2 (dim 0) != 384 (dim 0)"}
+
+tests\test_api_server.py:624: Failed
+________________________ test_index_lifecycle_restart _________________________
+
+lifecycle_config = 'C:\\Users\\mfadmin\\AppData\\Local\\Temp\\pytest-of-mfadmin\\pytest-13\\test_index_lifecycle_restart0\\lifecycle_index'
+
+    def test_index_lifecycle_restart(lifecycle_config):
+        """
+        Verify:
+        1. Rebuild from DB.
+        2. Query works.
+        3. Shutdown (Persist).
+        4. Startup (Load).
+        5. Query works same as before.
+        """
+    
+        # 1. Setup DB Data
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                # Clean atoms first? Assuming test DB isolation.
+                # Insert test atoms
+                cur.execute("""
+                    INSERT INTO atoms (label, kind, text) VALUES
+                    ('LifecycleAlpha', 'Entity', 'Alpha content for embedding'),
+                    ('LifecycleBeta', 'Concept', 'Beta content for embedding')
+                    RETURNING id, label;
+                """)
+                rows = cur.fetchall()
+                id_map = {label: str(aid) for aid, label in rows}
+    
+        # 2. Manager 1: Startup (Rebuild)
+        mgr1 = IndexManager()
+        mgr1.startup()
+    
+        # Verify index has content
+>       res1 = mgr1.query(mgr1._embed("Alpha content for embedding"), k=1)
+E       AttributeError: 'IndexManager' object has no attribute '_embed'
+
+tests\test_vector_lifecycle.py:49: AttributeError
+_______________________ test_integration_api_lifecycle ________________________
+
+lifecycle_config = 'C:\\Users\\mfadmin\\AppData\\Local\\Temp\\pytest-of-mfadmin\\pytest-13\\test_integration_api_lifecycle0\\lifecycle_index'
+
+    def test_integration_api_lifecycle(lifecycle_config):
+        """Verify API integration uses the manager."""
+        from cns_py.api.server import find_similar, startup_event, shutdown_event
+        from cns_py.api.server import VectorQuery
+    
+        # 1. Setup DB
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("INSERT INTO atoms (label, kind) VALUES ('ApiTest', 'Entity') RETURNING id")
+                aid = cur.fetchone()[0]
+    
+        # 2. Trigger startup (rebuild global manager)
+        startup_event()
+    
+        # 3. Query via API function
+        # Need vector. Helper to embed:
+        mgr = IndexManager() # Just for _embed
+>       vec = mgr._embed("ApiTest") # Label fallback
+E       AttributeError: 'IndexManager' object has no attribute '_embed'
+
+tests\test_vector_lifecycle.py:94: AttributeError
+============================== warnings summary ===============================
+cns_py\api\server.py:582
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:582: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+.venv\lib\site-packages\fastapi\applications.py:4576
+.venv\lib\site-packages\fastapi\applications.py:4576
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+cns_py\api\server.py:588
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:588: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_api_server.py::test_vector_search_integration - Failed: Sta...
+FAILED tests/test_vector_lifecycle.py::test_index_lifecycle_restart - Attribu...
+FAILED tests/test_vector_lifecycle.py::test_integration_api_lifecycle - Attri...
+============= 3 failed, 20 passed, 1 skipped, 4 warnings in 7.73s =============

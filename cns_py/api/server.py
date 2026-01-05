@@ -592,7 +592,8 @@ def shutdown_event() -> None:
 
 
 class VectorQuery(BaseModel):
-    vector: List[float]
+    vector: Optional[List[float]] = None
+    atom_id: Optional[str] = None # Accepts ID as string (or int parsed as string)
     k: int = 10
     filter: Optional[Dict[str, Any]] = None
 
@@ -610,25 +611,40 @@ class SimilarNodesEnvelope(BaseModel):
 
 
 def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
-    """Find similar items by vector.
+    """Find similar items by vector or existing atom ID.
     Delegates to IndexManager.
     """
     try:
-        # IndexManager.query returns List[ScoredResult] i.e. (id, score)
-        # But we want to enrich this eventually. For now, we return what we have.
-        # The Manager query is just a proxy to the index.
-        # To get label/kind, we might need to fetch from DB or store in metadata.
-        # Slice 4 requirement: "Response should include... label... kind"
-        # Since we stored metadata in IndexManager.rebuild(), we can retrieve it if the Index supports it.
-        # But VectorIndex.query only returns (id, score).
-        # We need to fetch details. Or checking if IndexManager can return metadata.
-        
-        # Let's see... ExactInMemoryIndex stores metadata.
-        # But query() interface returns ScoredResult (id, score).
-        # We should probably fetch atoms from DB to be Safe and Real.
-        # OR extend query interface? Contract says: return List[ScoredResult].
-        
-        raw_results = _INDEX_MANAGER.query(req.vector, k=req.k, filter=req.filter)
+        # Resolve vector if generic ID provided
+        query_vec = req.vector
+        if not query_vec:
+            if not req.atom_id:
+                raise HTTPException(status_code=400, detail="Must provide 'vector' or 'atom_id'")
+            
+            # Fetch text from DB to re-embed (Deterministic)
+            # This ensures we search using the *current* embedding logic
+            with get_conn() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT text, label FROM atoms WHERE id = %s", (req.atom_id,))
+                    row = cur.fetchone()
+                    if not row:
+                        raise HTTPException(status_code=404, detail="Atom not found for embedding lookup")
+                    text, label = row
+                    # Use text if present, else label (fallback logic matches IndexManager scope)
+                    content = text or label
+            
+            # Embed
+            # We access the provider directly. 
+            # Note: This requires the provider to be thread-safe (it is).
+            vectors = _INDEX_MANAGER.provider.embed_texts([content])
+            query_vec = vectors[0]
+
+        if not query_vec:
+             raise HTTPException(status_code=500, detail="Failed to generate query vector")
+
+        raw_results = _INDEX_MANAGER.query(query_vec, k=req.k, filter=req.filter)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     

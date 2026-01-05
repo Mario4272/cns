@@ -13,7 +13,23 @@ let canvasContainer: HTMLDivElement | null;
 let predicateFilterInput: HTMLInputElement | null;
 let debugNodesEl: HTMLElement | null;
 let debugEdgesEl: HTMLElement | null;
+let debugEdgesEl: HTMLElement | null;
 let debugModeSelect: HTMLSelectElement | null;
+
+// Details Panel Elements
+let detailsPanel: HTMLElement | null;
+let detailIdEl: HTMLElement | null;
+let detailLabelEl: HTMLElement | null;
+let detailKindEl: HTMLElement | null;
+let closeDetailsBtn: HTMLElement | null;
+let findSimilarBtn: HTMLButtonElement | null;
+let similarStatusEl: HTMLElement | null;
+let similarResultsEl: HTMLElement | null;
+
+// State
+let selectedNodeId: number | null = null;
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
 
 let scene: THREE.Scene | null = null;
 let camera: THREE.PerspectiveCamera | null = null;
@@ -57,10 +73,149 @@ function initScene() {
 }
 
 function animate() {
-  requestAnimationFrame(animate);
-  if (controls) controls.update();
-  if (renderer && scene && camera) {
-    renderer.render(scene, camera);
+}
+}
+
+function onCanvasClick(event: MouseEvent) {
+  if (!nodeGroup || !camera || !renderer) return;
+
+  // Calculate mouse position in normalized device coordinates
+  // (-1 to +1) for both components
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  // Raycast against node meshes
+  const intersects = raycaster.intersectObjects(nodeGroup.children);
+
+  if (intersects.length > 0) {
+    // Select the first one
+    const mesh = intersects[0].object as THREE.Mesh;
+    // We need to map mesh back to node ID. 
+    // We can store ID in userData during render.
+    const id = mesh.userData.id;
+    if (typeof id === 'number') {
+      selectNode(id);
+    }
+  } else {
+    // Deselect if clicked background
+    // closeDetails(); // Optional: maybe keep it open
+  }
+}
+
+function selectNode(id: number) {
+  selectedNodeId = id;
+  // Highlight? (Could change material color)
+
+  // Find node data (we have NeighborhoodResponse data... wait, we need access to current data)
+  // Let's modify renderGraph to store current data globally or look it up from specific nodes.
+  // Or we passed data to renderGraph. Let's make `currentData` global or retrieve from DOM/userData.
+  // Best: Store full node data in userData.
+
+  // Actually, we can't easily access the Mesh userData here without finding the mesh again.
+  // Let's iterate nodeGroup to find the mesh with this ID.
+  const mesh = nodeGroup?.children.find((c) => c.userData.id === id);
+  const nodeData = mesh?.userData.node as NeighborhoodNode | undefined;
+
+  if (nodeData && detailsPanel) {
+    detailsPanel.classList.remove('hidden');
+    if (detailIdEl) detailIdEl.textContent = String(nodeData.id);
+    if (detailLabelEl) detailLabelEl.textContent = nodeData.label;
+    if (detailKindEl) detailKindEl.textContent = nodeData.kind || "N/A";
+
+    // Reset Similar section
+    if (similarResultsEl) similarResultsEl.innerHTML = "";
+    if (similarStatusEl) similarStatusEl.textContent = "";
+  }
+}
+
+function closeDetails() {
+  if (detailsPanel) detailsPanel.classList.add('hidden');
+  selectedNodeId = null;
+}
+
+async function findSimilar() {
+  if (selectedNodeId == null) return;
+  if (!similarStatusEl || !similarResultsEl) return;
+
+  similarStatusEl.textContent = "Searching...";
+  similarResultsEl.innerHTML = "";
+
+  try {
+    const payload = {
+      atom_id: String(selectedNodeId),
+      k: 10
+    };
+
+    const resp = await fetch(`${API_BASE}/graph/similar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) {
+      statusEl!.textContent = "Search failed.";
+      similarStatusEl.textContent = "Error " + resp.status;
+      return;
+    }
+
+    const data = await resp.json();
+    const results = data.results || [];
+
+    if (results.length === 0) {
+      similarStatusEl.textContent = "No matches.";
+      return;
+    }
+
+    similarStatusEl.textContent = `Found ${results.length}`;
+
+    // Render
+    const frag = document.createDocumentFragment();
+    results.forEach((res: any) => {
+      const li = document.createElement("li");
+      li.className = "similar-item";
+
+      // Header (Label + Score)
+      const header = document.createElement("div");
+      header.className = "sim-header";
+
+      const labelSpan = document.createElement("span");
+      labelSpan.textContent = res.label || res.id;
+
+      const scoreSpan = document.createElement("span");
+      scoreSpan.className = "sim-score";
+      scoreSpan.textContent = res.score.toFixed(3);
+
+      header.appendChild(labelSpan);
+      header.appendChild(scoreSpan);
+      li.appendChild(header);
+
+      // Meta (Kind)
+      if (res.kind) {
+        const meta = document.createElement("div");
+        meta.className = "sim-meta";
+        meta.textContent = res.kind;
+        li.appendChild(meta);
+      }
+
+      li.onclick = () => {
+        // Navigate to this node
+        if (labelInput && res.label) {
+          labelInput.value = res.label;
+          loadNeighborhood();
+        }
+      };
+
+      frag.appendChild(li);
+    });
+
+    similarResultsEl.appendChild(frag);
+
+  } catch (err) {
+    console.error(err);
+    similarStatusEl.textContent = "Error";
   }
 }
 
@@ -144,6 +299,7 @@ function renderGraph(data: NeighborhoodResponse) {
     const isCentral = data.center_node_id != null && node.id === data.center_node_id;
     const mesh = new THREE.Mesh(sphereGeom, isCentral ? matCentral : matOther);
     mesh.position.copy(pos);
+    mesh.userData = { id: node.id, node: node }; // Store data for raycasting
     nodeGroup.add(mesh);
   }
 
@@ -317,7 +473,27 @@ window.addEventListener("DOMContentLoaded", () => {
   debugEdgesEl = document.querySelector("#debug-edges");
   debugModeSelect = document.querySelector("#debug-mode");
 
+  // Details UI
+  detailsPanel = document.querySelector("#details-panel");
+  detailIdEl = document.querySelector("#detail-id");
+  detailLabelEl = document.querySelector("#detail-label");
+  detailKindEl = document.querySelector("#detail-kind");
+  closeDetailsBtn = document.querySelector("#close-details-btn");
+  findSimilarBtn = document.querySelector("#find-similar-btn");
+  similarStatusEl = document.querySelector("#similar-status");
+  similarResultsEl = document.querySelector("#similar-results");
+
   initScene();
+
+  // Event Listeners
+  canvasContainer?.addEventListener('click', onCanvasClick);
+
+  closeDetailsBtn?.addEventListener('click', closeDetails);
+
+  findSimilarBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    findSimilar();
+  });
 
   loadButton?.addEventListener("click", (e) => {
     e.preventDefault();

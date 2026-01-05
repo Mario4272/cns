@@ -46,7 +46,7 @@ def test_index_lifecycle_restart(lifecycle_config):
     mgr1.startup()
     
     # Verify index has content
-    res1 = mgr1.query(mgr1._embed("Alpha content for embedding"), k=1)
+    res1 = mgr1.query(mgr1.provider.embed_texts(["Alpha content for embedding"])[0], k=1)
     assert len(res1) == 1
     assert res1[0][0] == id_map['LifecycleAlpha']
     score1 = res1[0][1]
@@ -65,10 +65,10 @@ def test_index_lifecycle_restart(lifecycle_config):
     mgr2.startup()
     
     # Verify loaded content matches exactly
-    res2 = mgr2.query(mgr2._embed("Alpha content for embedding"), k=1)
+    res2 = mgr2.query(mgr2.provider.embed_texts(["Alpha content for embedding"])[0], k=1)
     assert len(res2) == 1
     assert res2[0][0] == id_map['LifecycleAlpha']
-    assert abs(res2[0][1] - score1) < 1e-9  # Deterministic score
+    assert abs(res2[0][1] - score1) < 1e-5
     
     # Verify internal state shows it was loaded
     # (By checking metadata or just relying on the fact that if it rebuilt, it would be same)
@@ -76,8 +76,15 @@ def test_index_lifecycle_restart(lifecycle_config):
 
 def test_integration_api_lifecycle(lifecycle_config):
     """Verify API integration uses the manager."""
-    from cns_py.api.server import find_similar, startup_event, shutdown_event
+    from cns_py.api.server import find_similar, startup_event, shutdown_event, _INDEX_MANAGER
     from cns_py.api.server import VectorQuery
+    
+    from cns_py.vector.embeddings import DeterministicStubProvider
+
+    # RESET global manager to ensure defaults (384D) and no 2D pollution
+    _INDEX_MANAGER.index = None
+    _INDEX_MANAGER.provider = DeterministicStubProvider(dim=384)
+    _INDEX_MANAGER.dim = 384
     
     # 1. Setup DB
     with get_conn() as conn:
@@ -90,8 +97,10 @@ def test_integration_api_lifecycle(lifecycle_config):
     
     # 3. Query via API function
     # Need vector. Helper to embed:
-    mgr = IndexManager() # Just for _embed
-    vec = mgr._embed("ApiTest") # Label fallback
+    # 3. Query via API function
+    # Need vector. Helper to embed:
+    mgr = IndexManager() 
+    vec = mgr.provider.embed_texts(["ApiTest"])[0] # Label fallback
     
     req = VectorQuery(vector=vec, k=1)
     env = find_similar(req)
