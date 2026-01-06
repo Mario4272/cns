@@ -57,7 +57,7 @@ class WasmSandbox:
             store.set_wasi(wasi)
 
             if self.max_fuel is not None:
-                store.add_fuel(self.max_fuel)
+                store.add_fuel(self.max_fuel)  # type: ignore
 
             # Instantiate
             module = Module(self.engine, wasm_bytes)
@@ -70,7 +70,9 @@ class WasmSandbox:
 
             error = None
             try:
-                start(store)
+                # Mypy thinks start could be Table/Memory etc.
+                # In WASI, _start is a Func.
+                start(store)  # type: ignore
             except Exception as e:
                 # Wasmtime raises Trap for any WASI exit(1), but exit(0)
                 # might also look like exception?

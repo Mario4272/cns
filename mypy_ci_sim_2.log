@@ -1,0 +1,2 @@
+cns_py\wasm\sandbox.py:75: error: Invalid "type: ignore" comment  [syntax]
+Found 1 error in 1 file (checked 39 source files)
