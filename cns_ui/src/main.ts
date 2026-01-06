@@ -16,6 +16,14 @@ let debugEdgesEl: HTMLElement | null;
 let debugEdgesEl: HTMLElement | null;
 let debugModeSelect: HTMLSelectElement | null;
 
+// Phase 11 New Elements
+let smartQueryInput: HTMLInputElement | null;
+let explainBtn: HTMLButtonElement | null;
+let planDisplayEl: HTMLElement | null;
+let ruleSelect: HTMLSelectElement | null;
+let runRuleBtn: HTMLButtonElement | null;
+let ruleResultEl: HTMLElement | null;
+
 // Details Panel Elements
 let detailsPanel: HTMLElement | null;
 let detailIdEl: HTMLElement | null;
@@ -422,6 +430,102 @@ function renderDebugPanel(data: NeighborhoodResponse) {
     : "<no edges match filter>";
 }
 
+// Phase 11 Logic
+
+async function fetchAvailableRules() {
+  if (!ruleSelect) return;
+  try {
+    const resp = await fetch(`${API_BASE}/rules`);
+    if (resp.ok) {
+      const rules = await resp.json();
+      ruleSelect.innerHTML = '<option value="" disabled selected>Select Rule...</option>';
+      rules.forEach((r: any) => {
+        const opt = document.createElement("option");
+        opt.value = r.id;
+        opt.textContent = `${r.id} (v${r.version})`;
+        ruleSelect!.appendChild(opt);
+      });
+    }
+  } catch (e) {
+    console.error("Failed to fetch rules", e);
+  }
+}
+
+async function runRule() {
+  if (!selectedNodeId || !ruleSelect || !ruleResultEl) return;
+  const ruleId = ruleSelect.value;
+  if (!ruleId) return;
+
+  ruleResultEl.textContent = "Running...";
+
+  try {
+    // Construct context from node data
+    // For demo, we mock or use minimal context
+    const context = {
+      center_node_id: selectedNodeId
+      // In real app, we'd fetch node facts
+    };
+
+    const resp = await fetch(`${API_BASE}/rules/run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rule_id: ruleId, input_context: context })
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      ruleResultEl.innerHTML = `<pre>${JSON.stringify(data.output, null, 2)}</pre>`;
+    } else {
+      ruleResultEl.textContent = `Error: ${resp.status}`;
+    }
+
+  } catch (e) {
+    ruleResultEl.textContent = `Error: ${e}`;
+  }
+}
+
+async function explainPlan() {
+  console.log("explainPlan called"); // Debug check
+  if (!smartQueryInput || !planDisplayEl) {
+    console.error("Missing UI elements");
+    return;
+  }
+  const query = smartQueryInput.value.trim();
+  if (!query) return;
+
+  planDisplayEl.textContent = "Planning...";
+
+  try {
+    const resp = await fetch(`${API_BASE}/planner/explain`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: query })
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+
+      // Format Plan
+      let html = `<strong>Hash:</strong> ${data.plan_hash.substring(0, 8)}...<br/>`;
+      html += `<strong>Determinism:</strong> ${data.determinism}<br/>`;
+
+      if (data.rationale && data.rationale.length > 0) {
+        html += `<strong>Rationale:</strong><ul>`;
+        data.rationale.forEach((r: any) => {
+          html += `<li>${r.rule}: ${r.because}</li>`;
+        });
+        html += `</ul>`;
+      }
+
+      planDisplayEl.innerHTML = html;
+    } else {
+      planDisplayEl.textContent = `Error: ${resp.status}`;
+    }
+  } catch (e) {
+    planDisplayEl.textContent = `Error: ${e}`;
+  }
+}
+
 async function loadNeighborhood() {
   if (!labelInput || !hopsInput || !limitInput || !statusEl) return;
 
@@ -483,6 +587,17 @@ window.addEventListener("DOMContentLoaded", () => {
   similarStatusEl = document.querySelector("#similar-status");
   similarResultsEl = document.querySelector("#similar-results");
 
+  // Phase 11 UI
+  smartQueryInput = document.querySelector("#smart-query-input");
+  explainBtn = document.querySelector("#explain-btn");
+  planDisplayEl = document.querySelector("#plan-display");
+  ruleSelect = document.querySelector("#rule-select");
+  runRuleBtn = document.querySelector("#run-rule-btn");
+  ruleResultEl = document.querySelector("#rule-result");
+
+  // Fetch rules on load
+  fetchAvailableRules();
+
   initScene();
 
   // Event Listeners
@@ -493,6 +608,16 @@ window.addEventListener("DOMContentLoaded", () => {
   findSimilarBtn?.addEventListener('click', (e) => {
     e.preventDefault();
     findSimilar();
+  });
+
+  explainBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    explainPlan();
+  });
+
+  runRuleBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    runRule();
   });
 
   loadButton?.addEventListener("click", (e) => {

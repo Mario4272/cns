@@ -1,6 +1,8 @@
 psycopg[binary]>=3.1
 pgvector>=0.2.5
 python-dateutil>=2.9.0
+cryptography>=41.0.0
+wasmtime>=18.0.0
 
 [dev]
 pytest>=8.2.0

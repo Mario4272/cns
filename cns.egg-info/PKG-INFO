@@ -7,6 +7,8 @@ License-File: LICENSE
 Requires-Dist: psycopg[binary]>=3.1
 Requires-Dist: pgvector>=0.2.5
 Requires-Dist: python-dateutil>=2.9.0
+Requires-Dist: cryptography>=41.0.0
+Requires-Dist: wasmtime>=18.0.0
 Provides-Extra: dev
 Requires-Dist: pytest>=8.2.0; extra == "dev"
 Requires-Dist: pytest-cov>=5.0.0; extra == "dev"

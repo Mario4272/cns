@@ -54,7 +54,9 @@ def test_index_lifecycle_restart(lifecycle_config):
     # 3. Shutdown (Save)
     mgr1.shutdown()
     
-    assert os.path.exists(f"{lifecycle_config}.npz")
+    # IndexManager appends space name, e.g. _default
+    expected_path = f"{lifecycle_config}_default.npz"
+    assert os.path.exists(expected_path)
     
     # 4. Manager 2: Startup (Load)
     # Clear any in-memory state if shared? 

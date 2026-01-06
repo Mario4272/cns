@@ -9,9 +9,12 @@ Short orientation and pointers to canonical docs:
 
 - Vision: see `docs/01-vision.md`.
 - Architecture: see `docs/02-architecture.md`.
+- Architecture: see `docs/02-architecture.md`.
 - Roadmap: this document is the single source of truth.
 
----
+> [!NOTE]
+> This file is tracked in `.project_tracking/cns_phased_build_plan.md`.
+
 
 ## Phase 0 — Bootstrap (Week 0) ✅ COMPLETE
 
@@ -179,55 +182,78 @@ make e2e          # Playwright demo script
     - Defined update rule: `σ(w_e*E + w_r*R + w_t*T - w_c*C)`
     - Validated with unit tests (`tests/test_belief.py`)
     - Perf Smoke: P95 ~73ms (Deterministic)
-- **2026-01-02**: Phase 5 Complete (Legacy issues closed).
+- **2026-01-05**: Phase 8 Complete (Executable Memory).
+    - **Slice 8.1**: Signed Provenance (Crypto + API).
+    - **Slice 8.2**: WASM Runtime (Sandbox).
+- **2026-01-05**: Phase 7 Complete (Frontend Integration & Gates).
+    - **Slice 7.1**: Frontend "Find Similar" UI and API updates.
+    - **Slice 7.2**: Rust Gates (`fmt`, `clippy`, `test`) in CI.
+- **2026-01-02**: Phase 6 Complete (Vector Index).
+- **2026-01-05**: Phase 9 Complete (Learned Routers).
+    - **Slice 9.1**: Multi-Space Indexing (Manager refactoring, API update).
+    - **Slice 9.2**: Router v0 (Heuristic regex router).
+    - **Slice 9.3**: Benchmarks (Proven 100% recall maintenance with multi-space, P95 latency reduced).
+- **2026-01-06**: Phase 10 Complete (Rule-Orchestrated Retrieval).
+    - **Slice 10.1**: Retrieval Planner (Det. heuristic planner).
+    - **Slice 10.2**: WASM Rules (WAT placeholders).
+    - **Slice 10.3**: Signed Outputs (Findings integrity verification).
+    - **Slice 10.X**: Verified full pipeline with `demo_phase10.py`.
+- **2026-01-06**: Phase 11 Complete (Productionize Pipeline).
+    - **Slice 11.1**: Planner Explainability.
+    - **Slice 11.2**: Rule Registry & Manifests.
+    - **Slice 11.3**: Index Ops (Status/Rebuild).
+    - **Slice 11.4**: UI Hardening (Smart Query Panel).
+    - **Slice 11.X**: Verified with `demo_phase11.py`.
+
+## Phase 12 — Belief Revision (Weeks 20-22)
+**Objective**: Implement time-aware, contradiction-sensitive belief updates with explanations.
+
+### Deliverables
+- **Slice 12.1: Belief Revision Engine v1**
+    - Time decay (exponential).
+    - Contradiction penalty.
+    - Component-based calculation.
+- **Slice 12.2: Belief Explanations**
+    - `POST /belief/explain`.
+    - Trace logic for why a belief score exists.
+- **Slice 12.3: API/UX Exposure**
+    - Add `?explain=true` to graph queries.
+    - Optional UI panel.
+
+### Metrics
+- Update time < 10ms.
+- Deterministic updates (100% stable).
+
+
+## Phase 7 — Frontend Integration (Slice 7.1) ✅ COMPLETE
+
+**Objective:** Expose vector capabilities to users.
+
+### Status (2026-01-05)
+- ✅ "Find Similar" UI shipped.
+- ✅ Rust CI gates active.
 
 ---
 
-## Phase 5 — IB Explorer Alpha (Weeks 7–9) ✅ COMPLETE
+## Phase 8 — Executable Memory & Provenance (Weeks 12–15) ✅ COMPLETE
 
-**Objective:** Give users the multi-dimensional feel (IB not DB) and time travel.
-
-### Deliverables
-- **WebGL/Three.js Galaxy** (Atoms as stars, Fibers as edges).
-- **Detail Panel** (Provenance, Beliefs).
-- **Interactive Graph** (Neighborhood navigation).
-
-### Status (2026-01-02)
-- ✅ Phase 5 Explorer MVP shipped (commit `66614e1`).
-- ✅ Functional 3D graph view + Node Detail sidebar.
-- ✅ Closed Issues: #21 (Edge Receipts), #22 (Provenance).
-
-### Details
-- Frontend: `explorer/index.html` (Three.js + Vanilla JS).
-- Backend: `/graph/neighborhood` and `/graph/node/{id}` endpoints.
-
-
-### Metrics
-
-- P95 ≤ 150 ms on: ANN shortlist (100M vectors IVF-PQ) → 2-hop traverse → belief filter (RAM HNSW for hot).
-- Journal replay produces identical beliefs and contradictions.
-
-**Exit criteria**
-
-- Swap `--engine=rust` for demos; results & citations match Python ref within tolerance.
-
----
-
-## Phase 6 — Executable Memory + Signed Provenance (Weeks 12–15)
-
-**Objective:** Make the memory executable and auditable.
+**Objective:** Make the memory executable and auditable (Smart Graph).
 
 ### Deliverables
 
-- **WASM Sandbox**
-  - Register rules/resolvers/summarizers; execute on demand; outputs are Claims with provenance `learner:<hash>`.
-- **Signed provenance (optional mode)**
-  - Content hashes; Ed25519 signatures on source + derived claims; verification endpoint.
+- **Slice 8.1: Signed Provenance**
+  - Content hashes; Ed25519 signatures on Claims; verification endpoint.
+- **Slice 8.2: WASM Sandbox**
+  - Register rules (WASM binaries); execute on demand.
+  
+### Status (2026-01-05)
+- ✅ Slice 8.1: `cns_py.crypto` & `/provenance/verify` shipped.
+- ✅ Slice 8.2: `wasmtime` integrated for WASI modules.
 
 ### Metrics
 
-- Rule eval overhead < 30 ms per invocation for small payloads.
-- Provenance verify throughput ≥ 10k/s on a single core.
+- Rule eval overhead < 30 ms.
+- Provenance verify throughput ≥ 10k/s.
 
 **Exit criteria**
 
@@ -235,22 +261,54 @@ make e2e          # Playwright demo script
 
 ---
 
-## Phase 7 — Learned Routers & Multi-Space (Weeks 15–18)
+## Phase 9 — Learned Routers & Multi-Space (Weeks 16-19)
+
+**Objective:** Improve shortlist quality using domain-specific embedding spaces.
+
+### Deliverables
+- **Slice 9.1: Multi-Space Indexing**
+  - Support `space_name -> index` map.
+  - API support for `space` parameter.
+- **Slice 9.2: Router v0**
+  - Heuristic router: `route(query) -> [(space, weight)]`.
+  - `space="auto"` support.
+- **Slice 9.3: Benchmarks**
+  - Measure Recall@k improvement over single space.
+
+### Metrics
+- Recall@k +10-15% vs single-space baseline.
+
+---
+
+## Phase 10 — Rule-Orchestrated Retrieval (Slices 10.1-10.X)
+
+**Objective**: Move from "router picks space" to "planner returns executable plan".
+
+### Deliverables
+- **Slice 10.1: Retrieval Planner v0**: Det. planner + executor (Exact/Vector steps).
+- **Slice 10.2: WASM Rule Packs v0**: Sandbox rules (TLS, contradictions) with strict IO.
+- **Slice 10.3: Signed Outputs v0**: Sign findings/results for provenance.
+- **Slice 10.X: End-to-End Demo**: Full pipeline demo.
+
+### Metrics
+- Deterministic plan generation (100% stability).
+- Rule execution overhead < 50ms.
+- Signed verification throughput > 1000/s.
+
+---
+
+## Phase 9 — Learned Routers & Multi-Space (Weeks 15–18)
 
 **Objective:** Increase shortlist quality with domain-specific embedding spaces.
 
 ### Deliverables
 
-- Multi-space vector indexing (e.g., `sec_proto`, `legal_v1`, `code_v1`).
-- **Router**: classify query → pick space(s) + weights; small adapter training loop.
+- Multi-space vector indexing.
+- **Router**: classify query → pick space(s).
 
 ### Metrics
 
-- Recall@k improves ≥ 10–15% vs single space on mixed-domain benchmark.
-
-**Exit criteria**
-
-- CQL `SIMILAR(x, "text", space="auto")` outperforms fixed space on demo corpus.
+- Recall@k improves ≥ 10–15% vs single space.
 
 ---
 

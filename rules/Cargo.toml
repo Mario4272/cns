@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "tls_compliance",
+    "contradiction_marker"
+]

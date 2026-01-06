@@ -68,6 +68,16 @@
       </div>
     </section>
 
+    <!-- Phase 11: Smart Query Panel -->
+    <section class="smart-query-panel" aria-label="Smart Query Panel">
+      <h2>Smart Query (Planner)</h2>
+      <div class="query-controls">
+        <input id="smart-query-input" type="text" placeholder="e.g. verify tls compliance for app_A" />
+        <button id="explain-btn">Explain Plan</button>
+      </div>
+      <div id="plan-display" class="plan-display"></div>
+    </section>
+
     <section id="details-panel" class="details-panel hidden" aria-label="Node details panel">
       <header class="details-header">
         <h2 id="detail-title">Node Details</h2>
@@ -86,6 +96,19 @@
           <span class="detail-label">Kind:</span>
           <span id="detail-kind"></span>
         </div>
+
+        <hr class="separator" />
+
+        <!-- Phase 11: Rule Runner -->
+        <h3>Run Rule</h3>
+        <div class="rule-controls">
+          <select id="rule-select">
+            <option value="" disabled selected>Select Rule...</option>
+            <!-- Populated by JS -->
+          </select>
+          <button id="run-rule-btn">Run</button>
+        </div>
+        <div id="rule-result" class="rule-result"></div>
 
         <hr class="separator" />
 

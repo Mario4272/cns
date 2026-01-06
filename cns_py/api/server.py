@@ -594,8 +594,10 @@ def shutdown_event() -> None:
 class VectorQuery(BaseModel):
     vector: Optional[List[float]] = None
     atom_id: Optional[str] = None # Accepts ID as string (or int parsed as string)
+    text: Optional[str] = None # Raw text for search/routing
     k: int = 10
     filter: Optional[Dict[str, Any]] = None
+    space: str = "default"
 
 
 class SimilarResult(BaseModel):
@@ -615,34 +617,38 @@ def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
     Delegates to IndexManager.
     """
     try:
-        # Resolve vector if generic ID provided
         query_vec = req.vector
+        query_text = req.text
+        
+        # If vector missing, try to generate it from atom_id or text
         if not query_vec:
-            if not req.atom_id:
-                raise HTTPException(status_code=400, detail="Must provide 'vector' or 'atom_id'")
+            content_to_embed = None
             
-            # Fetch text from DB to re-embed (Deterministic)
-            # This ensures we search using the *current* embedding logic
-            with get_conn() as conn:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT text, label FROM atoms WHERE id = %s", (req.atom_id,))
-                    row = cur.fetchone()
-                    if not row:
-                        raise HTTPException(status_code=404, detail="Atom not found for embedding lookup")
-                    text, label = row
-                    # Use text if present, else label (fallback logic matches IndexManager scope)
-                    content = text or label
-            
-            # Embed
-            # We access the provider directly. 
-            # Note: This requires the provider to be thread-safe (it is).
-            vectors = _INDEX_MANAGER.provider.embed_texts([content])
-            query_vec = vectors[0]
+            if req.atom_id:
+                # Fetch text from DB to re-embed (Deterministic)
+                with get_conn() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("SELECT text, label FROM atoms WHERE id = %s", (req.atom_id,))
+                        row = cur.fetchone()
+                        if not row:
+                            raise HTTPException(status_code=404, detail="Atom not found for embedding lookup")
+                        text, label = row
+                        content_to_embed = text or label
+            elif req.text:
+                content_to_embed = req.text
+            else:
+                raise HTTPException(status_code=400, detail="Must provide 'vector', 'atom_id', or 'text'")
+
+            # Embed if we found content
+            if content_to_embed:
+                query_text = content_to_embed # Update query_text for routing
+                vectors = _INDEX_MANAGER.provider.embed_texts([content_to_embed])
+                query_vec = vectors[0]
 
         if not query_vec:
              raise HTTPException(status_code=500, detail="Failed to generate query vector")
 
-        raw_results = _INDEX_MANAGER.query(query_vec, k=req.k, filter=req.filter)
+        raw_results = _INDEX_MANAGER.query(query_vec, k=req.k, filter=req.filter, space=req.space, query_text=query_text)
     except HTTPException:
         raise
     except Exception as e:
@@ -681,6 +687,158 @@ app.get("/graph/neighborhood", response_model=GraphNeighborhoodEnvelope)(graph_n
 app.get("/graph/node/{node_id}", response_model=NodeDetailEnvelope)(graph_node_detail)
 app.get("/graph/edge/{edge_id}", response_model=EdgeReceiptEnvelope)(graph_edge_detail)
 app.post("/graph/similar", response_model=SimilarNodesEnvelope)(find_similar)
+
+
+# Slice 8.1: Provenance Verification
+from cns_py.crypto import verify_claim, load_public_key, canonicalize
+import hashlib
+
+class ProvenanceVerifyRequest(BaseModel):
+    payload: Dict[str, Any]
+    signature: str
+    public_key: str # Hex
+
+class ProvenanceVerifyResponse(BaseModel):
+    valid: bool
+    claim_hash: Optional[str] = None 
+    reason: Optional[str] = None
+
+def verify_provenance_endpoint(req: ProvenanceVerifyRequest) -> ProvenanceVerifyResponse:
+    try:
+        # 1. Compute Hash (Claim ID)
+        canon_bytes = canonicalize(req.payload)
+        claim_hash = hashlib.sha256(canon_bytes).hexdigest()
+        
+        # 2. Load Key
+        try:
+            pub_key = load_public_key(req.public_key)
+        except Exception as e:
+            return ProvenanceVerifyResponse(valid=False, claim_hash=claim_hash, reason=f"Invalid Key: {e}")
+
+        # 3. Verify
+        valid = verify_claim(req.payload, req.signature, pub_key)
+        if valid:
+             return ProvenanceVerifyResponse(valid=True, claim_hash=claim_hash)
+        else:
+             return ProvenanceVerifyResponse(valid=False, claim_hash=claim_hash, reason="Signature Mismatch")
+            
+    except Exception as e:
+        return ProvenanceVerifyResponse(valid=False, reason=f"Error: {e}")
+
+app.post("/provenance/verify", response_model=ProvenanceVerifyResponse)(verify_provenance_endpoint)
+
+# Slice 10.3: Signed Results Verification
+# Uses the same schema as Provenance currently, but exposed as distinct endpoint
+# to allow for schema divergence (e.g. Findings vs Claims).
+
+class ResultVerifyRequest(BaseModel):
+    result_payload: Dict[str, Any] # Findings object
+    signature: str
+    public_key: str
+
+class ResultVerifyResponse(BaseModel):
+    valid: bool
+    result_hash: Optional[str] = None
+    reason: Optional[str] = None
+
+def verify_result_endpoint(req: ResultVerifyRequest) -> ResultVerifyResponse:
+    try:
+        # 1. Compute Hash
+        canon_bytes = canonicalize(req.result_payload)
+        res_hash = hashlib.sha256(canon_bytes).hexdigest()
+        
+        # 2. Key
+        try:
+            pub_key = load_public_key(req.public_key)
+        except Exception as e:
+             return ResultVerifyResponse(valid=False, result_hash=res_hash, reason=f"Invalid Key: {e}")
+             
+        # 3. Verify
+        valid = verify_claim(req.result_payload, req.signature, pub_key)
+        if valid:
+            return ResultVerifyResponse(valid=True, result_hash=res_hash)
+        else:
+            return ResultVerifyResponse(valid=False, result_hash=res_hash, reason="Signature Mismatch")
+            
+    except Exception as e:
+        return ResultVerifyResponse(valid=False, reason=f"Error: {e}")
+
+app.post("/results/verify", response_model=ResultVerifyResponse)(verify_result_endpoint)
+
+# Slice 11.1: Planner Explainability
+from cns_py.planner import PlanExplainer, PlanExplanation
+
+class ExplainRequest(BaseModel):
+    query: str
+    constraints: Optional[Dict[str, Any]] = None
+
+_EXPLAINER = PlanExplainer()
+
+def explain_plan_endpoint(req: ExplainRequest) -> PlanExplanation:
+    """
+    Generate a retrieval plan and explain why each step was chosen.
+    Returns deterministic hash of the plan for auditing.
+    """
+    try:
+        explanation = _EXPLAINER.explain(req.query)
+        return explanation
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+app.post("/planner/explain", response_model=PlanExplanation)(explain_plan_endpoint)
+
+# Slice 11.2: Rule Registry
+from cns_py.rules import RuleRegistry, RuleMetadata
+
+# Initialize Registry (auto-loads from rules/manifest.json via default logic)
+_REGISTRY = RuleRegistry()
+
+@app.get("/rules", response_model=List[RuleMetadata])
+def list_rules_endpoint():
+    return _REGISTRY.list_rules()
+
+class RunRuleRequest(BaseModel):
+    rule_id: str
+    input_context: Dict[str, Any]
+
+class RunRuleResponse(BaseModel):
+    rule_id: str
+    output: Dict[str, Any]
+
+@app.post("/rules/run", response_model=RunRuleResponse)
+def run_rule_endpoint(req: RunRuleRequest):
+    try:
+        output = _REGISTRY.run_rule(req.rule_id, req.input_context)
+        return RunRuleResponse(rule_id=req.rule_id, output=output)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Slice 11.3: Index Ops
+@app.get("/index/status")
+def index_status_endpoint():
+    return _INDEX_MANAGER.get_status()
+
+class RebuildRequest(BaseModel):
+    confirm: bool
+    space: str = "default"
+
+@app.post("/index/rebuild")
+def index_rebuild_endpoint(req: RebuildRequest):
+    if not req.confirm:
+        raise HTTPException(status_code=400, detail="Must confirm rebuild.")
+    
+    try:
+        # Trigger rebuild
+        _INDEX_MANAGER.rebuild(space=req.space)
+        # Return new status
+        return {"status": "success", "index_status": _INDEX_MANAGER.get_status()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 
 
 def get_app() -> FastAPI:

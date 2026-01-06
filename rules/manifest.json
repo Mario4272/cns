@@ -1,0 +1,26 @@
+[
+    {
+        "id": "tls_compliance",
+        "version": "0.1.0",
+        "description": "Checks if the use of specific algorithms violates TLS policies.",
+        "wasm_file": "tls_compliance.wat",
+        "input_schema": {
+            "facts": "list of {predicate: str, object: str}"
+        },
+        "output_schema": {
+            "findings": "list of {status: str, message: str}"
+        }
+    },
+    {
+        "id": "contradiction_marker",
+        "version": "0.1.0",
+        "description": "Flags execution contexts that have excessive contradictions.",
+        "wasm_file": "contradiction_marker.wat",
+        "input_schema": {
+            "context": "{contradictions_count: int}"
+        },
+        "output_schema": {
+            "findings": "list of {type: str, severity: str}"
+        }
+    }
+]

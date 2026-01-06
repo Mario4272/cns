@@ -1,0 +1,232 @@
+FF                                                                       [100%]
+================================== FAILURES ===================================
+________________________ test_index_lifecycle_restart _________________________
+
+lifecycle_config = 'C:\\Users\\mfadmin\\AppData\\Local\\Temp\\pytest-of-mfadmin\\pytest-29\\test_index_lifecycle_restart0\\lifecycle_index'
+
+    def test_index_lifecycle_restart(lifecycle_config):
+        """
+        Verify:
+        1. Rebuild from DB.
+        2. Query works.
+        3. Shutdown (Persist).
+        4. Startup (Load).
+        5. Query works same as before.
+        """
+    
+        # 1. Setup DB Data
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                # Clean atoms first? Assuming test DB isolation.
+                # Insert test atoms
+                cur.execute("""
+                    INSERT INTO atoms (label, kind, text) VALUES
+                    ('LifecycleAlpha', 'Entity', 'Alpha content for embedding'),
+                    ('LifecycleBeta', 'Concept', 'Beta content for embedding')
+                    RETURNING id, label;
+                """)
+                rows = cur.fetchall()
+                id_map = {label: str(aid) for aid, label in rows}
+    
+        # 2. Manager 1: Startup (Rebuild)
+        mgr1 = IndexManager()
+        mgr1.startup()
+    
+        # Verify index has content
+        res1 = mgr1.query(mgr1.provider.embed_texts(["Alpha content for embedding"])[0], k=1)
+        assert len(res1) == 1
+        assert res1[0][0] == id_map['LifecycleAlpha']
+        score1 = res1[0][1]
+    
+        # 3. Shutdown (Save)
+        mgr1.shutdown()
+    
+>       assert os.path.exists(f"{lifecycle_config}.npz")
+E       AssertionError: assert False
+E        +  where False = <function exists at 0x00000265FC792B90>('C:\\Users\\mfadmin\\AppData\\Local\\Temp\\pytest-of-mfadmin\\pytest-29\\test_index_lifecycle_restart0\\lifecycle_index.npz')
+E        +    where <function exists at 0x00000265FC792B90> = <module 'ntpath' from 'C:\\Users\\mfadmin\\.pyenv\\pyenv-win\\versions\\3.10.11\\lib\\ntpath.py'>.exists
+E        +      where <module 'ntpath' from 'C:\\Users\\mfadmin\\.pyenv\\pyenv-win\\versions\\3.10.11\\lib\\ntpath.py'> = os.path
+
+tests\test_vector_lifecycle.py:57: AssertionError
+---------------------------- Captured stdout setup ----------------------------
+Database connection successful on attempt 1
+Initialized schema (atoms, fibers, aspects) and pgvector extension.
+
+Demo data ingested: FrameworkX -> TLS1.2 before 2025, TLS1.3 after 2025.
+
+---------------------------- Captured stderr setup ----------------------------
+ Container cns_db  Stopping
+ Container cns_db  Stopped
+ Container cns_db  Removing
+ Container cns_db  Removed
+ Network docker_default  Removing
+ Network docker_default  Removed
+ Network docker_default  Creating
+ Network docker_default  Created
+ Container cns_db  Creating
+ Container cns_db  Created
+ Container cns_db  Starting
+ Container cns_db  Started
+_______________________ test_integration_api_lifecycle ________________________
+
+req = VectorQuery(vector=[-0.042831797825098696, -0.12459687193574696, -0.02928785371146941, 0.06026116606829039, -0.0670797...73245864474867, 0.01199800749481204, 0.020587756797715708], atom_id=None, text=None, k=1, filter=None, space='default')
+
+    def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
+        """Find similar items by vector or existing atom ID.
+        Delegates to IndexManager.
+        """
+        try:
+            query_vec = req.vector
+            query_text = req.text
+    
+            # If vector missing, try to generate it from atom_id or text
+            if not query_vec:
+                content_to_embed = None
+    
+                if req.atom_id:
+                    # Fetch text from DB to re-embed (Deterministic)
+                    with get_conn() as conn:
+                        with conn.cursor() as cur:
+                            cur.execute("SELECT text, label FROM atoms WHERE id = %s", (req.atom_id,))
+                            row = cur.fetchone()
+                            if not row:
+                                raise HTTPException(status_code=404, detail="Atom not found for embedding lookup")
+                            text, label = row
+                            content_to_embed = text or label
+                elif req.text:
+                    content_to_embed = req.text
+                else:
+                    raise HTTPException(status_code=400, detail="Must provide 'vector', 'atom_id', or 'text'")
+    
+                # Embed if we found content
+                if content_to_embed:
+                    query_text = content_to_embed # Update query_text for routing
+                    vectors = _INDEX_MANAGER.provider.embed_texts([content_to_embed])
+                    query_vec = vectors[0]
+    
+            if not query_vec:
+                 raise HTTPException(status_code=500, detail="Failed to generate query vector")
+    
+>           raw_results = _INDEX_MANAGER.query(query_vec, k=req.k, filter=req.filter, space=req.space, query_text=query_text)
+E           TypeError: IndexManager.query() got an unexpected keyword argument 'filter'
+
+cns_py\api\server.py:651: TypeError
+
+During handling of the above exception, another exception occurred:
+
+lifecycle_config = 'C:\\Users\\mfadmin\\AppData\\Local\\Temp\\pytest-of-mfadmin\\pytest-29\\test_integration_api_lifecycle0\\lifecycle_index'
+
+    def test_integration_api_lifecycle(lifecycle_config):
+        """Verify API integration uses the manager."""
+        from cns_py.api.server import find_similar, startup_event, shutdown_event, _INDEX_MANAGER
+        from cns_py.api.server import VectorQuery
+    
+        from cns_py.vector.embeddings import DeterministicStubProvider
+    
+        # RESET global manager to ensure defaults (384D) and no 2D pollution
+        _INDEX_MANAGER.index = None
+        _INDEX_MANAGER.provider = DeterministicStubProvider(dim=384)
+        _INDEX_MANAGER.dim = 384
+    
+        # 1. Setup DB
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("INSERT INTO atoms (label, kind) VALUES ('ApiTest', 'Entity') RETURNING id")
+                aid = cur.fetchone()[0]
+    
+        # 2. Trigger startup (rebuild global manager)
+        startup_event()
+    
+        # 3. Query via API function
+        # Need vector. Helper to embed:
+        # 3. Query via API function
+        # Need vector. Helper to embed:
+        mgr = IndexManager()
+        vec = mgr.provider.embed_texts(["ApiTest"])[0] # Label fallback
+    
+        req = VectorQuery(vector=vec, k=1)
+>       env = find_similar(req)
+
+tests\test_vector_lifecycle.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+req = VectorQuery(vector=[-0.042831797825098696, -0.12459687193574696, -0.02928785371146941, 0.06026116606829039, -0.0670797...73245864474867, 0.01199800749481204, 0.020587756797715708], atom_id=None, text=None, k=1, filter=None, space='default')
+
+    def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
+        """Find similar items by vector or existing atom ID.
+        Delegates to IndexManager.
+        """
+        try:
+            query_vec = req.vector
+            query_text = req.text
+    
+            # If vector missing, try to generate it from atom_id or text
+            if not query_vec:
+                content_to_embed = None
+    
+                if req.atom_id:
+                    # Fetch text from DB to re-embed (Deterministic)
+                    with get_conn() as conn:
+                        with conn.cursor() as cur:
+                            cur.execute("SELECT text, label FROM atoms WHERE id = %s", (req.atom_id,))
+                            row = cur.fetchone()
+                            if not row:
+                                raise HTTPException(status_code=404, detail="Atom not found for embedding lookup")
+                            text, label = row
+                            content_to_embed = text or label
+                elif req.text:
+                    content_to_embed = req.text
+                else:
+                    raise HTTPException(status_code=400, detail="Must provide 'vector', 'atom_id', or 'text'")
+    
+                # Embed if we found content
+                if content_to_embed:
+                    query_text = content_to_embed # Update query_text for routing
+                    vectors = _INDEX_MANAGER.provider.embed_texts([content_to_embed])
+                    query_vec = vectors[0]
+    
+            if not query_vec:
+                 raise HTTPException(status_code=500, detail="Failed to generate query vector")
+    
+            raw_results = _INDEX_MANAGER.query(query_vec, k=req.k, filter=req.filter, space=req.space, query_text=query_text)
+        except HTTPException:
+            raise
+        except Exception as e:
+>           raise HTTPException(status_code=500, detail=str(e))
+E           fastapi.exceptions.HTTPException: 500: IndexManager.query() got an unexpected keyword argument 'filter'
+
+cns_py\api\server.py:655: HTTPException
+============================== warnings summary ===============================
+tests/test_vector_lifecycle.py::test_integration_api_lifecycle
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:582: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+tests/test_vector_lifecycle.py::test_integration_api_lifecycle
+tests/test_vector_lifecycle.py::test_integration_api_lifecycle
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+tests/test_vector_lifecycle.py::test_integration_api_lifecycle
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:588: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_vector_lifecycle.py::test_index_lifecycle_restart - Asserti...
+FAILED tests/test_vector_lifecycle.py::test_integration_api_lifecycle - fasta...
+2 failed, 4 warnings in 4.21s
