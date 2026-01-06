@@ -2,6 +2,7 @@
 WASM Sandbox using Wasmtime.
 Uses WASI (stdin/stdout) for JSON-in/JSON-out communication.
 """
+
 import json
 import os
 import tempfile
@@ -21,7 +22,7 @@ class WasmSandbox:
 
         self.config = Config()
         if max_fuel is not None:
-             self.config.consume_fuel = True
+            self.config.consume_fuel = True
 
         self.engine = Engine(self.config)
         self.linker = Linker(self.engine)
@@ -43,14 +44,14 @@ class WasmSandbox:
             # Prepare Input
             input_json = json.dumps(input_data).encode("utf-8")
             os.write(stdin_fd, input_json)
-            os.close(stdin_fd) # Close handle so WASM can open it
-            os.close(stdout_fd) # Close handle so WASM can open it (and we read later)
+            os.close(stdin_fd)  # Close handle so WASM can open it
+            os.close(stdout_fd)  # Close handle so WASM can open it (and we read later)
 
             # Configure WASI
             wasi = WasiConfig()
             wasi.stdin_file = stdin_path
             wasi.stdout_file = stdout_path
-            wasi.inherit_stderr() # Useful for debug
+            wasi.inherit_stderr()  # Useful for debug
 
             store = Store(self.engine)
             store.set_wasi(wasi)
@@ -77,11 +78,11 @@ class WasmSandbox:
 
             # Read Output
             with open(stdout_path, "rb") as f:
-                 output_bytes = f.read()
+                output_bytes = f.read()
 
             if error:
-                 # If we have output (e.g. partial write before crash?)
-                 pass
+                # If we have output (e.g. partial write before crash?)
+                pass
 
         finally:
             # Cleanup
@@ -102,20 +103,21 @@ class WasmSandbox:
         try:
             return json.loads(output_bytes.decode("utf-8"))
         except json.JSONDecodeError as e:
-             raise RuntimeError(
-                 f"WASM returned invalid JSON: {output_bytes.decode('utf-8', errors='replace')}"
-             ) from e
+            raise RuntimeError(
+                f"WASM returned invalid JSON: {output_bytes.decode('utf-8', errors='replace')}"
+            ) from e
+
 
 # Default instance (unlimited by default)
 _SANDBOX = WasmSandbox()
 
+
 def execute_rule(
-    wasm_bytes: bytes,
-    input_data: Dict[str, Any],
-    sandbox_instance: Optional[WasmSandbox] = None
+    wasm_bytes: bytes, input_data: Dict[str, Any], sandbox_instance: Optional[WasmSandbox] = None
 ) -> Dict[str, Any]:
     sandbox = sandbox_instance if sandbox_instance else _SANDBOX
     return sandbox.execute(wasm_bytes, input_data)
+
 
 # Alias for compatibility
 execute_binary = execute_rule

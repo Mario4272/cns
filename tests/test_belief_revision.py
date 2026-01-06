@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta, timezone
 
 from cns_py.cql.belief import compute_effective_belief as compute
@@ -12,14 +11,16 @@ def test_belief_defaults():
     # With defaults: decay=1.0, contra=1.0, prov=0.0 -> 1.0
     assert b == 1.0
 
+
 def test_time_decay():
     now = datetime.now(timezone.utc)
-    old = now - timedelta(days=365) # 1 year old
+    old = now - timedelta(days=365)  # 1 year old
     # Default halflife is 365 days
     # Factor = 0.5
     b, det = compute(1.0, old)
     assert abs(det["decay_factor"] - 0.5) < 0.01
     assert abs(b - 0.5) < 0.01
+
 
 def test_contradiction_penalty():
     # 1 contradiction, penalty default 0.5
@@ -27,10 +28,11 @@ def test_contradiction_penalty():
     b, det = compute(1.0, datetime.now(timezone.utc), contradiction_count=1)
     assert abs(det["contradiction_factor"] - 0.5) < 0.01
     assert abs(b - 0.5) < 0.01
-    
+
     # 2 contradictions -> 0.0
     b2, _ = compute(1.0, datetime.now(timezone.utc), contradiction_count=2)
     assert b2 == 0.0
+
 
 def test_provenance_boost():
     # Base belief 0.5 (uncertain)
@@ -39,12 +41,13 @@ def test_provenance_boost():
     b, det = compute(0.5, datetime.now(timezone.utc), provenance_count=4)
     assert abs(det["provenance_boost"] - 0.4) < 0.01
     assert abs(b - 0.9) < 0.01
-    
+
     # Max cap check (default max 0.9)
     # 20 sources -> +2.0 boost? No, capped at 0.9
     b_cap, det_cap = compute(0.0, datetime.now(timezone.utc), provenance_count=20)
     assert det_cap["provenance_boost"] == 0.9
     assert b_cap == 0.9
+
 
 def test_determinism():
     ts = datetime(2025, 1, 1, tzinfo=timezone.utc)

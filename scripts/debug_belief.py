@@ -1,4 +1,3 @@
-
 import sys
 
 import pytest
@@ -11,10 +10,11 @@ def main():
         sys.stdout = f
         sys.stderr = f
         ret = pytest.main(["-vv", "tests/test_belief_revision.py"])
-    
+
     # Restore stdout to print result code
     sys.stdout = sys.__stdout__
     print(f"Tests finished. Exit code: {ret}")
+
 
 if __name__ == "__main__":
     main()

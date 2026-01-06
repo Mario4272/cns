@@ -2,6 +2,7 @@
 Plan Executor (Slice 10.1).
 Executes RetrievalSteps and aggregates Findings.
 """
+
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -17,26 +18,29 @@ from cns_py.vector.manager import IndexManager
 
 logger = logging.getLogger(__name__)
 
+
 class RetrievalResult(BaseModel):
     step_index: int
     step_type: str
-    items: List[Any] = [] # Atoms or Vector Results
+    items: List[Any] = []  # Atoms or Vector Results
     rule_output: Optional[Dict[str, Any]] = None
-    
+
+
 class Findings(BaseModel):
     plan_id: Optional[str] = None
     results: List[RetrievalResult] = []
 
+
 class Executor:
     def __init__(self, vector_manager: IndexManager):
         self.vector_manager = vector_manager
-        
+
     def execute(self, plan: RetrievalPlan) -> Findings:
         findings = Findings()
-        
+
         for i, step in enumerate(plan.steps):
             result = RetrievalResult(step_index=i, step_type=step.step_type)
-            
+
             try:
                 if isinstance(step, ExactQueryStep):
                     # TODO: Implement DB lookup. For v0, stub or use a mock lookup.
@@ -44,7 +48,7 @@ class Executor:
                     logger.info(f"Executing Exact Query for {step.atom_id}")
                     # Stub result
                     result.items = [{"id": step.atom_id, "mock_content": "Found it"}]
-                    
+
                 elif isinstance(step, VectorSearchStep):
                     logger.info(f"Executing Vector Search in {step.space} for '{step.query_text}'")
                     # Use manager
@@ -60,22 +64,23 @@ class Executor:
                         # Let's check manager.query again. It takes query_vec.
                         # So Executor needs access to Embedder to turn text->vec.
                         vec = self.vector_manager.provider.embed_texts([step.query_text])[0]
-                        
+
                     hits = self.vector_manager.query(
-                        query_vec=vec, 
-                        k=step.k, 
+                        query_vec=vec,
+                        k=step.k,
                         space=step.space,
-                        query_text=step.query_text  # Use text for auto-routing refined check if needed
+                        query_text=step.query_text,
+                        # Use text for auto-routing refined check if needed
                     )
                     result.items = hits
-                    
+
                 elif isinstance(step, WasmRuleStep):
                     logger.info(f"Executing WASM Rule {step.rule_name}")
                     # Load rule binary
                     import os
 
                     from cns_py.wasm import execute_rule
-                    
+
                     # Assume rules are in "rules/" at repo root or relative known path
                     # For demo/dev, let's find repo root relative to this file
                     # cns_py/planner/executor.py -> .../cns
@@ -83,17 +88,17 @@ class Executor:
                         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                     )
                     rule_path = os.path.join(repo_root, "rules", f"{step.rule_name}.wat")
-                    
+
                     if not os.path.exists(rule_path):
                         # Fallback for .wasm if implemented later
                         rule_path = os.path.join(repo_root, "rules", f"{step.rule_name}.wasm")
-                    
+
                     if not os.path.exists(rule_path):
-                         result.rule_output = {"error": f"Rule binary not found: {step.rule_name}"}
+                        result.rule_output = {"error": f"Rule binary not found: {step.rule_name}"}
                     else:
                         with open(rule_path, "rb") as f:
                             rule_bytes = f.read()
-                        
+
                         # Execute
                         # Context: Pass what we have. findings so far?
                         # For now, just pass the step.input_context + mock data to satisfy rule
@@ -101,18 +106,18 @@ class Executor:
                         input_data = step.input_context.copy()
                         # Helper: Add mock facts if missing so rules don't crash
                         if "facts" not in input_data:
-                             # Trigger violation for demo
-                             input_data["facts"] = [{"predicate": "uses_algo", "object": "tls1.0"}]
+                            # Trigger violation for demo
+                            input_data["facts"] = [{"predicate": "uses_algo", "object": "tls1.0"}]
                         if "subject_ids" not in input_data:
                             input_data["subject_ids"] = ["demo_subject"]
-                        
+
                         output = execute_rule(rule_bytes, input_data)
                         result.rule_output = output
-                    
+
             except Exception as e:
                 logger.error(f"Step {i} failed: {e}")
                 result.rule_output = {"error": str(e)}
-                
+
             findings.results.append(result)
-            
+
         return findings

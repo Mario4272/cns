@@ -18,6 +18,10 @@ repos:
           - psycopg[binary]
           - pgvector
           - python-dateutil
+          - pydantic
+          - numpy
+          - fastapi
+          - uvicorn
         args: ["--config-file=pyproject.toml"]
         pass_filenames: false
   - repo: https://github.com/Yelp/detect-secrets

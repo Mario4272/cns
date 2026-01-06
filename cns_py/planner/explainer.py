@@ -2,6 +2,7 @@
 Planner Explainability (Slice 11.1).
 Provides logic to generate deterministic hash and audit wrapper for plans.
 """
+
 import hashlib
 from typing import Any, Dict, Optional
 
@@ -18,6 +19,7 @@ class PlanExplanation(BaseModel):
     rationale: Any
     determinism: bool = True
 
+
 class PlanExplainer:
     def __init__(self, planner: Optional[Planner] = None):
         self.planner = planner or Planner()
@@ -28,18 +30,15 @@ class PlanExplainer:
         """
         # Generate plan
         plan = self.planner.plan(query)
-        
+
         # Canonicalize Plan for Hashing
         # We strip dynamic fields if any (timestamp?). Currently Plan is deterministic.
         plan_dict = plan.dict()
-        
+
         # Create hash
         canon_bytes = canonicalize(plan_dict)
         plan_hash = hashlib.sha256(canon_bytes).hexdigest()
-        
+
         return PlanExplanation(
-            query=query,
-            plan_hash=plan_hash,
-            plan=plan_dict,
-            rationale=plan.rationale
+            query=query, plan_hash=plan_hash, plan=plan_dict, rationale=plan.rationale
         )

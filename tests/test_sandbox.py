@@ -1,6 +1,7 @@
 """
 Tests for WASM Sandbox using raw WAT (WebAssembly Text).
 """
+
 import pytest
 
 from cns_py.wasm import WasmSandbox, execute_rule
@@ -17,11 +18,13 @@ WASI_NOOP_WAT = """
 )
 """
 
+
 def test_sandbox_initialization():
     """Verify engine startup."""
     sandbox = WasmSandbox()
     assert sandbox.engine is not None
     assert sandbox.linker is not None
+
 
 def test_hello_world_execution():
     """Verify WASM can write to stdout (Hello)."""
@@ -56,14 +59,16 @@ def test_hello_world_execution():
     )
 )
 """
-    result = execute_rule(wat.encode('utf-8'), {})
+    result = execute_rule(wat.encode("utf-8"), {})
     assert result == {}
+
 
 def test_execute_malformed_wasm():
     """Verify invalid WASM raises error."""
     # Module() raises WasmtimeError if invalid
     with pytest.raises(Exception):
         execute_rule(b"not a wasm binary", {})
+
 
 WASI_LOOP_WAT = """
 (module
@@ -75,20 +80,23 @@ WASI_LOOP_WAT = """
 )
 """
 
+
 def test_fuel_limit_traps():
     """Verify infinite loop is terminated by fuel limit."""
     # Instantiation with low fuel
     sandbox = WasmSandbox(max_fuel=100)
-    
-    loop_bytes = WASI_LOOP_WAT.encode('utf-8')
-    
+
+    loop_bytes = WASI_LOOP_WAT.encode("utf-8")
+
     # Should raise generic Error/Trap
     with pytest.raises(Exception) as excinfo:
         from cns_py.wasm import execute_rule
+
         execute_rule(loop_bytes, {}, sandbox_instance=sandbox)
-        
+
     # We might want to inspect if it says "fuel" but Exception is enough for now
     assert "fuel" in str(excinfo.value).lower() or "trap" in str(excinfo.value).lower()
+
 
 def test_config_initialization():
     """Verify custom config setup."""

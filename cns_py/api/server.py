@@ -21,11 +21,11 @@ from cns_py.storage.db import get_conn
 from cns_py.vector.manager import IndexManager
 
 
-class CqlRequest(BaseModel):  # type: ignore[misc]
+class CqlRequest(BaseModel):
     query: str
 
 
-class GraphNode(BaseModel):  # type: ignore[misc]
+class GraphNode(BaseModel):
     """Minimal graph node DTO for Explorer consumption.
 
     This will be extended over time with belief/temporal/provenance fields, but for
@@ -41,7 +41,7 @@ class GraphNode(BaseModel):  # type: ignore[misc]
     z: Optional[float] = None
 
 
-class GraphEdge(BaseModel):  # type: ignore[misc]
+class GraphEdge(BaseModel):
     """Minimal graph edge DTO for Explorer consumption.
 
     This will eventually surface belief and contradiction flags.
@@ -56,7 +56,7 @@ class GraphEdge(BaseModel):  # type: ignore[misc]
     contradictions: Optional[List[int]] = None
 
 
-class GraphNeighborhoodEnvelope(BaseModel):  # type: ignore[misc]
+class GraphNeighborhoodEnvelope(BaseModel):
     """Envelope for /graph/neighborhood responses.
 
     Provides a stable wrapper the Explorer can rely on while we evolve the
@@ -72,7 +72,7 @@ class GraphNeighborhoodEnvelope(BaseModel):  # type: ignore[misc]
     edges: List[GraphEdge]
 
 
-class NodeAspect(BaseModel):  # type: ignore[misc]
+class NodeAspect(BaseModel):
     predicate: str
     dst_id: int
     dst_label: str
@@ -81,12 +81,12 @@ class NodeAspect(BaseModel):  # type: ignore[misc]
     valid_to: Optional[datetime] = None
 
 
-class NodeProvenanceSummary(BaseModel):  # type: ignore[misc]
+class NodeProvenanceSummary(BaseModel):
     assertions_count: int
     sources_count: int
 
 
-class NodeDetailEnvelope(BaseModel):  # type: ignore[misc]
+class NodeDetailEnvelope(BaseModel):
     node: GraphNode
     asof: Optional[datetime] = None
     aspects: List[NodeAspect]
@@ -351,7 +351,7 @@ def graph_neighborhood(
     )
 
 
-class EdgeReceipt(BaseModel):  # type: ignore[misc]
+class EdgeReceipt(BaseModel):
     id: int
     src_id: int
     dst_id: int
@@ -362,7 +362,7 @@ class EdgeReceipt(BaseModel):  # type: ignore[misc]
     observed_at: Optional[datetime] = None
 
 
-class EdgeReceiptEnvelope(BaseModel):  # type: ignore[misc]
+class EdgeReceiptEnvelope(BaseModel):
     edge: EdgeReceipt
     src_label: Optional[str]
     dst_label: Optional[str]
@@ -482,7 +482,6 @@ def graph_edge_detail(edge_id: int, asof: Optional[datetime] = None) -> EdgeRece
     )
 
 
-
 def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDetailEnvelope:
     """Return a minimal detail view for a single node.
 
@@ -555,13 +554,13 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
         # Provenance count
         local_prov_count = 0
         if isinstance(prov_json, dict) and prov_json.get("source_id"):
-             local_prov_count = 1
-        
+            local_prov_count = 1
+
         eff_score, _ = compute_effective_belief(
             current_belief=raw_conf,
             observed_at=observed_at,
             provenance_count=local_prov_count,
-            contradiction_count=0 
+            contradiction_count=0,
         )
 
         aspects.append(
@@ -569,7 +568,7 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
                 predicate=str(predicate),
                 dst_id=int(dst_id),
                 dst_label=str(dst_label),
-                belief=eff_score, # Return computed score
+                belief=eff_score,  # Return computed score
                 valid_from=valid_from,
                 valid_to=valid_to,
             )
@@ -597,16 +596,16 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
 # ... existing code ...
 
 
-
-
 # Initialize Vector Index Manager (Singleton)
 _INDEX_MANAGER = IndexManager()
+
 
 @app.on_event("startup")
 def startup_event() -> None:
     """Initialize resources on startup."""
     # This handles loading persistence or rebuilding if needed
     _INDEX_MANAGER.startup()
+
 
 @app.on_event("shutdown")
 def shutdown_event() -> None:
@@ -616,8 +615,8 @@ def shutdown_event() -> None:
 
 class VectorQuery(BaseModel):
     vector: Optional[List[float]] = None
-    atom_id: Optional[str] = None # Accepts ID as string (or int parsed as string)
-    text: Optional[str] = None # Raw text for search/routing
+    atom_id: Optional[str] = None  # Accepts ID as string (or int parsed as string)
+    text: Optional[str] = None  # Raw text for search/routing
     k: int = 10
     filter: Optional[Dict[str, Any]] = None
     space: str = "default"
@@ -642,11 +641,11 @@ def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
     try:
         query_vec = req.vector
         query_text = req.text
-        
+
         # If vector missing, try to generate it from atom_id or text
         if not query_vec:
             content_to_embed = None
-            
+
             if req.atom_id:
                 # Fetch text from DB to re-embed (Deterministic)
                 with get_conn() as conn:
@@ -662,23 +661,27 @@ def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
             elif req.text:
                 content_to_embed = req.text
             else:
-                raise HTTPException(status_code=400, detail="Must provide 'vector', 'atom_id', or 'text'")
+                raise HTTPException(
+                    status_code=400, detail="Must provide 'vector', 'atom_id', or 'text'"
+                )
 
             # Embed if we found content
             if content_to_embed:
-                query_text = content_to_embed # Update query_text for routing
+                query_text = content_to_embed  # Update query_text for routing
                 vectors = _INDEX_MANAGER.provider.embed_texts([content_to_embed])
                 query_vec = vectors[0]
 
         if not query_vec:
-             raise HTTPException(status_code=500, detail="Failed to generate query vector")
+            raise HTTPException(status_code=500, detail="Failed to generate query vector")
 
-        raw_results = _INDEX_MANAGER.query(query_vec, k=req.k, filter=req.filter, space=req.space, query_text=query_text)
+        raw_results = _INDEX_MANAGER.query(
+            query_vec, k=req.k, filter=req.filter, space=req.space, query_text=query_text
+        )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
     # Enrich results with Label/Kind from DB (or cache if we had one)
     # Since we need "Real Index Lifecycle", fetching from DB ensures freshness.
     results = []
@@ -692,10 +695,10 @@ def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
                     "SELECT id, label, kind FROM atoms WHERE id::text = ANY(%(ids)s::text[])",
                     # ID is text in Index
                     # But DB id is int? Wait.
-                     # But DB id is int? Wait. 
-                     # IndexManager.rebuild stored str(atom_id_int).
-                     # So we cast back.
-                    {"ids": ids}
+                    # But DB id is int? Wait.
+                    # IndexManager.rebuild stored str(atom_id_int).
+                    # So we cast back.
+                    {"ids": ids},
                 )
                 for row in cur.fetchall():
                     atom_id, label, kind = row
@@ -723,19 +726,21 @@ app.post("/graph/similar", response_model=SimilarNodesEnvelope)(find_similar)
 class ProvenanceVerifyRequest(BaseModel):
     payload: Dict[str, Any]
     signature: str
-    public_key: str # Hex
+    public_key: str  # Hex
+
 
 class ProvenanceVerifyResponse(BaseModel):
     valid: bool
-    claim_hash: Optional[str] = None 
+    claim_hash: Optional[str] = None
     reason: Optional[str] = None
+
 
 def verify_provenance_endpoint(req: ProvenanceVerifyRequest) -> ProvenanceVerifyResponse:
     try:
         # 1. Compute Hash (Claim ID)
         canon_bytes = canonicalize(req.payload)
         claim_hash = hashlib.sha256(canon_bytes).hexdigest()
-        
+
         # 2. Load Key
         try:
             pub_key = load_public_key(req.public_key)
@@ -747,14 +752,15 @@ def verify_provenance_endpoint(req: ProvenanceVerifyRequest) -> ProvenanceVerify
         # 3. Verify
         valid = verify_claim(req.payload, req.signature, pub_key)
         if valid:
-             return ProvenanceVerifyResponse(valid=True, claim_hash=claim_hash)
+            return ProvenanceVerifyResponse(valid=True, claim_hash=claim_hash)
         else:
-             return ProvenanceVerifyResponse(
-                 valid=False, claim_hash=claim_hash, reason="Signature Mismatch"
-             )
-            
+            return ProvenanceVerifyResponse(
+                valid=False, claim_hash=claim_hash, reason="Signature Mismatch"
+            )
+
     except Exception as e:
         return ProvenanceVerifyResponse(valid=False, reason=f"Error: {e}")
+
 
 app.post("/provenance/verify", response_model=ProvenanceVerifyResponse)(verify_provenance_endpoint)
 
@@ -762,30 +768,33 @@ app.post("/provenance/verify", response_model=ProvenanceVerifyResponse)(verify_p
 # Uses the same schema as Provenance currently, but exposed as distinct endpoint
 # to allow for schema divergence (e.g. Findings vs Claims).
 
+
 class ResultVerifyRequest(BaseModel):
-    result_payload: Dict[str, Any] # Findings object
+    result_payload: Dict[str, Any]  # Findings object
     signature: str
     public_key: str
+
 
 class ResultVerifyResponse(BaseModel):
     valid: bool
     result_hash: Optional[str] = None
     reason: Optional[str] = None
 
+
 def verify_result_endpoint(req: ResultVerifyRequest) -> ResultVerifyResponse:
     try:
         # 1. Compute Hash
         canon_bytes = canonicalize(req.result_payload)
         res_hash = hashlib.sha256(canon_bytes).hexdigest()
-        
+
         # 2. Key
         try:
             pub_key = load_public_key(req.public_key)
         except Exception as e:
-             return ResultVerifyResponse(
-                 valid=False, result_hash=res_hash, reason=f"Invalid Key: {e}"
-             )
-             
+            return ResultVerifyResponse(
+                valid=False, result_hash=res_hash, reason=f"Invalid Key: {e}"
+            )
+
         # 3. Verify
         valid = verify_claim(req.result_payload, req.signature, pub_key)
         if valid:
@@ -794,9 +803,10 @@ def verify_result_endpoint(req: ResultVerifyRequest) -> ResultVerifyResponse:
             return ResultVerifyResponse(
                 valid=False, result_hash=res_hash, reason="Signature Mismatch"
             )
-            
+
     except Exception as e:
         return ResultVerifyResponse(valid=False, reason=f"Error: {e}")
+
 
 app.post("/results/verify", response_model=ResultVerifyResponse)(verify_result_endpoint)
 
@@ -807,7 +817,9 @@ class ExplainRequest(BaseModel):
     query: str
     constraints: Optional[Dict[str, Any]] = None
 
+
 _EXPLAINER = PlanExplainer()
+
 
 def explain_plan_endpoint(req: ExplainRequest) -> PlanExplanation:
     """
@@ -820,6 +832,7 @@ def explain_plan_endpoint(req: ExplainRequest) -> PlanExplanation:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 app.post("/planner/explain", response_model=PlanExplanation)(explain_plan_endpoint)
 
 # Slice 11.2: Rule Registry
@@ -827,17 +840,21 @@ app.post("/planner/explain", response_model=PlanExplanation)(explain_plan_endpoi
 # Initialize Registry (auto-loads from rules/manifest.json via default logic)
 _REGISTRY = RuleRegistry()
 
+
 @app.get("/rules", response_model=List[RuleMetadata])
 def list_rules_endpoint():
     return _REGISTRY.list_rules()
+
 
 class RunRuleRequest(BaseModel):
     rule_id: str
     input_context: Dict[str, Any]
 
+
 class RunRuleResponse(BaseModel):
     rule_id: str
     output: Dict[str, Any]
+
 
 @app.post("/rules/run", response_model=RunRuleResponse)
 def run_rule_endpoint(req: RunRuleRequest):
@@ -849,20 +866,23 @@ def run_rule_endpoint(req: RunRuleRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # Slice 11.3: Index Ops
 @app.get("/index/status")
 def index_status_endpoint():
     return _INDEX_MANAGER.get_status()
 
+
 class RebuildRequest(BaseModel):
     confirm: bool
     space: str = "default"
+
 
 @app.post("/index/rebuild")
 def index_rebuild_endpoint(req: RebuildRequest):
     if not req.confirm:
         raise HTTPException(status_code=400, detail="Must confirm rebuild.")
-    
+
     try:
         # Trigger rebuild
         _INDEX_MANAGER.rebuild(space=req.space)
@@ -872,19 +892,18 @@ def index_rebuild_endpoint(req: RebuildRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-
-
 # Slice 12.2: Belief Explanations
 
 
 class BeliefExplainRequest(BaseModel):
     base_belief: float
-    observed_at_pipeline_iso: Optional[str] = None # ISO format
+    observed_at_pipeline_iso: Optional[str] = None  # ISO format
     provenance_count: int
     contradiction_count: int
 
+
 _BELIEF_EXPLAINER = BeliefExplainer()
+
 
 @app.post("/belief/explain", response_model=BeliefExplanation)
 def explain_belief_endpoint(req: BeliefExplainRequest):
@@ -894,15 +913,15 @@ def explain_belief_endpoint(req: BeliefExplainRequest):
             # handle Z if needed
             iso = req.observed_at_pipeline_iso.replace("Z", "+00:00")
             observed_dt = datetime.fromisoformat(iso)
-            
+
         return _BELIEF_EXPLAINER.explain(
             base_belief=req.base_belief,
             observed_at=observed_dt,
             provenance_count=req.provenance_count,
-            contradiction_count=req.contradiction_count
+            contradiction_count=req.contradiction_count,
         )
     except ValueError as ve:
-         raise HTTPException(status_code=400, detail=f"Invalid Date Format: {ve}")
+        raise HTTPException(status_code=400, detail=f"Invalid Date Format: {ve}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -910,4 +929,3 @@ def explain_belief_endpoint(req: BeliefExplainRequest):
 def get_app() -> FastAPI:
     """Expose the FastAPI app for ASGI servers/tests."""
     return app
-

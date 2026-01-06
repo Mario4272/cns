@@ -26,4 +26,3 @@ def vector_index_path() -> str:
     """Return the filesystem path/prefix for index persistence (memory backend)."""
     # Default to a safe relative path in case it's not set
     return os.getenv("VECTOR_INDEX_PATH", ".cns_vector_index/index")
-

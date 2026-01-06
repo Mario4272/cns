@@ -1,0 +1,123 @@
+[INFO] Initializing environment for https://github.com/pre-commit/mirrors-mypy:types-python-dateutil,psycopg[binary],pgvector,python-dateutil,pydantic,numpy,fastapi,uvicorn.
+[INFO] Installing environment for https://github.com/pre-commit/mirrors-mypy.
+[INFO] Once installed this environment will be reused.
+[INFO] This may take a few minutes...
+ruff.....................................................................Failed
+- hook id: ruff
+- files were modified by this hook
+
+Found 1 error (1 fixed, 0 remaining).
+
+ruff-format..............................................................Passed
+black....................................................................Passed
+mypy.....................................................................Failed
+- hook id: mypy
+- exit code: 1
+
+cns_py\wasm\sandbox.py:104: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+cns_py\crypto\signing.py:41: error: Returning Any from function declared to return "str"  [no-any-return]
+cns_py\vector\memory_index.py:14: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\vector\memory_index.py:14: note: Use "-> None" if function does not return a value
+cns_py\vector\memory_index.py:15: error: Missing type parameters for generic type "ndarray"  [type-arg]
+cns_py\vector\hnsw_index.py:163: error: Argument 1 of "bulk_load" is incompatible with supertype "VectorIndex"; supertype defines the argument type as "list[tuple[str, list[float], dict[str, Any] | None]]"  [override]
+cns_py\vector\hnsw_index.py:163: note: This violates the Liskov substitution principle
+cns_py\vector\hnsw_index.py:163: note: See https://mypy.readthedocs.io/en/stable/common_issues.html#incompatible-overrides
+cns_py\rules\registry.py:40: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\cql\belief_explain.py:11: error: Module "cns_py.cql.belief" does not explicitly export attribute "BeliefConfig"  [attr-defined]
+cns_py\planner\planner.py:17: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\planner\planner.py:17: note: Use "-> None" if function does not return a value
+cns_py\planner\planner.py:20: error: Incompatible default for argument "constraints" (default has type "None", argument has type "PlanConstraints")  [assignment]
+cns_py\planner\planner.py:20: note: PEP 484 prohibits implicit Optional. Accordingly, mypy has changed its default to no_implicit_optional=True
+cns_py\planner\planner.py:20: note: Use https://github.com/hauntsaninja/no_implicit_optional to automatically upgrade your codebase
+cns_py\planner\planner.py:45: error: "str" has no attribute "sort"  [attr-defined]
+cns_py\planner\planner.py:50: error: Unpacking a string is disallowed  [misc]
+cns_py\planner\planner.py:53: error: Argument 1 to "append" of "list" has incompatible type "VectorSearchStep"; expected "ExactQueryStep"  [arg-type]
+cns_py\planner\planner.py:55: error: Cannot determine type of "top_space"  [has-type]
+cns_py\planner\planner.py:57: error: Cannot determine type of "top_space"  [has-type]
+cns_py\planner\planner.py:57: error: Cannot determine type of "top_weight"  [has-type]
+cns_py\planner\planner.py:63: error: Cannot determine type of "top_space"  [has-type]
+cns_py\planner\planner.py:63: error: Cannot determine type of "top_weight"  [has-type]
+cns_py\planner\planner.py:74: error: Argument 1 to "append" of "list" has incompatible type "WasmRuleStep"; expected "ExactQueryStep"  [arg-type]
+cns_py\planner\explainer.py:25: error: Call to untyped function "Planner" in typed context  [no-untyped-call]
+cns_py\planner\explainer.py:27: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+cns_py\vector\pg_index.py:74: error: Argument 1 to "append" of "list" has incompatible type "dict[str, Any]"; expected "list[float]"  [arg-type]
+cns_py\vector\pg_index.py:76: error: Argument 1 to "append" of "list" has incompatible type "int"; expected "list[float]"  [arg-type]
+cns_py\vector\manager.py:21: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\vector\manager.py:21: note: Use "-> None" if function does not return a value
+cns_py\vector\manager.py:56: error: Call to untyped function "ExactInMemoryIndex" in typed context  [no-untyped-call]
+cns_py\vector\manager.py:58: error: Call to untyped function "ExactInMemoryIndex" in typed context  [no-untyped-call]
+cns_py\vector\manager.py:91: error: No return value expected  [return-value]
+cns_py\vector\manager.py:107: error: "_load_or_create_space" of "IndexManager" does not return a value (it only ever returns None)  [func-returns-value]
+cns_py\vector\manager.py:179: error: Argument 1 to "bulk_load" of "VectorIndex" has incompatible type "list[tuple[str, list[float], dict[str, Any]]]"; expected "list[tuple[str, list[float], dict[str, Any] | None]]"  [arg-type]
+cns_py\vector\manager.py:179: note: "List" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+cns_py\vector\manager.py:179: note: Consider using "Sequence" instead, which is covariant
+cns_py\vector\manager.py:194: error: Missing type parameters for generic type "Dict"  [type-arg]
+cns_py\vector\manager.py:219: error: Missing type parameters for generic type "Dict"  [type-arg]
+cns_py\vector\manager.py:233: error: Unpacking a string is disallowed  [misc]
+cns_py\vector\manager.py:234: error: Cannot determine type of "space"  [has-type]
+cns_py\vector\manager.py:241: error: Cannot determine type of "space"  [has-type]
+cns_py\vector\manager.py:245: error: Cannot determine type of "weight"  [has-type]
+cns_py\vector\manager.py:273: error: Incompatible types in assignment (expression has type "int", variable has type "str")  [assignment]
+cns_py\planner\executor.py:66: error: List item 0 has incompatible type "str | None"; expected "str"  [list-item]
+cns_py\api\server.py:24: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:28: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:44: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:59: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:75: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:84: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:89: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:354: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:365: error: Unused "type: ignore" comment  [unused-ignore]
+cns_py\api\server.py:600: error: Call to untyped function "IndexManager" in typed context  [no-untyped-call]
+cns_py\api\server.py:845: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\api\server.py:860: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\api\server.py:872: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\api\server.py:882: error: Function is missing a return type annotation  [no-untyped-def]
+cns_py\api\server.py:909: error: Function is missing a return type annotation  [no-untyped-def]
+Found 51 errors in 12 files (checked 40 source files)
+
+Detect secrets...........................................................Passed
+pytest-check (all tests).................................................Failed
+- hook id: pytest-check
+- exit code: 1
+
+...................s....F
+================================== FAILURES ===================================
+_______________________ test_vector_search_integration ________________________
+tests\test_api_server.py:637: in test_vector_search_integration
+    pytest.fail("Vector index not initialized")
+E   Failed: Vector index not initialized
+============================== warnings summary ===============================
+cns_py\api\server.py:603
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:603: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+.venv\lib\site-packages\fastapi\applications.py:4576
+.venv\lib\site-packages\fastapi\applications.py:4576
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+cns_py\api\server.py:610
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:610: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_api_server.py::test_vector_search_integration - Failed: Vec...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+
