@@ -12,7 +12,7 @@ from .index import ScoredResult, Vector, VectorIndex
 
 class ExactInMemoryIndex(VectorIndex):
     def __init__(self) -> None:
-        self._data: Dict[str, np.ndarray] = {}  # type: ignore
+        self._data: Dict[str, Any] = {}
         self._metadata: Dict[str, Dict[str, Any]] = {}
 
     def upsert(self, id: str, vector: Vector, metadata: Optional[Dict[str, Any]] = None) -> None:
