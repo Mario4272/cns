@@ -46,9 +46,9 @@ class IndexManager:
                  from cns_py.vector.hnsw_index import HnswVectorIndex
                  return HnswVectorIndex(dim=self.dim)
              except ImportError:
-                logger.error(
-                    "HNSW backend requested but hnswlib not available. Falling back to memory."
-                )
+                 logger.error(
+                     "HNSW backend requested but hnswlib not available. Falling back to memory."
+                 )
                  return ExactInMemoryIndex()
         else:
             return ExactInMemoryIndex()
