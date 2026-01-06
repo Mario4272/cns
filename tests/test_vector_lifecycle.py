@@ -93,7 +93,7 @@ def test_integration_api_lifecycle(lifecycle_config):
     from cns_py.vector.embeddings import DeterministicStubProvider
 
     # RESET global manager to ensure defaults (384D) and no 2D pollution
-    _INDEX_MANAGER.index = None
+    _INDEX_MANAGER.indices = {}  # Clear any previous test state
     _INDEX_MANAGER.provider = DeterministicStubProvider(dim=384)
     _INDEX_MANAGER.dim = 384
 

@@ -101,7 +101,10 @@ class WasmSandbox:
             return {}
 
         try:
-            return json.loads(output_bytes.decode("utf-8"))
+            from typing import cast
+
+            val = json.loads(output_bytes.decode("utf-8"))
+            return cast(Dict[str, Any], val)
         except json.JSONDecodeError as e:
             raise RuntimeError(
                 f"WASM returned invalid JSON: {output_bytes.decode('utf-8', errors='replace')}"

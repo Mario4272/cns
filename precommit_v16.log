@@ -1,0 +1,60 @@
+ruff.....................................................................Failed
+- hook id: ruff
+- files were modified by this hook
+
+Found 3 errors (3 fixed, 0 remaining).
+
+ruff-format..............................................................Failed
+- hook id: ruff-format
+- files were modified by this hook
+
+1 file reformatted, 101 files left unchanged
+
+black....................................................................Passed
+mypy.....................................................................Passed
+Detect secrets...........................................................Passed
+pytest-check (all tests).................................................Failed
+- hook id: pytest-check
+- exit code: 1
+
+...................s.................................................... [ 48%]
+.........................................................E
+=================================== ERRORS ====================================
+________________ ERROR at setup of test_sign_and_verify_result ________________
+tests\test_signed_results.py:18: in keypair
+    encoding=signing.serialization.Encoding.Raw, format=signing.serialization.PublicFormat.Raw
+E   AttributeError: module 'cns_py.crypto.signing' has no attribute 'serialization'
+============================== warnings summary ===============================
+cns_py\api\server.py:603
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:603: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+.venv\lib\site-packages\fastapi\applications.py:4576
+.venv\lib\site-packages\fastapi\applications.py:4576
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+cns_py\api\server.py:610
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:610: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/test_signed_results.py::test_sign_and_verify_result - AttributeEr...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+

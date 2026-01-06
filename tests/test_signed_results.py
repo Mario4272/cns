@@ -4,6 +4,7 @@ Verifies that Findings payloads can be signed and verified via the API logic.
 """
 
 import pytest
+from cryptography.hazmat.primitives import serialization
 
 from cns_py.api.server import ResultVerifyRequest, verify_result_endpoint
 from cns_py.crypto import signing
@@ -15,7 +16,7 @@ def keypair():
     pub = priv.public_key()
     # Serialize pub to hex
     pub_bytes = pub.public_bytes(
-        encoding=signing.serialization.Encoding.Raw, format=signing.serialization.PublicFormat.Raw
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
     )
     return priv, pub_bytes.hex()
 

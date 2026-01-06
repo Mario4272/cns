@@ -160,7 +160,7 @@ class HnswVectorIndex(VectorIndex):
 
         return results[:k]
 
-    def bulk_load(self, items: List[Tuple[str, List[float], Dict[str, Any]]]) -> None:
+    def bulk_load(self, items: List[Tuple[str, List[float], Dict[str, Any] | None]]) -> None:
         """Efficient bulk build."""
         count = len(items)
         if count == 0:

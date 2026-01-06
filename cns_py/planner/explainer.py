@@ -24,7 +24,7 @@ class PlanExplainer:
     def __init__(self, planner: Optional[Planner] = None):
         self.planner = planner or Planner()
 
-    def explain(self, query: str, **kwargs) -> PlanExplanation:
+    def explain(self, query: str, **kwargs: Any) -> PlanExplanation:
         """
         Generates a plan and wraps it with explainability metadata (hash, rationale).
         """
@@ -33,7 +33,7 @@ class PlanExplainer:
 
         # Canonicalize Plan for Hashing
         # We strip dynamic fields if any (timestamp?). Currently Plan is deterministic.
-        plan_dict = plan.dict()
+        plan_dict = plan.model_dump()
 
         # Create hash
         canon_bytes = canonicalize(plan_dict)

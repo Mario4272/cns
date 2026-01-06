@@ -842,7 +842,7 @@ _REGISTRY = RuleRegistry()
 
 
 @app.get("/rules", response_model=List[RuleMetadata])
-def list_rules_endpoint():
+def list_rules_endpoint() -> List[RuleMetadata]:
     return _REGISTRY.list_rules()
 
 
@@ -857,7 +857,7 @@ class RunRuleResponse(BaseModel):
 
 
 @app.post("/rules/run", response_model=RunRuleResponse)
-def run_rule_endpoint(req: RunRuleRequest):
+def run_rule_endpoint(req: RunRuleRequest) -> RunRuleResponse:
     try:
         output = _REGISTRY.run_rule(req.rule_id, req.input_context)
         return RunRuleResponse(rule_id=req.rule_id, output=output)
@@ -869,7 +869,7 @@ def run_rule_endpoint(req: RunRuleRequest):
 
 # Slice 11.3: Index Ops
 @app.get("/index/status")
-def index_status_endpoint():
+def index_status_endpoint() -> Dict[str, Any]:
     return _INDEX_MANAGER.get_status()
 
 
@@ -879,7 +879,7 @@ class RebuildRequest(BaseModel):
 
 
 @app.post("/index/rebuild")
-def index_rebuild_endpoint(req: RebuildRequest):
+def index_rebuild_endpoint(req: RebuildRequest) -> Dict[str, Any]:
     if not req.confirm:
         raise HTTPException(status_code=400, detail="Must confirm rebuild.")
 
@@ -906,7 +906,7 @@ _BELIEF_EXPLAINER = BeliefExplainer()
 
 
 @app.post("/belief/explain", response_model=BeliefExplanation)
-def explain_belief_endpoint(req: BeliefExplainRequest):
+def explain_belief_endpoint(req: BeliefExplainRequest) -> BeliefExplanation:
     try:
         observed_dt = None
         if req.observed_at_pipeline_iso:

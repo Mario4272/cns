@@ -6,7 +6,7 @@ Handles lifecycle: loading, building, and updating the index.
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from cns_py import config
 from cns_py.storage.db import get_conn
@@ -60,7 +60,7 @@ class IndexManager:
     def _load_or_create_space(self, space: str) -> bool:
         """Initialize a space, loading from disk if available."""
         if space in self.indices:
-            return
+            return False
 
         index = self._create_index_instance()
         space_path = self._get_space_path(space)
@@ -172,7 +172,7 @@ class IndexManager:
         vecs = self.provider.embed_texts(texts)
 
         # Assemble for bulk load
-        bulk_items = []
+        bulk_items: List[Tuple[str, List[float], Optional[Dict[str, Any]]]] = []
         for doc_id, vec, meta in zip(doc_ids, vecs, metas):
             bulk_items.append((doc_id, vec, meta))
 
@@ -191,7 +191,7 @@ class IndexManager:
         self,
         query_vec: Any,
         k: int,
-        filter: Optional[Dict] = None,
+        filter: Optional[Dict[str, Any]] = None,
         space: str = "default",
         query_text: Optional[str] = None,
     ) -> List[Any]:
@@ -216,7 +216,7 @@ class IndexManager:
         query_vec: Any,
         k: int,
         query_text: Optional[str] = None,
-        filter: Optional[Dict] = None,
+        filter: Optional[Dict[str, Any]] = None,
     ) -> List[Any]:
         """
         Route query to multiple spaces and merge results.
@@ -268,7 +268,7 @@ class IndexManager:
         spaces_stat = {}
         for name, idx in self.indices.items():
             # Try to get count
-            count = "unknown"
+            count: int | str = "unknown"
             if hasattr(idx, "ids"):  # Memory index
                 count = len(idx.ids)
             spaces_stat[name] = {"type": type(idx).__name__, "count": count}

@@ -3,10 +3,13 @@ Heuristic Planner (Slice 10.1).
 Generates RetrievalPlan from raw query.
 """
 
+from typing import List, Optional
+
 from cns_py.planner.plan import (
     ExactQueryStep,
     PlanConstraints,
     RetrievalPlan,
+    RetrievalStep,
     VectorSearchStep,
     WasmRuleStep,
 )
@@ -14,14 +17,15 @@ from cns_py.vector.router import HeuristicRouter
 
 
 class Planner:
-    def __init__(self):
+    def __init__(self) -> None:
         self.router = HeuristicRouter()
 
-    def plan(self, query: str, constraints: PlanConstraints = None) -> RetrievalPlan:
+    def plan(self, query: str, constraints: Optional[PlanConstraints] = None) -> RetrievalPlan:
         if constraints is None:
             constraints = PlanConstraints()
 
-        steps = []
+        # Union type for steps to avoid inference narrowing to first element type
+        steps: List[RetrievalStep] = []
 
         rationale = []
 

@@ -39,7 +39,7 @@ def _recency_modifier(
 
 
 def compute_effective_belief(
-    current_belief: float,
+    current_belief: float | None,
     observed_at: Optional[datetime],
     provenance_count: int = 0,
     contradiction_count: int = 0,
@@ -100,7 +100,8 @@ def compute_effective_belief(
 
     # 4. Combine
     # We apply decay and contradiction to the "intrinsic" belief
-    intrinsic = current_belief * decay_factor * contradiction_factor
+    current_val = current_belief if current_belief is not None else 0.0
+    intrinsic = current_val * decay_factor * contradiction_factor
 
     # Then add provenance support (external evidence)
     # This mirrors "I remember X (decayed/disputed) BUT I see Y sources confirming it."
@@ -109,7 +110,7 @@ def compute_effective_belief(
     final_score = float(max(0.0, min(1.0, raw_final)))
 
     details = {
-        "input_belief": current_belief,
+        "input_belief": current_val,
         "decay_factor": decay_factor,
         "contradiction_factor": contradiction_factor,
         "provenance_boost": prov_boost,
@@ -128,3 +129,5 @@ def compute_effective_belief(
 
 # Alias for backward compatibility if needed, though we should migrate calls
 compute = compute_effective_belief
+
+__all__ = ["compute_effective_belief", "compute", "BeliefConfig", "_recency_modifier", "_sigmoid"]

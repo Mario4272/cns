@@ -63,7 +63,8 @@ class Executor:
                         # We might need to embed here or rely on manager refactor.
                         # Let's check manager.query again. It takes query_vec.
                         # So Executor needs access to Embedder to turn text->vec.
-                        vec = self.vector_manager.provider.embed_texts([step.query_text])[0]
+                        txt = step.query_text or ""
+                        vec = self.vector_manager.provider.embed_texts([txt])[0]
 
                     hits = self.vector_manager.query(
                         query_vec=vec,

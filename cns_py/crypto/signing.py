@@ -38,7 +38,7 @@ def sign_claim(claim_payload: Any, private_key: Ed25519PrivateKey) -> str:
     """
     data_bytes = canonicalize(claim_payload)
     signature_bytes = private_key.sign(data_bytes)
-    return signature_bytes.hex()
+    return str(signature_bytes.hex())
 
 
 def verify_claim(claim_payload: Any, signature_hex: str, public_key: Ed25519PublicKey) -> bool:

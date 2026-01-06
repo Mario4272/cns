@@ -1,0 +1,67 @@
+ruff.....................................................................Passed
+ruff-format..............................................................Passed
+black....................................................................Passed
+mypy.....................................................................Failed
+- hook id: mypy
+- exit code: 1
+
+cns_py\vector\memory_index.py:15: error: Missing type parameters for generic type "ndarray"  [type-arg]
+cns_py\cql\belief_explain.py:11: error: Module "cns_py.cql.belief" does not explicitly export attribute "BeliefConfig"  [attr-defined]
+cns_py\planner\explainer.py:27: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+cns_py\vector\pg_index.py:74: error: Argument 1 to "append" of "list" has incompatible type "dict[str, Any]"; expected "list[float]"  [arg-type]
+cns_py\vector\pg_index.py:76: error: Argument 1 to "append" of "list" has incompatible type "int"; expected "list[float]"  [arg-type]
+cns_py\vector\manager.py:63: error: Return value expected  [return-value]
+cns_py\vector\manager.py:179: error: Argument 1 to "bulk_load" of "VectorIndex" has incompatible type "list[tuple[str, list[float], dict[str, Any]]]"; expected "list[tuple[str, list[float], dict[str, Any] | None]]"  [arg-type]
+cns_py\vector\manager.py:179: note: "List" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+cns_py\vector\manager.py:179: note: Consider using "Sequence" instead, which is covariant
+cns_py\vector\manager.py:194: error: Missing type parameters for generic type "Dict"  [type-arg]
+cns_py\vector\manager.py:219: error: Missing type parameters for generic type "Dict"  [type-arg]
+cns_py\vector\manager.py:273: error: Incompatible types in assignment (expression has type "int", variable has type "str")  [assignment]
+cns_py\planner\executor.py:66: error: List item 0 has incompatible type "str | None"; expected "str"  [list-item]
+Found 11 errors in 6 files (checked 40 source files)
+
+Detect secrets...........................................................Passed
+pytest-check (all tests).................................................Failed
+- hook id: pytest-check
+- exit code: 1
+
+...................s................F
+================================== FAILURES ===================================
+____________________ test_belief_none_base_treated_as_zero ____________________
+tests\test_belief_more.py:10: in test_belief_none_base_treated_as_zero
+    assert details["input_belief"] == 0.0
+E   assert None == 0.0
+============================== warnings summary ===============================
+cns_py\api\server.py:603
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:603: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+.venv\lib\site-packages\fastapi\applications.py:4576
+.venv\lib\site-packages\fastapi\applications.py:4576
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+cns_py\api\server.py:610
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:610: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_belief_more.py::test_belief_none_base_treated_as_zero - ass...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+

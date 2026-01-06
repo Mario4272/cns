@@ -37,7 +37,7 @@ class RuleRegistry:
             else:
                 pass  # Empty registry if not found
 
-    def load_manifest(self, path: str):
+    def load_manifest(self, path: str) -> None:
         self.root_dir = os.path.dirname(path)
         with open(path, "r") as f:
             data = json.load(f)

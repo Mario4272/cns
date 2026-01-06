@@ -1,0 +1,67 @@
+ruff.....................................................................Failed
+- hook id: ruff
+- files were modified by this hook
+
+Found 1 error (1 fixed, 0 remaining).
+
+ruff-format..............................................................Passed
+black....................................................................Passed
+mypy.....................................................................Passed
+Detect secrets...........................................................Passed
+pytest-check (all tests).................................................Failed
+- hook id: pytest-check
+- exit code: 1
+
+...................s.................................................... [ 48%]
+........................................................................ [ 96%]
+.F
+================================== FAILURES ===================================
+_______________________ test_integration_api_lifecycle ________________________
+cns_py\api\server.py:677: in find_similar
+    raw_results = _INDEX_MANAGER.query(
+cns_py\vector\manager.py:212: in query
+    return self.indices[space].query(query_vec, k, filter=filter)
+cns_py\vector\memory_index.py:64: in query
+    score = float(np.dot(q, doc_vec))
+E   ValueError: shapes (384,) and (2,) not aligned: 384 (dim 0) != 2 (dim 0)
+
+During handling of the above exception, another exception occurred:
+tests\test_vector_lifecycle.py:117: in test_integration_api_lifecycle
+    env = find_similar(req)
+cns_py\api\server.py:683: in find_similar
+    raise HTTPException(status_code=500, detail=str(e))
+E   fastapi.exceptions.HTTPException: 500: shapes (384,) and (2,) not aligned: 384 (dim 0) != 2 (dim 0)
+============================== warnings summary ===============================
+cns_py\api\server.py:603
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:603: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+.venv\lib\site-packages\fastapi\applications.py:4576
+.venv\lib\site-packages\fastapi\applications.py:4576
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+cns_py\api\server.py:610
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:610: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_vector_lifecycle.py::test_integration_api_lifecycle - fasta...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+
