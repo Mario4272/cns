@@ -28,7 +28,9 @@ class RuleRegistry:
              self.load_manifest(manifest_path)
         else:
             # Default auto-discovery relative to this file -> repo root -> rules/manifest.json
-            base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            base = os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            )
             default_path = os.path.join(base, "rules", "manifest.json")
             if os.path.exists(default_path):
                 self.load_manifest(default_path)

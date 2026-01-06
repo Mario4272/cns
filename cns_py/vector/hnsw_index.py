@@ -39,7 +39,12 @@ class HnswVectorIndex(VectorIndex):
         # Metadata storage: int_id -> metadata
         self.metadata_store: Dict[str, Dict[str, Any]] = {}
 
-    def upsert(self, doc_id: str, vector: List[float], metadata: Optional[Dict[str, Any]] = None) -> None:
+    def upsert(
+        self,
+        doc_id: str,
+        vector: List[float],
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Insert or update a vector."""
         # Normalize
         vec = np.array(vector, dtype='float32')
@@ -89,7 +94,12 @@ class HnswVectorIndex(VectorIndex):
             if doc_id in self.metadata_store:
                 del self.metadata_store[doc_id]
 
-    def query(self, vector: List[float], k: int = 10, filter: Optional[Dict[str, Any]] = None) -> List[Tuple[str, float]]:
+    def query(
+        self,
+        vector: List[float],
+        k: int = 10,
+        filter: Optional[Dict[str, Any]] = None
+    ) -> List[Tuple[str, float]]:
         """
         Approximate search.
         """

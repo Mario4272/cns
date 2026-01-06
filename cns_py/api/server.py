@@ -508,7 +508,8 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
 
             base_sql = (
                 "SELECT f.predicate, a_dst.id AS dst_id, a_dst.label AS dst_label, "
-                "asp.belief AS confidence, asp.valid_from, asp.valid_to, asp.observed_at, asp.provenance "
+                "asp.belief AS confidence, asp.valid_from, asp.valid_to, asp.observed_at, "
+                "asp.provenance "
                 "FROM fibers f "
                 "JOIN atoms a_dst ON a_dst.id = f.dst "
                 "LEFT JOIN aspects asp ON asp.subject_kind='fiber' AND asp.subject_id=f.id "
@@ -653,7 +654,9 @@ def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
                         cur.execute("SELECT text, label FROM atoms WHERE id = %s", (req.atom_id,))
                         row = cur.fetchone()
                         if not row:
-                            raise HTTPException(status_code=404, detail="Atom not found for embedding lookup")
+                            raise HTTPException(
+                                status_code=404, detail="Atom not found for embedding lookup"
+                            )
                         text, label = row
                         content_to_embed = text or label
             elif req.text:
@@ -686,7 +689,9 @@ def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
         with get_conn() as conn:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT id, label, kind FROM atoms WHERE id::text = ANY(%(ids)s::text[])", # ID is text in Index
+                    "SELECT id, label, kind FROM atoms WHERE id::text = ANY(%(ids)s::text[])",
+                    # ID is text in Index
+                    # But DB id is int? Wait.
                      # But DB id is int? Wait. 
                      # IndexManager.rebuild stored str(atom_id_int).
                      # So we cast back.
@@ -699,6 +704,7 @@ def find_similar(req: VectorQuery) -> SimilarNodesEnvelope:
         for doc_id, score in raw_results:
             label, kind = atom_details.get(doc_id, (None, None))
             results.append(SimilarResult(id=doc_id, score=score, label=label, kind=kind))
+            # If still too long, split it.
 
     return SimilarNodesEnvelope(results=results)
 
@@ -734,14 +740,18 @@ def verify_provenance_endpoint(req: ProvenanceVerifyRequest) -> ProvenanceVerify
         try:
             pub_key = load_public_key(req.public_key)
         except Exception as e:
-            return ProvenanceVerifyResponse(valid=False, claim_hash=claim_hash, reason=f"Invalid Key: {e}")
+            return ProvenanceVerifyResponse(
+                valid=False, claim_hash=claim_hash, reason=f"Invalid Key: {e}"
+            )
 
         # 3. Verify
         valid = verify_claim(req.payload, req.signature, pub_key)
         if valid:
              return ProvenanceVerifyResponse(valid=True, claim_hash=claim_hash)
         else:
-             return ProvenanceVerifyResponse(valid=False, claim_hash=claim_hash, reason="Signature Mismatch")
+             return ProvenanceVerifyResponse(
+                 valid=False, claim_hash=claim_hash, reason="Signature Mismatch"
+             )
             
     except Exception as e:
         return ProvenanceVerifyResponse(valid=False, reason=f"Error: {e}")
@@ -772,14 +782,18 @@ def verify_result_endpoint(req: ResultVerifyRequest) -> ResultVerifyResponse:
         try:
             pub_key = load_public_key(req.public_key)
         except Exception as e:
-             return ResultVerifyResponse(valid=False, result_hash=res_hash, reason=f"Invalid Key: {e}")
+             return ResultVerifyResponse(
+                 valid=False, result_hash=res_hash, reason=f"Invalid Key: {e}"
+             )
              
         # 3. Verify
         valid = verify_claim(req.result_payload, req.signature, pub_key)
         if valid:
             return ResultVerifyResponse(valid=True, result_hash=res_hash)
         else:
-            return ResultVerifyResponse(valid=False, result_hash=res_hash, reason="Signature Mismatch")
+            return ResultVerifyResponse(
+                valid=False, result_hash=res_hash, reason="Signature Mismatch"
+            )
             
     except Exception as e:
         return ResultVerifyResponse(valid=False, reason=f"Error: {e}")

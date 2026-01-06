@@ -40,4 +40,5 @@ class RetrievalPlan(BaseModel):
     query_raw: str
     steps: List[Union[ExactQueryStep, VectorSearchStep, WasmRuleStep]]
     constraints: PlanConstraints = Field(default_factory=PlanConstraints)
-    rationale: List[Dict[str, str]] = Field(default_factory=list) # List of {"rule": ..., "because": ...}
+    rationale: List[Dict[str, str]] = Field(default_factory=list)
+    # List of {"rule": ..., "because": ...}

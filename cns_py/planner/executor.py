@@ -52,9 +52,10 @@ class Executor:
                     if step.vector:
                         vec = step.vector
                     else:
-                        # If no vector, manager.query(space='auto'/'specific', text=...) handles embedding?
-                        # Wait, manager.query logic we added in P9.2 handles text->one_vec embedding inside find_similar API, 
-                        # but manager.query itself expects a vector primarily.
+                        # If no vector, manager.query(space='auto'/'specific', text=...) handles
+                        # embedding?
+                        # Wait, manager.query logic added in P9.2 handles text->one_vec embedding
+                        # inside find_similar API, but manager.query itself expects a vector.
                         # We might need to embed here or rely on manager refactor.
                         # Let's check manager.query again. It takes query_vec.
                         # So Executor needs access to Embedder to turn text->vec.
@@ -64,7 +65,7 @@ class Executor:
                         query_vec=vec, 
                         k=step.k, 
                         space=step.space,
-                        query_text=step.query_text # Use text for auto-routing refined check if needed
+                        query_text=step.query_text  # Use text for auto-routing refined check if needed
                     )
                     result.items = hits
                     
@@ -78,7 +79,9 @@ class Executor:
                     # Assume rules are in "rules/" at repo root or relative known path
                     # For demo/dev, let's find repo root relative to this file
                     # cns_py/planner/executor.py -> .../cns
-                    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                    repo_root = os.path.dirname(
+                        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                    )
                     rule_path = os.path.join(repo_root, "rules", f"{step.rule_name}.wat")
                     
                     if not os.path.exists(rule_path):
@@ -92,12 +95,14 @@ class Executor:
                             rule_bytes = f.read()
                         
                         # Execute
-                        # Context: Pass what we have. findings so far? 
-                        # For now, just pass the step.input_context + mock data to satisfy rule contract
+                        # Context: Pass what we have. findings so far?
+                        # For now, just pass the step.input_context + mock data to satisfy rule
+                        # contract
                         input_data = step.input_context.copy()
                         # Helper: Add mock facts if missing so rules don't crash
                         if "facts" not in input_data:
-                             input_data["facts"] = [{"predicate": "uses_algo", "object": "tls1.0"}] # Trigger violation for demo
+                             # Trigger violation for demo
+                             input_data["facts"] = [{"predicate": "uses_algo", "object": "tls1.0"}]
                         if "subject_ids" not in input_data:
                             input_data["subject_ids"] = ["demo_subject"]
                         

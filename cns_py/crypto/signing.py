@@ -16,7 +16,8 @@ def load_private_key(hex_seed: str) -> Ed25519PrivateKey:
     """Load a private key from a hex-encoded 32-byte seed.
     Note: Ed25519PrivateKey.from_private_bytes takes 32 bytes.
     """
-    # If using full key serialization formats (PKCS8/OpenSSH), use serialization.load_pem_private_key.
+    # If using full key serialization formats (PKCS8/OpenSSH), use
+    # serialization.load_pem_private_key.
     # For raw seeds:
     seed_bytes = bytes.fromhex(hex_seed)
     return Ed25519PrivateKey.from_private_bytes(seed_bytes)

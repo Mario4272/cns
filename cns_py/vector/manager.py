@@ -46,7 +46,9 @@ class IndexManager:
                  from cns_py.vector.hnsw_index import HnswVectorIndex
                  return HnswVectorIndex(dim=self.dim)
              except ImportError:
-                 logger.error("HNSW backend requested but hnswlib not available. Falling back to memory.")
+                logger.error(
+                    "HNSW backend requested but hnswlib not available. Falling back to memory."
+                )
                  return ExactInMemoryIndex()
         else:
             return ExactInMemoryIndex()
@@ -63,13 +65,17 @@ class IndexManager:
         loaded = False
         if self.backend_type == "ann":
              if os.path.exists(f"{space_path}.hnsw"):
-                 logger.info(f"Loading persisted HNSW index for space '{space}' from {space_path}...")
+                 logger.info(
+                     f"Loading persisted HNSW index for space '{space}' from {space_path}..."
+                 )
                  # HnswVectorIndex.load expects the prefix
                  index.load(space_path)
                  loaded = True
         elif self.backend_type == "memory":
             if os.path.exists(f"{space_path}.npz"):
-                logger.info(f"Loading persisted memory index for space '{space}' from {space_path}...")
+                logger.info(
+                    f"Loading persisted memory index for space '{space}' from {space_path}..."
+                )
                 try:
                     index.load(space_path)
                     logger.info(f"Space '{space}' loaded successfully.")
@@ -170,13 +176,22 @@ class IndexManager:
         index.bulk_load(bulk_items)
             
         duration = time.time() - start_t
-        logger.info(f"Rebuild '{space}' complete. Indexed {len(bulk_items)} items in {duration:.3f}s.")
+        logger.info(
+            f"Rebuild '{space}' complete. Indexed {len(bulk_items)} items in {duration:.3f}s."
+        )
 
     def reindex(self) -> None:
         """Public alias for rebuild default."""
         self.rebuild("default")
 
-    def query(self, query_vec: Any, k: int, filter: Optional[Dict] = None, space: str = "default", query_text: Optional[str] = None) -> List[Any]:
+    def query(
+        self,
+        query_vec: Any,
+        k: int,
+        filter: Optional[Dict] = None,
+        space: str = "default",
+        query_text: Optional[str] = None
+    ) -> List[Any]:
         """
         Query a specific space or use 'auto' to route.
         query_text is optional, but required for 'auto' routing logic. 
@@ -193,7 +208,13 @@ class IndexManager:
             
         return self.indices[space].query(query_vec, k, filter=filter)
 
-    def _query_auto(self, query_vec: Any, k: int, query_text: Optional[str] = None, filter: Optional[Dict] = None) -> List[Any]:
+    def _query_auto(
+        self,
+        query_vec: Any,
+        k: int,
+        query_text: Optional[str] = None,
+        filter: Optional[Dict] = None
+    ) -> List[Any]:
         """
         Route query to multiple spaces and merge results.
         """

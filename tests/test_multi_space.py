@@ -26,7 +26,10 @@ def mock_config(monkeypatch, temp_vector_path):
     monkeypatch.setattr("cns_py.config.vector_index_backend", lambda: "memory")
     monkeypatch.setattr("cns_py.config.vector_index_path", lambda: temp_vector_path)
     # Mock rebuild to avoid DB access
-    monkeypatch.setattr("cns_py.vector.manager.IndexManager.rebuild", lambda self, space="default": None)
+    monkeypatch.setattr(
+        "cns_py.vector.manager.IndexManager.rebuild", 
+        lambda self, space="default": None
+    )
 
 def test_multi_space_isolation(mock_config):
     """Verify separate spaces contain separate data."""

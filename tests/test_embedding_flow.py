@@ -53,7 +53,8 @@ def test_manager_uses_provider(monkeypatch):
     mgr.provider = mock_prov
     mgr.dim = 4 # update dim
     
-    # Startup triggers rebuild if index not on disk (env var path is mem_idx_test, presumably empty/clean)
+    # Startup triggers rebuild if index not on disk (env var path is mem_idx_test, 
+    # presumably empty/clean)
     mgr.startup()
     
     # Check calls
