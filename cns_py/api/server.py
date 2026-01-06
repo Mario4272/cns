@@ -475,6 +475,8 @@ def graph_edge_detail(edge_id: int, asof: Optional[datetime] = None) -> EdgeRece
     )
 
 
+from cns_py.cql.belief import compute_effective_belief
+
 def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDetailEnvelope:
     """Return a minimal detail view for a single node.
 
@@ -500,7 +502,7 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
 
             base_sql = (
                 "SELECT f.predicate, a_dst.id AS dst_id, a_dst.label AS dst_label, "
-                "asp.belief AS confidence, asp.valid_from, asp.valid_to, asp.provenance "
+                "asp.belief AS confidence, asp.valid_from, asp.valid_to, asp.observed_at, asp.provenance "
                 "FROM fibers f "
                 "JOIN atoms a_dst ON a_dst.id = f.dst "
                 "LEFT JOIN aspects asp ON asp.subject_kind='fiber' AND asp.subject_id=f.id "
@@ -537,14 +539,30 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
         confidence,
         valid_from,
         valid_to,
+        observed_at,
         prov_json,
     ) in rows:
+        # P12: Compute Effective Belief
+        raw_conf = float(confidence) if confidence is not None else 1.0
+        # Count contradictions (cheap heuristic or need real query? For now, 0)
+        # Provenance count
+        local_prov_count = 0
+        if isinstance(prov_json, dict) and prov_json.get("source_id"):
+             local_prov_count = 1
+        
+        eff_score, _ = compute_effective_belief(
+            current_belief=raw_conf,
+            observed_at=observed_at,
+            provenance_count=local_prov_count,
+            contradiction_count=0 
+        )
+
         aspects.append(
             NodeAspect(
                 predicate=str(predicate),
                 dst_id=int(dst_id),
                 dst_label=str(dst_label),
-                belief=float(confidence) if confidence is not None else None,
+                belief=eff_score, # Return computed score
                 valid_from=valid_from,
                 valid_to=valid_to,
             )
@@ -839,6 +857,38 @@ def index_rebuild_endpoint(req: RebuildRequest):
 
 
 
+
+
+# Slice 12.2: Belief Explanations
+from cns_py.cql.belief_explain import BeliefExplainer, BeliefExplanation
+
+class BeliefExplainRequest(BaseModel):
+    base_belief: float
+    observed_at_pipeline_iso: Optional[str] = None # ISO format
+    provenance_count: int
+    contradiction_count: int
+
+_BELIEF_EXPLAINER = BeliefExplainer()
+
+@app.post("/belief/explain", response_model=BeliefExplanation)
+def explain_belief_endpoint(req: BeliefExplainRequest):
+    try:
+        observed_dt = None
+        if req.observed_at_pipeline_iso:
+            # handle Z if needed
+            iso = req.observed_at_pipeline_iso.replace("Z", "+00:00")
+            observed_dt = datetime.fromisoformat(iso)
+            
+        return _BELIEF_EXPLAINER.explain(
+            base_belief=req.base_belief,
+            observed_at=observed_dt,
+            provenance_count=req.provenance_count,
+            contradiction_count=req.contradiction_count
+        )
+    except ValueError as ve:
+         raise HTTPException(status_code=400, detail=f"Invalid Date Format: {ve}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def get_app() -> FastAPI:
