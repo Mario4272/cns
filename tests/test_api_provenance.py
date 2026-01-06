@@ -1,11 +1,13 @@
 """
 Integration tests for /provenance/verify endpoint.
 """
-from fastapi.testclient import TestClient
-from cns_py.api.server import app
-from cns_py.crypto import generate_private_key, sign_claim, canonicalize
-from cryptography.hazmat.primitives import serialization
 import hashlib
+
+from cryptography.hazmat.primitives import serialization
+from fastapi.testclient import TestClient
+
+from cns_py.api.server import app
+from cns_py.crypto import canonicalize, generate_private_key, sign_claim
 
 client = TestClient(app)
 

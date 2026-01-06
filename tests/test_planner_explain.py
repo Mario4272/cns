@@ -2,9 +2,9 @@
 Tests for Planner Explainability (Slice 11.1).
 Verifies that the /planner/explain endpoint returns deterministic hashes and correct rationale.
 """
-import pytest
+from cns_py.api.server import ExplainRequest, explain_plan_endpoint
 from cns_py.planner import PlanExplainer, PlanExplanation
-from cns_py.api.server import explain_plan_endpoint, ExplainRequest
+
 
 def test_explain_plan_structure():
     explainer = PlanExplainer()

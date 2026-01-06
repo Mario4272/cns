@@ -1,9 +1,9 @@
 """
 Unit tests for Retrieval Planner (Slice 10.1).
 """
-import pytest
-from cns_py.planner.planner import Planner
 from cns_py.planner.plan import ExactQueryStep, VectorSearchStep, WasmRuleStep
+from cns_py.planner.planner import Planner
+
 
 def test_planner_exact_heuristic():
     planner = Planner()

@@ -1,7 +1,8 @@
 
-import pytest
 from datetime import datetime, timedelta, timezone
-from cns_py.cql.belief import compute_effective_belief as compute, BeliefConfig
+
+from cns_py.cql.belief import compute_effective_belief as compute
+
 
 def test_belief_defaults():
     # Base belief 1.0, fresh, no bias

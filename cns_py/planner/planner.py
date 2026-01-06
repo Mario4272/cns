@@ -2,15 +2,15 @@
 Heuristic Planner (Slice 10.1).
 Generates RetrievalPlan from raw query.
 """
-from typing import List, Tuple
 from cns_py.planner.plan import (
-    RetrievalPlan, 
+    ExactQueryStep,
     PlanConstraints,
-    ExactQueryStep, 
-    VectorSearchStep, 
-    WasmRuleStep
+    RetrievalPlan,
+    VectorSearchStep,
+    WasmRuleStep,
 )
 from cns_py.vector.router import HeuristicRouter
+
 
 class Planner:
     def __init__(self):

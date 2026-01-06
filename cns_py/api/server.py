@@ -8,10 +8,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from cns_py import config as cns_config
+from cns_py.cql.belief import compute_effective_belief
 from cns_py.cql.executor import cql
 from cns_py.graph import traverse_from
 from cns_py.nn import nn_search
 from cns_py.storage.db import get_conn
+from cns_py.vector.manager import IndexManager
+import hashlib
+from cns_py.crypto import canonicalize, load_public_key, verify_claim
+from cns_py.planner import PlanExplainer, PlanExplanation
+from cns_py.rules import RuleMetadata, RuleRegistry
+from cns_py.cql.belief_explain import BeliefExplainer, BeliefExplanation
 
 
 class CqlRequest(BaseModel):  # type: ignore[misc]
@@ -475,7 +482,6 @@ def graph_edge_detail(edge_id: int, asof: Optional[datetime] = None) -> EdgeRece
     )
 
 
-from cns_py.cql.belief import compute_effective_belief
 
 def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDetailEnvelope:
     """Return a minimal detail view for a single node.
@@ -590,9 +596,7 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
 # ... existing code ...
 
 
-import os
 
-from cns_py.vector.manager import IndexManager
 
 # Initialize Vector Index Manager (Singleton)
 _INDEX_MANAGER = IndexManager()
@@ -708,8 +712,7 @@ app.post("/graph/similar", response_model=SimilarNodesEnvelope)(find_similar)
 
 
 # Slice 8.1: Provenance Verification
-from cns_py.crypto import verify_claim, load_public_key, canonicalize
-import hashlib
+
 
 class ProvenanceVerifyRequest(BaseModel):
     payload: Dict[str, Any]
@@ -784,7 +787,7 @@ def verify_result_endpoint(req: ResultVerifyRequest) -> ResultVerifyResponse:
 app.post("/results/verify", response_model=ResultVerifyResponse)(verify_result_endpoint)
 
 # Slice 11.1: Planner Explainability
-from cns_py.planner import PlanExplainer, PlanExplanation
+
 
 class ExplainRequest(BaseModel):
     query: str
@@ -806,7 +809,6 @@ def explain_plan_endpoint(req: ExplainRequest) -> PlanExplanation:
 app.post("/planner/explain", response_model=PlanExplanation)(explain_plan_endpoint)
 
 # Slice 11.2: Rule Registry
-from cns_py.rules import RuleRegistry, RuleMetadata
 
 # Initialize Registry (auto-loads from rules/manifest.json via default logic)
 _REGISTRY = RuleRegistry()
@@ -860,7 +862,7 @@ def index_rebuild_endpoint(req: RebuildRequest):
 
 
 # Slice 12.2: Belief Explanations
-from cns_py.cql.belief_explain import BeliefExplainer, BeliefExplanation
+
 
 class BeliefExplainRequest(BaseModel):
     base_belief: float

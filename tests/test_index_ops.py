@@ -2,10 +2,13 @@
 Tests for Index Ops (Slice 11.3).
 Verifies status reporting and rebuild triggering.
 """
-import pytest
 from unittest.mock import MagicMock, patch
-from cns_py.api.server import index_status_endpoint, index_rebuild_endpoint, RebuildRequest
+
+import pytest
+
+from cns_py.api.server import RebuildRequest, index_rebuild_endpoint, index_status_endpoint
 from cns_py.vector.manager import IndexManager
+
 
 @pytest.fixture
 def mock_mgr():

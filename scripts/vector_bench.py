@@ -4,18 +4,21 @@ Vector Benchmark Script.
 Compares configured backend vs ExactInMemoryIndex (Oracle).
 Metrics: Build Time, Latency P50/P95, Recall@K.
 """
-import time
-import numpy as np
 import argparse
-import os
 import logging
-from typing import List, Tuple
+import os
 
 # Ensure we can import cns_py
 import sys
+import time
+from typing import List, Tuple
+
+import numpy as np
+
 sys.path.append(os.getcwd())
 
-from cns_py.vector import ExactInMemoryIndex, PgVectorIndex, VectorIndex
+from cns_py.vector import ExactInMemoryIndex, VectorIndex
+
 try:
     from cns_py.vector.hnsw_index import HnswVectorIndex
     HNSW_AVAIL = True

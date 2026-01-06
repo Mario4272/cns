@@ -1,8 +1,8 @@
 """
 Unit tests for HeuristicRouter (Slice 9.2).
 """
-import pytest
 from cns_py.vector.router import HeuristicRouter
+
 
 def test_heuristic_router_defaults():
     router = HeuristicRouter()

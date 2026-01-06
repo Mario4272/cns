@@ -2,10 +2,12 @@
 Tests for Signed Results (Slice 10.3).
 Verifies that Findings payloads can be signed and verified via the API logic.
 """
+
 import pytest
-import hashlib
-from cns_py.crypto import signing, canonical
-from cns_py.api.server import verify_result_endpoint, ResultVerifyRequest
+
+from cns_py.api.server import ResultVerifyRequest, verify_result_endpoint
+from cns_py.crypto import signing
+
 
 @pytest.fixture
 def keypair():

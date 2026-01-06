@@ -5,20 +5,22 @@ Demonstrates:
 2. Planner Explainability (Plan + Rationale + Hash).
 3. Rule Registry Execution (Run Rule via Registry).
 """
-import sys
 import os
+import sys
 import time
 
 # Ensure path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from cns_py.api.server import (
-    index_status_endpoint, 
-    explain_plan_endpoint, ExplainRequest,
-    run_rule_endpoint, RunRuleRequest,
-    _REGISTRY # Access registry to ensure rules loaded
+    _REGISTRY,  # Access registry to ensure rules loaded
+    ExplainRequest,
+    RunRuleRequest,
+    explain_plan_endpoint,
+    index_status_endpoint,
+    run_rule_endpoint,
 )
-from cns_py.planner import PlanExplainer
+
 
 def run_step(name):
     print(f"\n>> {name}...")

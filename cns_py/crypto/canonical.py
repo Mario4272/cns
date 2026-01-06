@@ -6,6 +6,7 @@ follows proper subset of RFC 8785 (JCS).
 import json
 from typing import Any
 
+
 def canonicalize(data: Any) -> bytes:
     """
     Convert data to a canonical byte string.

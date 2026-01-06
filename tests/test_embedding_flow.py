@@ -3,13 +3,11 @@
 Tests for Slice 5B: Embedding Pipeline.
 Verifies IndexManager uses EmbeddingProvider correctly.
 """
-import pytest
-import os
 import numpy as np
-from unittest.mock import MagicMock
 
-from cns_py.vector.manager import IndexManager
 from cns_py.vector.embeddings import EmbeddingProvider
+from cns_py.vector.manager import IndexManager
+
 
 class MockProvider(EmbeddingProvider):
     def __init__(self):

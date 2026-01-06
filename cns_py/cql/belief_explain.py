@@ -3,10 +3,12 @@ Belief Explainer Module.
 Wraps the core belief computation to provide human-readable traces of how a score was derived.
 """
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
+from typing import List, Optional
+
 from pydantic import BaseModel
 
-from cns_py.cql.belief import compute_effective_belief, BeliefConfig
+from cns_py.cql.belief import BeliefConfig, compute_effective_belief
+
 
 class ExplanationStep(BaseModel):
     name: str           # e.g. "Time Decay"
@@ -62,18 +64,18 @@ class BeliefExplainer:
             steps.append(ExplanationStep(
                 name="Time Decay",
                 impact=f"x{decay:.2f}",
-                description=f"Observed {days_old:.1f} days ago (Halflife {self.config.decay_halflife_days}d)",
+                description=f"Observed {days_old:.1f} days ago "
+                            f"(Halflife {self.config.decay_halflife_days}d)",
                 value_after=base_belief * decay
             ))
             
         # Step 3: Contradictions
-        # current running value
-        running_val = base_belief * decay
         if contradiction_count > 0:
             steps.append(ExplanationStep(
                 name="Contradictions",
                 impact=f"x{contra_factor:.2f}",
-                description=f"{contradiction_count} contradictions found (Penalty {self.config.contradiction_penalty} each)",
+                description=f"{contradiction_count} contradictions found "
+                            f"(Penalty {self.config.contradiction_penalty} each)",
                 value_after=intrinsic
             ))
         else:
@@ -89,7 +91,8 @@ class BeliefExplainer:
              steps.append(ExplanationStep(
                 name="Provenance Boost",
                 impact=f"+{prov_boost:.2f}",
-                description=f"Supported by {provenance_count} citations (Weight {self.config.base_provenance_weight})",
+                description=f"Supported by {provenance_count} citations "
+                            f"(Weight {self.config.base_provenance_weight})",
                 value_after=details["final_raw"] # Might be unclamped
             ))
             
@@ -105,5 +108,6 @@ class BeliefExplainer:
         return BeliefExplanation(
             final_score=score,
             steps=steps,
-            input_summary=f"Base={base_belief}, Prov={provenance_count}, Contra={contradiction_count}"
+            input_summary=f"Base={base_belief}, Prov={provenance_count}, "
+                          f"Contra={contradiction_count}"
         )

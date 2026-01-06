@@ -8,11 +8,10 @@ Simulates a 'Compliance Check':
 5. Executor signs Result (linking to Input and Rule).
 6. Auditor verifies the entire chain.
 """
-import pytest
-import json
 import hashlib
-from cns_py.crypto import generate_private_key, sign_claim, verify_claim, canonicalize
-from cns_py.wasm import execute_rule, WasmSandbox
+
+from cns_py.crypto import canonicalize, generate_private_key, sign_claim, verify_claim
+from cns_py.wasm import execute_rule
 
 # Minimal No-Op Rule (simulates "Always Compliant")
 # In a real scenario, this would check input logic.

@@ -2,12 +2,14 @@
 Plan Executor (Slice 10.1).
 Executes RetrievalSteps and aggregates Findings.
 """
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel
 import logging
+from typing import Any, Dict, List, Optional
 
-from cns_py.planner.plan import RetrievalPlan, ExactQueryStep, VectorSearchStep, WasmRuleStep
+from pydantic import BaseModel
+
+from cns_py.planner.plan import ExactQueryStep, RetrievalPlan, VectorSearchStep, WasmRuleStep
 from cns_py.vector.manager import IndexManager
+
 # If we had a global instance or dependency injection, we'd use it.
 # For now, let's assume we can import the singleton or instantiate.
 # The server uses a global _INDEX_MANAGER. We might need similar access.
@@ -70,6 +72,7 @@ class Executor:
                     logger.info(f"Executing WASM Rule {step.rule_name}")
                     # Load rule binary
                     import os
+
                     from cns_py.wasm import execute_rule
                     
                     # Assume rules are in "rules/" at repo root or relative known path

@@ -2,7 +2,8 @@
 Tests for WASM Sandbox using raw WAT (WebAssembly Text).
 """
 import pytest
-from cns_py.wasm import execute_rule, WasmSandbox
+
+from cns_py.wasm import WasmSandbox, execute_rule
 
 # A minimal valid WASM module that defines _start and memory.
 # This verifies we can instantiate and run code.

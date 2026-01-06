@@ -1,12 +1,13 @@
 
-import requests
 import json
 from datetime import datetime, timezone
+
 
 def test_api():
     # We can't easily spin up the server in a script without uvicorn/background process issues in this env.
     # Instead, we import the app and use TestClient.
     from fastapi.testclient import TestClient
+
     from cns_py.api.server import app
     
     client = TestClient(app)

@@ -7,14 +7,14 @@ Demonstrates:
 3. Integration with Graph API
 """
 import sys
-import json
 from datetime import datetime, timedelta, timezone
 
 # Add project root to path
 sys.path.append(".")
 
-from cns_py.cql.belief import compute_effective_belief, BeliefConfig
+from cns_py.cql.belief import BeliefConfig, compute_effective_belief
 from cns_py.cql.belief_explain import BeliefExplainer
+
 
 def print_section(title):
     print(f"\n{'='*60}\n{title}\n{'='*60}")

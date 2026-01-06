@@ -5,15 +5,13 @@ Handles lifecycle: loading, building, and updating the index.
 import logging
 import os
 import time
-from typing import List, Optional, Any, Dict
-import numpy as np
+from typing import Any, Dict, List, Optional
 
 from cns_py import config
-from cns_py.vector import VectorIndex, ExactInMemoryIndex, PgVectorIndex
-from cns_py.vector.router import VectorRouter, HeuristicRouter
 from cns_py.storage.db import get_conn
-
-from cns_py.vector.embeddings import EmbeddingProvider, DeterministicStubProvider
+from cns_py.vector import ExactInMemoryIndex, VectorIndex
+from cns_py.vector.embeddings import DeterministicStubProvider, EmbeddingProvider
+from cns_py.vector.router import HeuristicRouter, VectorRouter
 
 logger = logging.getLogger(__name__)
 

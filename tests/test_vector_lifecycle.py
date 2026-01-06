@@ -1,9 +1,9 @@
-import pytest
 import os
-import shutil
-import time
-from cns_py.vector.manager import IndexManager
+
+import pytest
+
 from cns_py.storage.db import get_conn
+from cns_py.vector.manager import IndexManager
 
 # Dummy env var fixture? 
 # Best to patch os.environ or config.
@@ -78,9 +78,13 @@ def test_index_lifecycle_restart(lifecycle_config):
 
 def test_integration_api_lifecycle(lifecycle_config):
     """Verify API integration uses the manager."""
-    from cns_py.api.server import find_similar, startup_event, shutdown_event, _INDEX_MANAGER
-    from cns_py.api.server import VectorQuery
-    
+    from cns_py.api.server import (
+        _INDEX_MANAGER,
+        VectorQuery,
+        find_similar,
+        shutdown_event,
+        startup_event,
+    )
     from cns_py.vector.embeddings import DeterministicStubProvider
 
     # RESET global manager to ensure defaults (384D) and no 2D pollution

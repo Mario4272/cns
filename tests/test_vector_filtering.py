@@ -1,5 +1,5 @@
-import pytest
 from cns_py.vector.memory_index import ExactInMemoryIndex
+
 
 def test_filtering_exclusivity():
     """Verify that filter excludes non-matching documents."""

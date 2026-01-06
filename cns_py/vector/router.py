@@ -1,5 +1,6 @@
-from typing import Protocol, List, Optional
 import re
+from typing import Protocol
+
 
 class VectorRouter(Protocol):
     def route(self, text: str) -> str:

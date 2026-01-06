@@ -2,12 +2,14 @@
 Planner Explainability (Slice 11.1).
 Provides logic to generate deterministic hash and audit wrapper for plans.
 """
-from typing import Dict, Any, Optional
 import hashlib
-from cns_py.crypto.canonical import canonicalize
-from cns_py.planner.plan import RetrievalPlan
-from cns_py.planner.planner import Planner
+from typing import Any, Dict, Optional
+
 from pydantic import BaseModel
+
+from cns_py.crypto.canonical import canonicalize
+from cns_py.planner.planner import Planner
+
 
 class PlanExplanation(BaseModel):
     query: str

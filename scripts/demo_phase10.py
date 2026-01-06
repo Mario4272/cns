@@ -3,20 +3,18 @@ Phase 10 End-to-End Demo.
 Demonstrates the full pipeline:
 Query -> Planner -> Executor (Vector + WASM) -> Signed Findings -> Verification.
 """
-import pytest
 import logging
-import json
 import sys
-import os
 
 # Setup simple logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("demo_phase10")
 
-from cns_py.planner import Planner, Executor
-from cns_py.vector.manager import IndexManager
+from cns_py.api.server import ResultVerifyRequest, verify_result_endpoint
 from cns_py.crypto import signing
-from cns_py.api.server import verify_result_endpoint, ResultVerifyRequest
+from cns_py.planner import Executor, Planner
+from cns_py.vector.manager import IndexManager
+
 
 def run_demo():
     logger.info("=== Phase 10 Demo Start ===")

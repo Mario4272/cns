@@ -6,8 +6,10 @@ Verifies:
 3. API endpoints (mocked) work as expected.
 """
 import pytest
+
+from cns_py.api.server import RunRuleRequest, run_rule_endpoint
 from cns_py.rules import RuleRegistry
-from cns_py.api.server import run_rule_endpoint, RunRuleRequest
+
 
 def test_registry_load_manifest():
     # Should autoload default

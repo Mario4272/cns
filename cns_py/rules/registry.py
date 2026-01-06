@@ -2,11 +2,14 @@
 Rule Registry Module (Slice 11.2).
 Manages loading rule manifests and executing rules via WASM sandbox.
 """
-import os
 import json
-from typing import List, Dict, Any, Optional
+import os
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
+
 from cns_py.wasm import execute_rule
+
 
 class RuleMetadata(BaseModel):
     id: str

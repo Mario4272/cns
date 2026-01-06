@@ -1,11 +1,13 @@
 """
 Integration tests for Auto-Routing (Slice 9.2).
 """
-import pytest
+
 import numpy as np
-import os
-from cns_py.vector.manager import IndexManager
+import pytest
+
 from cns_py.vector import ExactInMemoryIndex
+from cns_py.vector.manager import IndexManager
+
 
 @pytest.fixture
 def mock_config(monkeypatch, tmp_path):

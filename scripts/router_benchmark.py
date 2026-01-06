@@ -2,17 +2,17 @@
 Benchmark for Learned Routers (Slice 9.3).
 Compares Single-Index vs Multi-Space+Router performance.
 """
-import time
+import logging
 import random
-import re
-import numpy as np
-from typing import List, Tuple, Dict
+import time
 from dataclasses import dataclass
+from typing import List, Tuple
 
-from cns_py.vector.manager import IndexManager
+import numpy as np
+
 from cns_py.vector import ExactInMemoryIndex
 from cns_py.vector.embeddings import DeterministicStubProvider
-import logging
+from cns_py.vector.manager import IndexManager
 
 # Suppress Logs
 logging.basicConfig(level=logging.ERROR)
@@ -77,7 +77,7 @@ def generate_dataset() -> Tuple[List[Document], List[Document]]:
 
 def run_baseline(docs: List[Document], queries: List[Document]) -> float:
     """Run single-index baseline."""
-    print(f"\n--- Baseline (Single Index: 'default') ---")
+    print("\n--- Baseline (Single Index: 'default') ---")
     mgr = IndexManager()
     mgr.indices["default"] = ExactInMemoryIndex()
     
@@ -115,7 +115,7 @@ def run_baseline(docs: List[Document], queries: List[Document]) -> float:
 
 def run_multispace(docs: List[Document], queries: List[Document]) -> float:
     """Run multi-space with router."""
-    print(f"\n--- Multi-Space (Router: 'auto') ---")
+    print("\n--- Multi-Space (Router: 'auto') ---")
     mgr = IndexManager()
     mgr.startup() # inits default router
     

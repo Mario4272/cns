@@ -3,6 +3,7 @@ Configuration for Belief Revision Logic (Slice 12.1).
 """
 from dataclasses import dataclass
 
+
 @dataclass
 class BeliefConfig:
     # Time Decay

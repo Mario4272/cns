@@ -1,3 +1,3 @@
-from .sandbox import execute_rule, WasmSandbox
+from .sandbox import WasmSandbox, execute_binary
 
-__all__ = ["execute_rule", "WasmSandbox"]
+__all__ = ["WasmSandbox", "execute_binary"]

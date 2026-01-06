@@ -1,10 +1,12 @@
 """
 Signing and Verification using Ed25519.
 """
-from typing import Mapping, Any, Tuple
+from typing import Any
+
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
-from cryptography.hazmat.primitives import serialization
+
 from .canonical import canonicalize
+
 
 def generate_private_key() -> Ed25519PrivateKey:
     """Generate a new Ed25519 private key."""

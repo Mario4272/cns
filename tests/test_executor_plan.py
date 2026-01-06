@@ -1,14 +1,15 @@
 """
 Integration tests for Executor (Slice 10.1).
 """
-import pytest
-from typing import List, Any
 from unittest.mock import MagicMock
 
-from cns_py.planner.plan import RetrievalPlan, ExactQueryStep, VectorSearchStep
+import pytest
+
 from cns_py.planner.executor import Executor
-from cns_py.vector.manager import IndexManager
+from cns_py.planner.plan import ExactQueryStep, RetrievalPlan, VectorSearchStep
 from cns_py.vector.embeddings import DeterministicStubProvider
+from cns_py.vector.manager import IndexManager
+
 
 @pytest.fixture
 def mock_manager():

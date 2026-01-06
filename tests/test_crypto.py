@@ -1,10 +1,16 @@
 """
 Tests for cns_py.crypto.
 """
-import json
-import pytest
-from cns_py.crypto import canonicalize, generate_private_key, sign_claim, verify_claim, load_private_key, load_public_key
 from cryptography.hazmat.primitives import serialization
+
+from cns_py.crypto import (
+    canonicalize,
+    generate_private_key,
+    load_private_key,
+    sign_claim,
+    verify_claim,
+)
+
 
 def test_canonicalize_ordering():
     """Canonicalization must sort keys."""

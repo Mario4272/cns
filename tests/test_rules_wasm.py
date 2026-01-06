@@ -3,9 +3,8 @@ Tests for WASM Rules (Slice 10.2).
 Verifies that rule packs execute in the sandbox and return valid Findings.
 Uses WAT (text) format since Rust WASM toolchain is unavailable.
 """
-import pytest
 import os
-import json
+
 from cns_py.wasm import execute_rule
 
 RULES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "rules")

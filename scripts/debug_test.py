@@ -1,6 +1,8 @@
 
-import pytest
 import sys
+
+import pytest
+
 
 def main():
     print("Running tests...")

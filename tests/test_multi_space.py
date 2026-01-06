@@ -3,12 +3,14 @@
 Tests for Multi-Space Vector Indexing (Slice 9.1).
 Verifies that IndexManager can handle multiple isolated vector spaces.
 """
-import pytest
-import shutil
 import os
+
 import numpy as np
-from cns_py.vector.manager import IndexManager
+import pytest
+
 from cns_py.vector import ExactInMemoryIndex
+from cns_py.vector.manager import IndexManager
+
 
 @pytest.fixture
 def temp_vector_path(tmp_path):

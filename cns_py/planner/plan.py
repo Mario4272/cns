@@ -2,7 +2,8 @@
 Retrieval Plan Structures (Slice 10.1).
 Defines the executable steps and plan container.
 """
-from typing import List, Dict, Any, Optional, Union, Literal
+from typing import Any, Dict, List, Literal, Optional, Union
+
 from pydantic import BaseModel, Field
 
 # --- Steps ---
