@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from cns_py.cql.belief_explain import BeliefExplainer

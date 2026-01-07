@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from cns_py.cql.belief import compute_effective_belief as compute
