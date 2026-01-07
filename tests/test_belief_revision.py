@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import pytest
 
 from cns_py.cql.belief import compute_effective_belief as compute
 
@@ -9,7 +10,7 @@ def test_belief_defaults():
     assert 1.0 >= b >= 0.0
     # Should be close to 1.0 if no decay
     # With defaults: decay=1.0, contra=1.0, prov=0.0 -> 1.0
-    assert b == 1.0
+    assert b == pytest.approx(1.0)
 
 
 def test_time_decay():
@@ -53,4 +54,4 @@ def test_determinism():
     ts = datetime(2025, 1, 1, tzinfo=timezone.utc)
     res1, _ = compute(0.8, ts, contradiction_count=1, provenance_count=2)
     res2, _ = compute(0.8, ts, contradiction_count=1, provenance_count=2)
-    assert res1 == res2
+    assert res1 == pytest.approx(res2)

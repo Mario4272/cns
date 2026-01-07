@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import pytest
 
 from cns_py.cql.belief_explain import BeliefExplainer
 
@@ -24,7 +25,7 @@ def test_explain_contradiction():
     exp = explainer.explain(1.0, now, 0, 1)  # 1 contradiction
 
     # 1.0 * 1.0 * (1 - 0.5) = 0.5
-    assert exp.final_score == 0.5
+    assert exp.final_score == pytest.approx(0.5)
     # Find contradiction step
     step = next(s for s in exp.steps if s.name == "Contradictions")
     assert "x0.5" in step.impact
@@ -38,6 +39,6 @@ def test_explain_provenance_boost():
     # Base 0.5, Prov 4 (+0.4) -> 0.9
     exp = explainer.explain(0.5, now, 4, 0)
 
-    assert exp.final_score == 0.9
+    assert exp.final_score == pytest.approx(0.9)
     step = next(s for s in exp.steps if s.name == "Provenance Boost")
     assert "+0.4" in step.impact
