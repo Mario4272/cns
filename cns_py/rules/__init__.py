@@ -1,7 +1,3 @@
-"""
-Rules Package.
-Exposes RuleRegistry.
-"""
-from .registry import RuleRegistry, RuleMetadata
+from .registry import RuleMetadata, RuleRegistry
 
 __all__ = ["RuleRegistry", "RuleMetadata"]

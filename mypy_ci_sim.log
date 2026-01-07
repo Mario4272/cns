@@ -1,0 +1,6 @@
+cns_py\wasm\sandbox.py:60: error: "Store" has no attribute "add_fuel"  [attr-defined]
+cns_py\wasm\sandbox.py:73: error: "Table" not callable  [operator]
+cns_py\wasm\sandbox.py:73: error: "Memory" not callable  [operator]
+cns_py\wasm\sandbox.py:73: error: "SharedMemory" not callable  [operator]
+cns_py\wasm\sandbox.py:73: error: "Global" not callable  [operator]
+Found 5 errors in 1 file (checked 39 source files)

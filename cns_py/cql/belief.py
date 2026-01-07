@@ -1,18 +1,10 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-
-@dataclass
-class BeliefConfig:
-    w_evidence: float = 1.0
-    w_recency: float = 0.25  # small nudge toward fresh observations
-    w_source_rep: float = 1.0  # weight for source reputation (0..1)
-    w_contradiction: float = 2.0  # weight for contradiction penalty (count)
-    recency_half_life_days: float = 365.0  # half-life for recency contribution
+from cns_py.cql.belief_config import BeliefConfig
 
 
 def _sigmoid(x: float) -> float:
@@ -26,86 +18,116 @@ def _sigmoid(x: float) -> float:
         return 0.0 if x < 0 else 1.0
 
 
-def _recency_term(
-    observed_at: Optional[datetime], now: Optional[datetime], half_life_days: float
+def _recency_modifier(
+    observed_at: Optional[datetime], now: Optional[datetime], halflife_days: float
 ) -> float:
+    """
+    Returns a multiplier (0..1) based on age.
+    1.0 means just observed. Decays exponentially.
+    """
     if not observed_at:
         return 0.0
     now = now or datetime.now(timezone.utc)
-    dt = abs((now - observed_at).total_seconds()) / (60 * 60 * 24)
-    # Exponential decay: 1.0 at t=0; 0.5 at t=half_life
-    result = 0.5 ** (dt / max(1e-6, half_life_days))
-    return float(max(0.0, min(1.0, result)))
+    # Ensure non-negative age
+    age_seconds = max(0.0, (now - observed_at).total_seconds())
+    days = age_seconds / (86400.0)
+
+    # Formula: 0.5 ^ (days / halflife)
+    # If days=halflife, factor=0.5
+    factor = 0.5 ** (days / max(1e-6, halflife_days))
+    return float(max(0.0, min(1.0, factor)))
 
 
-def compute(
-    base_belief: Optional[float],
+def compute_effective_belief(
+    current_belief: float | None,
     observed_at: Optional[datetime],
-    source_reputation: float = 0.5,
+    provenance_count: int = 0,
     contradiction_count: int = 0,
+    # Future: Signed provenance strength could be passed here
     cfg: Optional[BeliefConfig] = None,
 ) -> tuple[float, Dict[str, Any]]:
     """
-    Compute final confidence using a logistic over weighted components.
-    Formula: σ(w_e*evidence + w_r*source_rep + w_t*recency − w_c*contradictions)
-    Inputs:
-      - base_belief: existing belief (0..1) stored on the aspect
-      - observed_at: when the aspect was last observed/written
-      - source_reputation: 0..1 score of the source (default 0.5)
-      - contradiction_count: number of known contradictions (default 0)
-      - cfg: weights
-    Returns: (confidence, details)
+    Phase 12 Belief Update Rule.
+
+    Logic:
+    1. Start with current_belief (default 1.0 if new).
+    2. Apply Time Decay (multiplicative).
+    3. Apply Contradiction Penalty (multiplicative reduction).
+    4. Apply Provenance Boost (additive sigmoid term?).
+       Actually, `val_replies` says: "Time decay... Contradiction penalty... Provenance weighting".
+
+    Let's stick to a robust component model:
+
+    Projected Belief = Base * Decay * (1 - Penalty * Contradictions) + (ProvenanceBoost)
+
+    However, 0..1 bounding is key.
+
+    Revised Formula for V1:
+    - Base = current_belief
+    - Decay = _recency_modifier(...)
+    - ContradictionFactor = max(0.0, 1.0 - (cfg.contradiction_penalty * count))
+    - ProvenanceBoost = min(cfg.max_provenance_weight, count * cfg.base_provenance_weight)
+
+    Final = (Base * Decay * ContradictionFactor) + ProvenanceBoost
+    Clamped to [0.0, 1.0].
+
+    Args:
+        current_belief: The raw confidence recorded (usually 1.0 for a fact).
+        observed_at: Timestamp of observation.
+        provenance_count: Number of supporting citations/signatures.
+        contradiction_count: Number of contradictory claims.
+        cfg: Configuration object.
+
+    Returns:
+        (final_score, details_dict)
     """
     if cfg is None:
         cfg = BeliefConfig()
-    b = 0.0 if base_belief is None else float(base_belief)
-    rec = _recency_term(observed_at, datetime.now(timezone.utc), cfg.recency_half_life_days)
 
-    # Map 0..1 to -3..+3 logit-ish range for evidence center
-    evidence_score = (b - 0.5) * 6.0
+    # 1. Decay
+    decay_factor = 1.0
+    if cfg.decay_enabled and observed_at:
+        decay_factor = _recency_modifier(observed_at, None, cfg.decay_halflife_days)
 
-    # Logit = w_e*E + w_r*R + w_t*T - w_c*C
-    # Source reputation is mapped 0..1 -> 0..1 contribution directly (simpler) or should we center it?
-    # Let's treat source_rep as a direct additive boost/drag.
-    # For now, simplistic: w_r * (reputation - 0.5) * 2 ?? No, let's keep it additive positive factor
-    # But wait, low rep should drag down?
-    # Let's align with the instruction: w_r*source_rep. If w_r=1.0, rep=0.0 -> 0 boost. rep=1.0 -> +1.0 boost.
-    # Contradictions are subtraction.
+    # 2. Contradiction
+    # e.g. if penalty=0.5, 1 contradiction halves the belief. 2 zeroes it.
+    penalty_raw = cfg.contradiction_penalty * contradiction_count
+    contradiction_factor = max(0.0, 1.0 - penalty_raw)
 
-    term_evidence = cfg.w_evidence * evidence_score
-    term_rep = (
-        cfg.w_source_rep * (source_reputation - 0.5) * 2.0
-    )  # Let's center it so 0.5 is neutral
-    # Actually, instruction said: w_r*source_rep. That implies 0->0, 1->1.
-    # But usually 0.5 is "unknown". If we make 0.0 punish, that's harsh for "unknown".
-    # Let's stick to strict additive per prompt, but maybe add comments?
-    # Prompt: w_r*source_rep.
-    term_rep = cfg.w_source_rep * source_reputation
+    # 3. Provenance
+    # e.g. 0.1 * 3 sources = +0.3 boost
+    prov_boost = min(cfg.max_provenance_weight, provenance_count * cfg.base_provenance_weight)
 
-    term_recency = cfg.w_recency * rec
-    term_contradiction = cfg.w_contradiction * contradiction_count
+    # 4. Combine
+    # We apply decay and contradiction to the "intrinsic" belief
+    current_val = current_belief if current_belief is not None else 0.0
+    intrinsic = current_val * decay_factor * contradiction_factor
 
-    x = term_evidence + term_rep + term_recency - term_contradiction
-    conf = float(_sigmoid(x))
+    # Then add provenance support (external evidence)
+    # This mirrors "I remember X (decayed/disputed) BUT I see Y sources confirming it."
+    # We clamp the result.
+    raw_final = intrinsic + prov_boost
+    final_score = float(max(0.0, min(1.0, raw_final)))
 
     details = {
-        "base_belief": b,
-        "evidence_score": evidence_score,
-        "recency": rec,
-        "source_reputation": source_reputation,
-        "contradiction_count": contradiction_count,
-        "terms": {
-            "evidence": term_evidence,
-            "rep": term_rep,
-            "recency": term_recency,
-            "contradiction": -term_contradiction,
+        "input_belief": current_val,
+        "decay_factor": decay_factor,
+        "contradiction_factor": contradiction_factor,
+        "provenance_boost": prov_boost,
+        "intrinsic_score": intrinsic,
+        "final_raw": raw_final,
+        "final_clamped": final_score,
+        "config": {
+            "halflife": cfg.decay_halflife_days,
+            "penalty_per_contradiction": cfg.contradiction_penalty,
+            "weight_per_proof": cfg.base_provenance_weight,
         },
-        "weights": {
-            "w_evidence": cfg.w_evidence,
-            "w_recency": cfg.w_recency,
-            "w_source_rep": cfg.w_source_rep,
-            "w_contradiction": cfg.w_contradiction,
-        },
-        "logit": x,
     }
-    return conf, details
+
+    return final_score, details
+
+
+# Alias for backward compatibility if needed, though we should migrate calls
+compute = compute_effective_belief
+
+__all__ = ["compute_effective_belief", "compute", "BeliefConfig", "_recency_modifier", "_sigmoid"]

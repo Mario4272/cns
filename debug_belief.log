@@ -1,0 +1,16 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.11, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.142.4, cov-7.0.0
+collecting ... collected 5 items
+
+tests/test_belief_revision.py::test_belief_defaults PASSED               [ 20%]
+tests/test_belief_revision.py::test_time_decay PASSED                    [ 40%]
+tests/test_belief_revision.py::test_contradiction_penalty PASSED         [ 60%]
+tests/test_belief_revision.py::test_provenance_boost PASSED              [ 80%]
+tests/test_belief_revision.py::test_determinism PASSED                   [100%]
+
+============================== 5 passed in 4.19s ==============================

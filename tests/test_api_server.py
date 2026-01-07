@@ -601,34 +601,38 @@ def test_vector_search_integration(monkeypatch, tmp_path):
     monkeypatch.setenv("VECTOR_INDEX_ENABLED", "1")
     monkeypatch.setenv("VECTOR_INDEX_BACKEND", "memory")
     monkeypatch.setenv("VECTOR_INDEX_PATH", str(tmp_path / "api_test_idx"))
-    
+
     from cns_py.api.server import _INDEX_MANAGER
-    
+
     # RESET global manager to clean state
     _INDEX_MANAGER.index = None
     _INDEX_MANAGER.provider = None
-    _INDEX_MANAGER.dim = 384 # Default
-    
+    _INDEX_MANAGER.dim = 384  # Default
+
     # Mock the provider to match our test vectors (2D)
     from cns_py.vector.embeddings import EmbeddingProvider
+
     class TestProv(EmbeddingProvider):
         @property
-        def dimension(self): return 2
-        def embed_texts(self, t): return [[1.0, 0.0]] * len(t)
+        def dimension(self):
+            return 2
+
+        def embed_texts(self, t):
+            return [[1.0, 0.0]] * len(t)
 
     _INDEX_MANAGER.provider = TestProv()
     _INDEX_MANAGER.dim = 2
-    
+
     # Force startup to initialize the inner index (clean state)
     _INDEX_MANAGER.startup()
-    
+
     # Clear any data loaded from DB during startup (to prevent collisions with IDs like '1')
-    if _INDEX_MANAGER.index:
-        _INDEX_MANAGER.index._data = {}
-        _INDEX_MANAGER.index._metadata = {}
+    if _INDEX_MANAGER.get_index("default"):
+        _INDEX_MANAGER.get_index("default")._data = {}
+        _INDEX_MANAGER.get_index("default")._metadata = {}
 
     # Access the inner index directly for white-box seeding
-    idx = _INDEX_MANAGER.index
+    idx = _INDEX_MANAGER.get_index("default")
     if idx is None:
         pytest.fail("Vector index not initialized")
 

@@ -7,7 +7,7 @@ from cns_py.cql.belief import compute
 
 def test_belief_none_base_treated_as_zero():
     conf, details = compute(None, None)
-    assert details["base_belief"] == 0.0
+    assert details["input_belief"] == 0.0
     assert 0.0 <= conf <= 0.5
 
 

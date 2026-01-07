@@ -37,6 +37,7 @@ Applies to:
 - No debug prints committed.
 - No hardcoded secrets or credentials.
 - Follow the project’s formatting and lint rules. If tooling disagrees with you, tooling wins.
+- Log files (e.g name.log, name.txt, etc) go into .logs folder on the root, which is not tracted by git
 
 ## Required Tooling
 
@@ -44,6 +45,7 @@ Applies to:
 - Use `gh` CLI for issue and PR work.
 - Reference issues in PR descriptions.
 - Prefer “close with keywords” when appropriate (e.g., “Closes #123”).
+- Using Pre-COmmit is an absolute requirement.
 
 ### Python
 - Use the repo’s pinned tooling (pre-commit, ruff/black/mypy/pytest as configured).
@@ -96,7 +98,7 @@ Suggested commands:
 - Use transactions for multi-step changes.
 - Make migrations reversible when feasible.
 
-### Rust (if used)
+### Rust
 - Use `thiserror` for library error types.
 - Use `anyhow` only at application boundaries (CLI / main / service entrypoints).
 - Avoid panics; use `expect()` only for invariant violations with a specific message.

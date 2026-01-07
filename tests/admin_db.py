@@ -16,7 +16,7 @@ def _admin_conn() -> psycopg.Connection:
     return cx
 
 
-def ensure_template_exists(seed_dbname: str):
+def ensure_template_exists(seed_dbname: str) -> None:
     with _admin_conn() as cx, cx.cursor() as cur:
         _terminate_db(cur, TEMPLATE_DB)
         cur.execute(f"DROP DATABASE IF EXISTS {TEMPLATE_DB}")
@@ -30,13 +30,13 @@ def make_ephemeral_db() -> str:
     return _dsn_for(name)
 
 
-def drop_db(name: str):
+def drop_db(name: str) -> None:
     with _admin_conn() as cx, cx.cursor() as cur:
         _terminate_db(cur, name)
         cur.execute(f"DROP DATABASE IF EXISTS {name}")
 
 
-def _terminate_db(cur: psycopg.Cursor, name: str):
+def _terminate_db(cur: psycopg.Cursor, name: str) -> None:
     cur.execute(
         """
         SELECT pg_terminate_backend(pid)

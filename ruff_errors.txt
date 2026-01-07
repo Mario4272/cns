@@ -1,0 +1,331 @@
+E501 Line too long (106 > 100)
+   --> cns_py\api\server.py:511:101
+    |
+509 |             base_sql = (
+510 |                 "SELECT f.predicate, a_dst.id AS dst_id, a_dst.label AS dst_label, "
+511 |                 "asp.belief AS confidence, asp.valid_from, asp.valid_to, asp.observed_at, asp.provenance "
+    |                                                                                                     ^^^^^^
+512 |                 "FROM fibers f "
+513 |                 "JOIN atoms a_dst ON a_dst.id = f.dst "
+    |
+
+E501 Line too long (110 > 100)
+   --> cns_py\api\server.py:656:101
+    |
+654 |                         row = cur.fetchone()
+655 |                         if not row:
+656 |                             raise HTTPException(status_code=404, detail="Atom not found for embedding lookup")
+    |                                                                                                     ^^^^^^^^^^
+657 |                         text, label = row
+658 |                         content_to_embed = text or label
+    |
+
+E501 Line too long (106 > 100)
+   --> cns_py\api\server.py:662:101
+    |
+660 |                 content_to_embed = req.text
+661 |             else:
+662 |                 raise HTTPException(status_code=400, detail="Must provide 'vector', 'atom_id', or 'text'")
+    |                                                                                                     ^^^^^^
+663 |
+664 |             # Embed if we found content
+    |
+
+E501 Line too long (121 > 100)
+   --> cns_py\api\server.py:673:101
+    |
+671 |              raise HTTPException(status_code=500, detail="Failed to generate query vector")
+672 |
+673 |         raw_results = _INDEX_MANAGER.query(query_vec, k=req.k, filter=req.filter, space=req.space, query_text=query_text)
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^
+674 |     except HTTPException:
+675 |         raise
+    |
+
+E501 Line too long (116 > 100)
+   --> cns_py\api\server.py:689:101
+    |
+687 |             with conn.cursor() as cur:
+688 |                 cur.execute(
+689 |                     "SELECT id, label, kind FROM atoms WHERE id::text = ANY(%(ids)s::text[])", # ID is text in Index
+    |                                                                                                     ^^^^^^^^^^^^^^^^
+690 |                      # But DB id is int? Wait. 
+691 |                      # IndexManager.rebuild stored str(atom_id_int).
+    |
+
+E501 Line too long (107 > 100)
+   --> cns_py\api\server.py:737:101
+    |
+735 |             pub_key = load_public_key(req.public_key)
+736 |         except Exception as e:
+737 |             return ProvenanceVerifyResponse(valid=False, claim_hash=claim_hash, reason=f"Invalid Key: {e}")
+    |                                                                                                     ^^^^^^^
+738 |
+739 |         # 3. Verify
+    |
+
+E501 Line too long (109 > 100)
+   --> cns_py\api\server.py:744:101
+    |
+742 |              return ProvenanceVerifyResponse(valid=True, claim_hash=claim_hash)
+743 |         else:
+744 |              return ProvenanceVerifyResponse(valid=False, claim_hash=claim_hash, reason="Signature Mismatch")
+    |                                                                                                     ^^^^^^^^^
+745 |             
+746 |     except Exception as e:
+    |
+
+E501 Line too long (103 > 100)
+   --> cns_py\api\server.py:775:101
+    |
+773 |             pub_key = load_public_key(req.public_key)
+774 |         except Exception as e:
+775 |              return ResultVerifyResponse(valid=False, result_hash=res_hash, reason=f"Invalid Key: {e}")
+    |                                                                                                     ^^^
+776 |              
+777 |         # 3. Verify
+    |
+
+E501 Line too long (103 > 100)
+   --> cns_py\api\server.py:782:101
+    |
+780 |             return ResultVerifyResponse(valid=True, result_hash=res_hash)
+781 |         else:
+782 |             return ResultVerifyResponse(valid=False, result_hash=res_hash, reason="Signature Mismatch")
+    |                                                                                                     ^^^
+783 |             
+784 |     except Exception as e:
+    |
+
+E501 Line too long (102 > 100)
+  --> cns_py\crypto\signing.py:19:101
+   |
+17 |     Note: Ed25519PrivateKey.from_private_bytes takes 32 bytes.
+18 |     """
+19 |     # If using full key serialization formats (PKCS8/OpenSSH), use serialization.load_pem_private_key.
+   |                                                                                                     ^^
+20 |     # For raw seeds:
+21 |     seed_bytes = bytes.fromhex(hex_seed)
+   |
+
+E501 Line too long (103 > 100)
+  --> cns_py\planner\executor.py:68:101
+   |
+66 |                         k=step.k, 
+67 |                         space=step.space,
+68 |                         query_text=step.query_text  # Use text for auto-routing refined check if needed
+   |                                                                                                     ^^^
+69 |                     )
+70 |                     result.items = hits
+   |
+
+E501 Line too long (105 > 100)
+  --> cns_py\planner\plan.py:43:101
+   |
+41 |     steps: List[Union[ExactQueryStep, VectorSearchStep, WasmRuleStep]]
+42 |     constraints: PlanConstraints = Field(default_factory=PlanConstraints)
+43 |     rationale: List[Dict[str, str]] = Field(default_factory=list) # List of {"rule": ..., "because": ...}
+   |                                                                                                     ^^^^^
+   |
+
+E501 Line too long (109 > 100)
+  --> cns_py\planner\planner.py:33:101
+   |
+31 |             atom_id = query.split(":", 1)[1]
+32 |             steps.append(ExactQueryStep(atom_id=atom_id, description=f"Fetch atom {atom_id}"))
+33 |             rationale.append({"rule": "ExactMatchHeuristic", "because": "Query starts with known ID prefix"})
+   |                                                                                                     ^^^^^^^^^
+34 |             
+35 |         # 2. Vector Search (Default for everyone unless purely ID)
+   |
+
+E501 Line too long (120 > 100)
+  --> cns_py\planner\planner.py:55:101
+   |
+53 |             description=f"Vector search in '{top_space}' (conf={top_weight})"
+54 |         ))
+55 |         rationale.append({"rule": "VectorRouter", "because": f"Router selected '{top_space}' with weight {top_weight}"})
+   |                                                                                                     ^^^^^^^^^^^^^^^^^^^^
+56 |         
+57 |         # 3. Rule Heuristic
+   |
+
+E501 Line too long (103 > 100)
+  --> cns_py\planner\planner.py:68:101
+   |
+66 |                 description="Run TLS compliance check"
+67 |             ))
+68 |             rationale.append({"rule": "ComplianceHeuristic", "because": "Detected compliance keyword"})
+   |                                                                                                     ^^^
+69 |             
+70 |         return RetrievalPlan(
+   |
+
+E501 Line too long (102 > 100)
+  --> cns_py\rules\registry.py:66:101
+   |
+65 |         if not os.path.exists(bin_path):
+66 |             # Try to swap extension if defined as .wat but strictly looking for compiled or vice versa
+   |                                                                                                     ^^
+67 |             # But relying on manifest being truthful is better.
+68 |             raise ValueError(f"Rule binary not found at: {bin_path}")
+   |
+
+E501 Line too long (106 > 100)
+  --> cns_py\vector\hnsw_index.py:42:101
+   |
+40 |         self.metadata_store: Dict[str, Dict[str, Any]] = {}
+41 |
+42 |     def upsert(self, doc_id: str, vector: List[float], metadata: Optional[Dict[str, Any]] = None) -> None:
+   |                                                                                                     ^^^^^^
+43 |         """Insert or update a vector."""
+44 |         # Normalize
+   |
+
+E501 Line too long (122 > 100)
+  --> cns_py\vector\hnsw_index.py:92:101
+   |
+90 |                 del self.metadata_store[doc_id]
+91 |
+92 |     def query(self, vector: List[float], k: int = 10, filter: Optional[Dict[str, Any]] = None) -> List[Tuple[str, float]]:
+   |                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^
+93 |         """
+94 |         Approximate search.
+   |
+
+invalid-syntax: Unexpected indentation
+  --> cns_py\vector\manager.py:52:1
+   |
+50 |                     "HNSW backend requested but hnswlib not available. Falling back to memory."
+51 |                 )
+52 |                  return ExactInMemoryIndex()
+   | ^^^^^^^^^^^^^^^^^
+53 |         else:
+54 |             return ExactInMemoryIndex()
+   |
+
+invalid-syntax: Expected a statement
+  --> cns_py\vector\manager.py:53:9
+   |
+51 |                 )
+52 |                  return ExactInMemoryIndex()
+53 |         else:
+   |         ^^^^
+54 |             return ExactInMemoryIndex()
+   |
+
+invalid-syntax: Expected a statement
+  --> cns_py\vector\manager.py:53:13
+   |
+51 |                 )
+52 |                  return ExactInMemoryIndex()
+53 |         else:
+   |             ^
+54 |             return ExactInMemoryIndex()
+   |
+
+invalid-syntax: Expected a statement
+  --> cns_py\vector\manager.py:53:14
+   |
+51 |                 )
+52 |                  return ExactInMemoryIndex()
+53 |         else:
+   |              ^
+54 |             return ExactInMemoryIndex()
+   |
+
+invalid-syntax: Unexpected indentation
+  --> cns_py\vector\manager.py:54:1
+   |
+52 |                  return ExactInMemoryIndex()
+53 |         else:
+54 |             return ExactInMemoryIndex()
+   | ^^^^^^^^^^^^
+55 |
+56 |     def _load_or_create_space(self, space: str) -> None:
+   |
+
+invalid-syntax: Expected a statement
+  --> cns_py\vector\manager.py:56:5
+   |
+54 |             return ExactInMemoryIndex()
+55 |
+56 |     def _load_or_create_space(self, space: str) -> None:
+   |     ^
+57 |         """Initialize a space, loading from disk if available."""
+58 |         if space in self.indices:
+   |
+
+invalid-syntax: Expected a statement
+   --> cns_py\vector\manager.py:283:1
+    |
+281 |             "spaces": spaces_stat
+282 |         }
+    |          ^
+    |
+
+E501 Line too long (101 > 100)
+  --> scripts\demo_phase12.py:58:101
+   |
+56 |     print("Trace:")
+57 |     for step in explanation.steps:
+58 |         print(f"  [{step.name:<16}] {step.impact:<6} -> {step.value_after:.4f} ({step.description})")
+   |                                                                                                     ^
+59 |
+60 | def main():
+   |
+
+E501 Line too long (107 > 100)
+ --> scripts\verify_belief_api.py:7:101
+  |
+6 | def test_api():
+7 |     # We can't easily spin up the server in a script without uvicorn/background process issues in this env.
+  |                                                                                                     ^^^^^^^
+8 |     # Instead, we import the app and use TestClient.
+9 |     from fastapi.testclient import TestClient
+  |
+
+E501 Line too long (105 > 100)
+  --> tests\test_auto_routing.py:19:101
+   |
+17 |     monkeypatch.setattr("cns_py.config.vector_index_path", lambda: str(path))
+18 |     # Mock rebuild to avoid DB access
+19 |     monkeypatch.setattr("cns_py.vector.manager.IndexManager.rebuild", lambda self, space="default": None)
+   |                                                                                                     ^^^^^
+20 |
+21 | def test_auto_routing_flow(mock_config):
+   |
+
+E501 Line too long (106 > 100)
+  --> tests\test_embedding_flow.py:56:101
+   |
+54 |     mgr.dim = 4 # update dim
+55 |     
+56 |     # Startup triggers rebuild if index not on disk (env var path is mem_idx_test, presumably empty/clean)
+   |                                                                                                     ^^^^^^
+57 |     mgr.startup()
+   |
+
+E501 Line too long (105 > 100)
+  --> tests\test_multi_space.py:29:101
+   |
+27 |     monkeypatch.setattr("cns_py.config.vector_index_path", lambda: temp_vector_path)
+28 |     # Mock rebuild to avoid DB access
+29 |     monkeypatch.setattr("cns_py.vector.manager.IndexManager.rebuild", lambda self, space="default": None)
+   |                                                                                                     ^^^^^
+30 |
+31 | def test_multi_space_isolation(mock_config):
+   |
+
+E501 Line too long (102 > 100)
+  --> tests\test_sandbox.py:33:101
+   |
+31 |     wat = """
+32 | (module
+33 |     (import "wasi_snapshot_preview1" "fd_write" (func $fd_write (param i32 i32 i32 i32) (result i32)))
+   |                                                                                                     ^^
+34 |     (memory 1)
+35 |     (export "memory" (memory 0))
+   |
+
+Found 31 errors.

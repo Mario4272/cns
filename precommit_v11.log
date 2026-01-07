@@ -1,0 +1,76 @@
+ruff.....................................................................Failed
+- hook id: ruff
+- exit code: 1
+
+cns_py\vector\manager.py:175:26: F821 Undefined name `Tuple`
+    |
+174 |         # Assemble for bulk load
+175 |         bulk_items: List[Tuple[str, List[float], Optional[Dict[str, Any]]]] = []
+    |                          ^^^^^ F821
+176 |         for doc_id, vec, meta in zip(doc_ids, vecs, metas):
+177 |             bulk_items.append((doc_id, vec, meta))
+    |
+
+Found 1 error.
+
+ruff-format..............................................................Passed
+black....................................................................Passed
+mypy.....................................................................Failed
+- hook id: mypy
+- exit code: 1
+
+cns_py\vector\memory_index.py:15: error: Missing type parameters for generic type "ndarray"  [type-arg]
+cns_py\vector\manager.py:63: error: Return value expected  [return-value]
+cns_py\vector\manager.py:175: error: Name "Tuple" is not defined  [name-defined]
+cns_py\vector\manager.py:175: note: Did you forget to import it from "typing"? (Suggestion: "from typing import Tuple")
+cns_py\vector\manager.py:194: error: Missing type parameters for generic type "Dict"  [type-arg]
+cns_py\vector\manager.py:219: error: Missing type parameters for generic type "Dict"  [type-arg]
+cns_py\vector\manager.py:273: error: Incompatible types in assignment (expression has type "int", variable has type "str")  [assignment]
+cns_py\planner\explainer.py:27: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+Found 7 errors in 3 files (checked 40 source files)
+
+Detect secrets...........................................................Passed
+pytest-check (all tests).................................................Failed
+- hook id: pytest-check
+- exit code: 1
+
+...................s.......................F
+================================== FAILURES ===================================
+______________________ test_belief_compute_baseline_only ______________________
+tests\test_belief_unit.py:12: in test_belief_compute_baseline_only
+    assert details["base_belief"] == 0.5
+E   KeyError: 'base_belief'
+============================== warnings summary ===============================
+cns_py\api\server.py:603
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:603: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+.venv\lib\site-packages\fastapi\applications.py:4576
+.venv\lib\site-packages\fastapi\applications.py:4576
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\.venv\lib\site-packages\fastapi\applications.py:4576: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+cns_py\api\server.py:610
+  C:\Users\mfadmin\OneDrive - MARIO FIALHO\Documents\source\cns\cns_py\api\server.py:610: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_belief_unit.py::test_belief_compute_baseline_only - KeyErro...
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+

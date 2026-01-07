@@ -1,6 +1,7 @@
+import sys
 
 import pytest
-import sys
+
 
 def main():
     print("Running tests...")
@@ -10,6 +11,7 @@ def main():
         sys.stderr = f
         ret = pytest.main(["-vv", "-l", "tests/test_vector_lifecycle.py"])
     print(f"Done. Ret: {ret}")
+
 
 if __name__ == "__main__":
     main()

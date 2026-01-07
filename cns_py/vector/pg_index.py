@@ -68,7 +68,7 @@ class PgVectorIndex(VectorIndex):
 
         # Filter support (metadata) - simplistic JSONB containment
         where_clause = ""
-        params = [vector]
+        params: List[Any] = [vector]
         if filter:
             where_clause = "WHERE metadata @> %s"
             params.append(filter)
