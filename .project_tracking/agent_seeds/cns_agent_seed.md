@@ -31,7 +31,7 @@ Applies to:
 - PRs should be scoped and reviewable.
 - Every non-trivial change must include: tests, docs update (if applicable), and a short rationale.
 
-## Repo Hygiene
+## Repo Hygiene is important
 
 - No commented-out code.
 - No debug prints committed.
