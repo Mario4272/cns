@@ -1,0 +1,3551 @@
+{
+  "explain": {
+    "steps": [
+      {
+        "extra": {
+          "asof": "2024-12-31T12:00:00Z",
+          "est_base": 1,
+          "est_fanout": 2,
+          "label": "FrameworkX",
+          "predicate": "supports_tls"
+        },
+        "ms": 0.0,
+        "name": "planner"
+      },
+      {
+        "extra": {},
+        "ms": 0.0,
+        "name": "ann_shortlist"
+      },
+      {
+        "extra": {
+          "asof": "2024-12-31T12:00:00Z"
+        },
+        "ms": 0.0,
+        "name": "temporal_mask"
+      },
+      {
+        "extra": {
+          "rows": 0
+        },
+        "ms": 0.0,
+        "name": "graph_traverse"
+      },
+      {
+        "extra": {
+          "avg_base_belief": 0.9500000000000017,
+          "avg_confidence": 0.9417451019868102,
+          "avg_recency": 0.0,
+          "belief_terms": {
+            "494": {
+              "after": 0.9371166697111055,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9864385996959006,
+                "final_clamped": 0.9371166697111055,
+                "final_raw": 0.9371166697111055,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371166697111055,
+                "provenance_boost": 0.0
+              }
+            },
+            "496": {
+              "after": 0.9371418990266016,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.986465156870107,
+                "final_clamped": 0.9371418990266016,
+                "final_raw": 0.9371418990266016,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371418990266016,
+                "provenance_boost": 0.0
+              }
+            },
+            "498": {
+              "after": 0.9371423066725119,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9864655859710652,
+                "final_clamped": 0.9371423066725119,
+                "final_raw": 0.9371423066725119,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371423066725119,
+                "provenance_boost": 0.0
+              }
+            },
+            "500": {
+              "after": 0.9371622045404434,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9864865310952037,
+                "final_clamped": 0.9371622045404434,
+                "final_raw": 0.9371622045404434,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371622045404434,
+                "provenance_boost": 0.0
+              }
+            },
+            "502": {
+              "after": 0.9371626008732056,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9864869482875849,
+                "final_clamped": 0.9371626008732056,
+                "final_raw": 0.9371626008732056,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371626008732056,
+                "provenance_boost": 0.0
+              }
+            },
+            "504": {
+              "after": 0.9371769624015317,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865020656858229,
+                "final_clamped": 0.9371769624015317,
+                "final_raw": 0.9371769624015317,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371769624015317,
+                "provenance_boost": 0.0
+              }
+            },
+            "506": {
+              "after": 0.9371773484758538,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865024720798461,
+                "final_clamped": 0.9371773484758538,
+                "final_raw": 0.9371773484758538,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371773484758538,
+                "provenance_boost": 0.0
+              }
+            },
+            "508": {
+              "after": 0.9371823140594355,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865076990099322,
+                "final_clamped": 0.9371823140594355,
+                "final_raw": 0.9371823140594355,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371823140594355,
+                "provenance_boost": 0.0
+              }
+            },
+            "510": {
+              "after": 0.9371827142227995,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865081202345258,
+                "final_clamped": 0.9371827142227995,
+                "final_raw": 0.9371827142227995,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9371827142227995,
+                "provenance_boost": 0.0
+              }
+            },
+            "512": {
+              "after": 0.9372042891600472,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865308306947865,
+                "final_clamped": 0.9372042891600472,
+                "final_raw": 0.9372042891600472,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372042891600472,
+                "provenance_boost": 0.0
+              }
+            },
+            "514": {
+              "after": 0.9372190812728748,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865464013398683,
+                "final_clamped": 0.9372190812728748,
+                "final_raw": 0.9372190812728748,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372190812728748,
+                "provenance_boost": 0.0
+              }
+            },
+            "516": {
+              "after": 0.9372214820333632,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865489284561718,
+                "final_clamped": 0.9372214820333632,
+                "final_raw": 0.9372214820333632,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372214820333632,
+                "provenance_boost": 0.0
+              }
+            },
+            "518": {
+              "after": 0.9372318948379988,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865598893031567,
+                "final_clamped": 0.9372318948379988,
+                "final_raw": 0.9372318948379988,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372318948379988,
+                "provenance_boost": 0.0
+              }
+            },
+            "520": {
+              "after": 0.9372342189754929,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865623357636767,
+                "final_clamped": 0.9372342189754929,
+                "final_raw": 0.9372342189754929,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372342189754929,
+                "provenance_boost": 0.0
+              }
+            },
+            "522": {
+              "after": 0.9372430250506415,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865716053164648,
+                "final_clamped": 0.9372430250506415,
+                "final_raw": 0.9372430250506415,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372430250506415,
+                "provenance_boost": 0.0
+              }
+            },
+            "524": {
+              "after": 0.9372438119463488,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865724336277356,
+                "final_clamped": 0.9372438119463488,
+                "final_raw": 0.9372438119463488,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372438119463488,
+                "provenance_boost": 0.0
+              }
+            },
+            "526": {
+              "after": 0.9372453471975722,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865740496816551,
+                "final_clamped": 0.9372453471975722,
+                "final_raw": 0.9372453471975722,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372453471975722,
+                "provenance_boost": 0.0
+              }
+            },
+            "528": {
+              "after": 0.9372467040787001,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865754779775792,
+                "final_clamped": 0.9372467040787001,
+                "final_raw": 0.9372467040787001,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372467040787001,
+                "provenance_boost": 0.0
+              }
+            },
+            "530": {
+              "after": 0.9372583059365549,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865876904595315,
+                "final_clamped": 0.9372583059365549,
+                "final_raw": 0.9372583059365549,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372583059365549,
+                "provenance_boost": 0.0
+              }
+            },
+            "532": {
+              "after": 0.9372590462052738,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865884696897619,
+                "final_clamped": 0.9372590462052738,
+                "final_raw": 0.9372590462052738,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372590462052738,
+                "provenance_boost": 0.0
+              }
+            },
+            "534": {
+              "after": 0.9372597599077774,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865892209555552,
+                "final_clamped": 0.9372597599077774,
+                "final_raw": 0.9372597599077774,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372597599077774,
+                "provenance_boost": 0.0
+              }
+            },
+            "536": {
+              "after": 0.9372605277917573,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865900292544814,
+                "final_clamped": 0.9372605277917573,
+                "final_raw": 0.9372605277917573,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372605277917573,
+                "provenance_boost": 0.0
+              }
+            },
+            "538": {
+              "after": 0.9372613893254319,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865909361320336,
+                "final_clamped": 0.9372613893254319,
+                "final_raw": 0.9372613893254319,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372613893254319,
+                "provenance_boost": 0.0
+              }
+            },
+            "540": {
+              "after": 0.9372624609617249,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865920641702368,
+                "final_clamped": 0.9372624609617249,
+                "final_raw": 0.9372624609617249,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372624609617249,
+                "provenance_boost": 0.0
+              }
+            },
+            "542": {
+              "after": 0.937262942525392,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.98659257107936,
+                "final_clamped": 0.937262942525392,
+                "final_raw": 0.937262942525392,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.937262942525392,
+                "provenance_boost": 0.0
+              }
+            },
+            "544": {
+              "after": 0.9372674637140452,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865973302253108,
+                "final_clamped": 0.9372674637140452,
+                "final_raw": 0.9372674637140452,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372674637140452,
+                "provenance_boost": 0.0
+              }
+            },
+            "546": {
+              "after": 0.9372683074618556,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9865982183809007,
+                "final_clamped": 0.9372683074618556,
+                "final_raw": 0.9372683074618556,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372683074618556,
+                "provenance_boost": 0.0
+              }
+            },
+            "548": {
+              "after": 0.937284726382186,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9866155014549326,
+                "final_clamped": 0.937284726382186,
+                "final_raw": 0.937284726382186,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.937284726382186,
+                "provenance_boost": 0.0
+              }
+            },
+            "550": {
+              "after": 0.9372854559568644,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9866162694282784,
+                "final_clamped": 0.9372854559568644,
+                "final_raw": 0.9372854559568644,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372854559568644,
+                "provenance_boost": 0.0
+              }
+            },
+            "552": {
+              "after": 0.9372858242499758,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9866166571052377,
+                "final_clamped": 0.9372858242499758,
+                "final_raw": 0.9372858242499758,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372858242499758,
+                "provenance_boost": 0.0
+              }
+            },
+            "554": {
+              "after": 0.9372863594817346,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.986617220507089,
+                "final_clamped": 0.9372863594817346,
+                "final_raw": 0.9372863594817346,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372863594817346,
+                "provenance_boost": 0.0
+              }
+            },
+            "556": {
+              "after": 0.9372868396432471,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9866177259402602,
+                "final_clamped": 0.9372868396432471,
+                "final_raw": 0.9372868396432471,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9372868396432471,
+                "provenance_boost": 0.0
+              }
+            },
+            "558": {
+              "after": 0.9423577956411631,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9919555743591191,
+                "final_clamped": 0.9423577956411631,
+                "final_raw": 0.9423577956411631,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9423577956411631,
+                "provenance_boost": 0.0
+              }
+            },
+            "560": {
+              "after": 0.9423593912752124,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9919572539739079,
+                "final_clamped": 0.9423593912752124,
+                "final_raw": 0.9423593912752124,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9423593912752124,
+                "provenance_boost": 0.0
+              }
+            },
+            "562": {
+              "after": 0.9423612485355974,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9919592089848395,
+                "final_clamped": 0.9423612485355974,
+                "final_raw": 0.9423612485355974,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9423612485355974,
+                "provenance_boost": 0.0
+              }
+            },
+            "564": {
+              "after": 0.942363370279922,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9919614423999179,
+                "final_clamped": 0.942363370279922,
+                "final_raw": 0.942363370279922,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.942363370279922,
+                "provenance_boost": 0.0
+              }
+            },
+            "566": {
+              "after": 0.9423726052992083,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9919711634728509,
+                "final_clamped": 0.9423726052992083,
+                "final_raw": 0.9423726052992083,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9423726052992083,
+                "provenance_boost": 0.0
+              }
+            },
+            "568": {
+              "after": 0.9425976500455128,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922080526794872,
+                "final_clamped": 0.9425976500455128,
+                "final_raw": 0.9425976500455128,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9425976500455128,
+                "provenance_boost": 0.0
+              }
+            },
+            "570": {
+              "after": 0.9425994985823329,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.992209998507719,
+                "final_clamped": 0.9425994985823329,
+                "final_raw": 0.9425994985823329,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9425994985823329,
+                "provenance_boost": 0.0
+              }
+            },
+            "572": {
+              "after": 0.942600034163164,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922105622770148,
+                "final_clamped": 0.942600034163164,
+                "final_raw": 0.942600034163164,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.942600034163164,
+                "provenance_boost": 0.0
+              }
+            },
+            "574": {
+              "after": 0.9426013222043812,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.992211918109875,
+                "final_clamped": 0.9426013222043812,
+                "final_raw": 0.9426013222043812,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426013222043812,
+                "provenance_boost": 0.0
+              }
+            },
+            "576": {
+              "after": 0.9426334421043312,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.992245728530875,
+                "final_clamped": 0.9426334421043312,
+                "final_raw": 0.9426334421043312,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426334421043312,
+                "provenance_boost": 0.0
+              }
+            },
+            "578": {
+              "after": 0.9426388606382236,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922514322507616,
+                "final_clamped": 0.9426388606382236,
+                "final_raw": 0.9426388606382236,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426388606382236,
+                "provenance_boost": 0.0
+              }
+            },
+            "580": {
+              "after": 0.9426558714051481,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922693383212086,
+                "final_clamped": 0.9426558714051481,
+                "final_raw": 0.9426558714051481,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426558714051481,
+                "provenance_boost": 0.0
+              }
+            },
+            "582": {
+              "after": 0.942658910167265,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922725370181738,
+                "final_clamped": 0.942658910167265,
+                "final_raw": 0.942658910167265,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.942658910167265,
+                "provenance_boost": 0.0
+              }
+            },
+            "584": {
+              "after": 0.9426622387168041,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922760407545307,
+                "final_clamped": 0.9426622387168041,
+                "final_raw": 0.9426622387168041,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426622387168041,
+                "provenance_boost": 0.0
+              }
+            },
+            "586": {
+              "after": 0.9426630907968515,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922769376808964,
+                "final_clamped": 0.9426630907968515,
+                "final_raw": 0.9426630907968515,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426630907968515,
+                "provenance_boost": 0.0
+              }
+            },
+            "588": {
+              "after": 0.9426640132273459,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922779086603641,
+                "final_clamped": 0.9426640132273459,
+                "final_raw": 0.9426640132273459,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426640132273459,
+                "provenance_boost": 0.0
+              }
+            },
+            "590": {
+              "after": 0.9426644229060727,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922783399011291,
+                "final_clamped": 0.9426644229060727,
+                "final_raw": 0.9426644229060727,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426644229060727,
+                "provenance_boost": 0.0
+              }
+            },
+            "592": {
+              "after": 0.9426648635499038,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9922788037367408,
+                "final_clamped": 0.9426648635499038,
+                "final_raw": 0.9426648635499038,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426648635499038,
+                "provenance_boost": 0.0
+              }
+            },
+            "594": {
+              "after": 0.9426970739057144,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923127093744363,
+                "final_clamped": 0.9426970739057144,
+                "final_raw": 0.9426970739057144,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9426970739057144,
+                "provenance_boost": 0.0
+              }
+            },
+            "596": {
+              "after": 0.9427021710137161,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923180747512802,
+                "final_clamped": 0.9427021710137161,
+                "final_raw": 0.9427021710137161,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427021710137161,
+                "provenance_boost": 0.0
+              }
+            },
+            "598": {
+              "after": 0.9427024468086147,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923183650616997,
+                "final_clamped": 0.9427024468086147,
+                "final_raw": 0.9427024468086147,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427024468086147,
+                "provenance_boost": 0.0
+              }
+            },
+            "600": {
+              "after": 0.9427231057659599,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923401113325894,
+                "final_clamped": 0.9427231057659599,
+                "final_raw": 0.9427231057659599,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427231057659599,
+                "provenance_boost": 0.0
+              }
+            },
+            "602": {
+              "after": 0.9427234752303031,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923405002424244,
+                "final_clamped": 0.9427234752303031,
+                "final_raw": 0.9427234752303031,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427234752303031,
+                "provenance_boost": 0.0
+              }
+            },
+            "604": {
+              "after": 0.9427238365278925,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923408805556764,
+                "final_clamped": 0.9427238365278925,
+                "final_raw": 0.9427238365278925,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427238365278925,
+                "provenance_boost": 0.0
+              }
+            },
+            "606": {
+              "after": 0.9427243988588591,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923414724830096,
+                "final_clamped": 0.9427243988588591,
+                "final_raw": 0.9427243988588591,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427243988588591,
+                "provenance_boost": 0.0
+              }
+            },
+            "608": {
+              "after": 0.9427259866588023,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923431438513708,
+                "final_clamped": 0.9427259866588023,
+                "final_raw": 0.9427259866588023,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427259866588023,
+                "provenance_boost": 0.0
+              }
+            },
+            "610": {
+              "after": 0.9427359659354064,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923536483530594,
+                "final_clamped": 0.9427359659354064,
+                "final_raw": 0.9427359659354064,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427359659354064,
+                "provenance_boost": 0.0
+              }
+            },
+            "612": {
+              "after": 0.9427659354220126,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923851951810659,
+                "final_clamped": 0.9427659354220126,
+                "final_raw": 0.9427659354220126,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427659354220126,
+                "provenance_boost": 0.0
+              }
+            },
+            "614": {
+              "after": 0.9427763562673974,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923961644919973,
+                "final_clamped": 0.9427763562673974,
+                "final_raw": 0.9427763562673974,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427763562673974,
+                "provenance_boost": 0.0
+              }
+            },
+            "616": {
+              "after": 0.9427768890280198,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923967252926524,
+                "final_clamped": 0.9427768890280198,
+                "final_raw": 0.9427768890280198,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427768890280198,
+                "provenance_boost": 0.0
+              }
+            },
+            "618": {
+              "after": 0.9427773696075527,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.992397231165845,
+                "final_clamped": 0.9427773696075527,
+                "final_raw": 0.9427773696075527,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427773696075527,
+                "provenance_boost": 0.0
+              }
+            },
+            "620": {
+              "after": 0.9427778579268948,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923977451862052,
+                "final_clamped": 0.9427778579268948,
+                "final_raw": 0.9427778579268948,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427778579268948,
+                "provenance_boost": 0.0
+              }
+            },
+            "622": {
+              "after": 0.9427793792700424,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9923993466000447,
+                "final_clamped": 0.9427793792700424,
+                "final_raw": 0.9427793792700424,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427793792700424,
+                "provenance_boost": 0.0
+              }
+            },
+            "624": {
+              "after": 0.9427823742009048,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9924024991588473,
+                "final_clamped": 0.9427823742009048,
+                "final_raw": 0.9427823742009048,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9427823742009048,
+                "provenance_boost": 0.0
+              }
+            },
+            "626": {
+              "after": 0.944042457159456,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937289022731116,
+                "final_clamped": 0.944042457159456,
+                "final_raw": 0.944042457159456,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.944042457159456,
+                "provenance_boost": 0.0
+              }
+            },
+            "628": {
+              "after": 0.9440454518530803,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937320545821898,
+                "final_clamped": 0.9440454518530803,
+                "final_raw": 0.9440454518530803,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440454518530803,
+                "provenance_boost": 0.0
+              }
+            },
+            "630": {
+              "after": 0.9440477306102715,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.99373445327397,
+                "final_clamped": 0.9440477306102715,
+                "final_raw": 0.9440477306102715,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440477306102715,
+                "provenance_boost": 0.0
+              }
+            },
+            "632": {
+              "after": 0.9440664788784603,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937541882931161,
+                "final_clamped": 0.9440664788784603,
+                "final_raw": 0.9440664788784603,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440664788784603,
+                "provenance_boost": 0.0
+              }
+            },
+            "634": {
+              "after": 0.9440670162108934,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937547539062036,
+                "final_clamped": 0.9440670162108934,
+                "final_raw": 0.9440670162108934,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440670162108934,
+                "provenance_boost": 0.0
+              }
+            },
+            "636": {
+              "after": 0.9440680053905485,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937557951479458,
+                "final_clamped": 0.9440680053905485,
+                "final_raw": 0.9440680053905485,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440680053905485,
+                "provenance_boost": 0.0
+              }
+            },
+            "638": {
+              "after": 0.9440692233535244,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937570772142362,
+                "final_clamped": 0.9440692233535244,
+                "final_raw": 0.9440692233535244,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440692233535244,
+                "provenance_boost": 0.0
+              }
+            },
+            "640": {
+              "after": 0.9440704249357733,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937583420376561,
+                "final_clamped": 0.9440704249357733,
+                "final_raw": 0.9440704249357733,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440704249357733,
+                "provenance_boost": 0.0
+              }
+            },
+            "642": {
+              "after": 0.9440711852952649,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937591424160683,
+                "final_clamped": 0.9440711852952649,
+                "final_raw": 0.9440711852952649,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440711852952649,
+                "provenance_boost": 0.0
+              }
+            },
+            "644": {
+              "after": 0.9440718341486245,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937598254196048,
+                "final_clamped": 0.9440718341486245,
+                "final_raw": 0.9440718341486245,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440718341486245,
+                "provenance_boost": 0.0
+              }
+            },
+            "646": {
+              "after": 0.9440737921833802,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937618865088212,
+                "final_clamped": 0.9440737921833802,
+                "final_raw": 0.9440737921833802,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440737921833802,
+                "provenance_boost": 0.0
+              }
+            },
+            "648": {
+              "after": 0.9440797879228078,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9937681978134819,
+                "final_clamped": 0.9440797879228078,
+                "final_raw": 0.9440797879228078,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9440797879228078,
+                "provenance_boost": 0.0
+              }
+            },
+            "650": {
+              "after": 0.9441062964357493,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.993796101511315,
+                "final_clamped": 0.9441062964357493,
+                "final_raw": 0.9441062964357493,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9441062964357493,
+                "provenance_boost": 0.0
+              }
+            },
+            "652": {
+              "after": 0.9441066708487689,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.993796495630283,
+                "final_clamped": 0.9441066708487689,
+                "final_raw": 0.9441066708487689,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9441066708487689,
+                "provenance_boost": 0.0
+              }
+            },
+            "654": {
+              "after": 0.9441133825306791,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9938035605586096,
+                "final_clamped": 0.9441133825306791,
+                "final_raw": 0.9441133825306791,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9441133825306791,
+                "provenance_boost": 0.0
+              }
+            },
+            "656": {
+              "after": 0.9444344510377041,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941415274081096,
+                "final_clamped": 0.9444344510377041,
+                "final_raw": 0.9444344510377041,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444344510377041,
+                "provenance_boost": 0.0
+              }
+            },
+            "658": {
+              "after": 0.9444405554161501,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941479530696318,
+                "final_clamped": 0.9444405554161501,
+                "final_raw": 0.9444405554161501,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444405554161501,
+                "provenance_boost": 0.0
+              }
+            },
+            "660": {
+              "after": 0.9444427610240832,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941502747621929,
+                "final_clamped": 0.9444427610240832,
+                "final_raw": 0.9444427610240832,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444427610240832,
+                "provenance_boost": 0.0
+              }
+            },
+            "662": {
+              "after": 0.9444456236636127,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941532880669608,
+                "final_clamped": 0.9444456236636127,
+                "final_raw": 0.9444456236636127,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444456236636127,
+                "provenance_boost": 0.0
+              }
+            },
+            "664": {
+              "after": 0.9444500493110475,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941579466432079,
+                "final_clamped": 0.9444500493110475,
+                "final_raw": 0.9444500493110475,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444500493110475,
+                "provenance_boost": 0.0
+              }
+            },
+            "666": {
+              "after": 0.9444557411362402,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941639380381476,
+                "final_clamped": 0.9444557411362402,
+                "final_raw": 0.9444557411362402,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444557411362402,
+                "provenance_boost": 0.0
+              }
+            },
+            "668": {
+              "after": 0.9444580098910339,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941663262010884,
+                "final_clamped": 0.9444580098910339,
+                "final_raw": 0.9444580098910339,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444580098910339,
+                "provenance_boost": 0.0
+              }
+            },
+            "670": {
+              "after": 0.9444601149928035,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941685420976879,
+                "final_clamped": 0.9444601149928035,
+                "final_raw": 0.9444601149928035,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444601149928035,
+                "provenance_boost": 0.0
+              }
+            },
+            "672": {
+              "after": 0.9444628076328616,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941713764556438,
+                "final_clamped": 0.9444628076328616,
+                "final_raw": 0.9444628076328616,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444628076328616,
+                "provenance_boost": 0.0
+              }
+            },
+            "674": {
+              "after": 0.9444652178390871,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941739135148285,
+                "final_clamped": 0.9444652178390871,
+                "final_raw": 0.9444652178390871,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444652178390871,
+                "provenance_boost": 0.0
+              }
+            },
+            "676": {
+              "after": 0.9444671461364377,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941759433015134,
+                "final_clamped": 0.9444671461364377,
+                "final_raw": 0.9444671461364377,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444671461364377,
+                "provenance_boost": 0.0
+              }
+            },
+            "678": {
+              "after": 0.9444694196760341,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941783365010887,
+                "final_clamped": 0.9444694196760341,
+                "final_raw": 0.9444694196760341,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444694196760341,
+                "provenance_boost": 0.0
+              }
+            },
+            "680": {
+              "after": 0.9444727264009426,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941818172641501,
+                "final_clamped": 0.9444727264009426,
+                "final_raw": 0.9444727264009426,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444727264009426,
+                "provenance_boost": 0.0
+              }
+            },
+            "682": {
+              "after": 0.9444758812080544,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9941851381137414,
+                "final_clamped": 0.9444758812080544,
+                "final_raw": 0.9444758812080544,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9444758812080544,
+                "provenance_boost": 0.0
+              }
+            },
+            "684": {
+              "after": 0.9498221838706701,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9998128251270212,
+                "final_clamped": 0.9498221838706701,
+                "final_raw": 0.9498221838706701,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9498221838706701,
+                "provenance_boost": 0.0
+              }
+            },
+            "686": {
+              "after": 0.949952067593513,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9999495448352769,
+                "final_clamped": 0.949952067593513,
+                "final_raw": 0.949952067593513,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.949952067593513,
+                "provenance_boost": 0.0
+              }
+            },
+            "688": {
+              "after": 0.9499521805282637,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9999496637139618,
+                "final_clamped": 0.9499521805282637,
+                "final_raw": 0.9499521805282637,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9499521805282637,
+                "provenance_boost": 0.0
+              }
+            },
+            "690": {
+              "after": 0.9499525096136964,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.9999500101196804,
+                "final_clamped": 0.9499525096136964,
+                "final_raw": 0.9499525096136964,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9499525096136964,
+                "provenance_boost": 0.0
+              }
+            },
+            "692": {
+              "after": 0.9499934779046503,
+              "before": 0.95,
+              "terms": {
+                "config": {
+                  "halflife": 365.0,
+                  "penalty_per_contradiction": 0.5,
+                  "weight_per_proof": 0.1
+                },
+                "contradiction_factor": 1.0,
+                "decay_factor": 0.999993134636474,
+                "final_clamped": 0.9499934779046503,
+                "final_raw": 0.9499934779046503,
+                "input_belief": 0.95,
+                "intrinsic_score": 0.9499934779046503,
+                "provenance_boost": 0.0
+              }
+            }
+          },
+          "items": 100
+        },
+        "ms": 0.0,
+        "name": "belief_compute"
+      }
+    ],
+    "total_ms": 0.0
+  },
+  "results": [
+    {
+      "confidence": 0.9499934779046503,
+      "fiber_id": 692,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-09T22:22:39.356036+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-09T22:22:39.355003+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:692",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9499525096136964,
+      "fiber_id": 690,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-09T21:49:57.271414+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-09T21:49:57.270845+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:690",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9499521805282637,
+      "fiber_id": 688,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-09T21:49:41.510261+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-09T21:49:41.508496+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:688",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.949952067593513,
+      "fiber_id": 686,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-09T21:49:36.101385+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-09T21:49:36.100078+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:686",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9498221838706701,
+      "fiber_id": 684,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-09T20:05:55.048786+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-09T20:05:55.047499+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:684",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444758812080544,
+      "fiber_id": 682,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:45:41.743612+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:45:41.742619+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:682",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444727264009426,
+      "fiber_id": 680,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:43:09.771531+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:43:09.770536+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:680",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444694196760341,
+      "fiber_id": 678,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:40:30.480783+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:40:30.480184+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:678",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444671461364377,
+      "fiber_id": 676,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:38:40.960063+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:38:40.958972+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:676",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444652178390871,
+      "fiber_id": 674,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:37:08.070111+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:37:08.069039+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:674",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444628076328616,
+      "fiber_id": 672,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:35:11.965375+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:35:11.964807+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:672",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444601149928035,
+      "fiber_id": 670,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:33:02.254853+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:33:02.254585+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:670",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444580098910339,
+      "fiber_id": 668,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:31:20.847113+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:31:20.845614+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:668",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444557411362402,
+      "fiber_id": 666,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:29:31.555566+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:29:31.555761+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:666",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444500493110475,
+      "fiber_id": 664,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:24:57.365070+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:24:57.364333+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:664",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444456236636127,
+      "fiber_id": 662,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:21:24.168613+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:21:24.167729+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:662",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444427610240832,
+      "fiber_id": 660,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:19:06.266313+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:19:06.265618+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:660",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444405554161501,
+      "fiber_id": 658,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:17:20.014995+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:17:20.013378+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:658",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9444344510377041,
+      "fiber_id": 656,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T20:12:25.945909+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T20:12:25.945261+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:656",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9441133825306791,
+      "fiber_id": 654,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:54:36.282474+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:54:36.281674+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:654",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9441066708487689,
+      "fiber_id": 652,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:49:12.845324+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:49:12.845137+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:652",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9441062964357493,
+      "fiber_id": 650,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:48:54.802226+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:48:54.803012+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:650",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440797879228078,
+      "fiber_id": 648,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:27:37.329271+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:27:37.328143+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:648",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440737921833802,
+      "fiber_id": 646,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:22:48.383345+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:22:48.381296+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:646",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440718341486245,
+      "fiber_id": 644,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:21:14.021581+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:21:14.021309+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:644",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440711852952649,
+      "fiber_id": 642,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:20:42.751946+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:20:42.751628+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:642",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440704249357733,
+      "fiber_id": 640,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:20:06.108564+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:20:06.109650+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:640",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440692233535244,
+      "fiber_id": 638,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:19:08.201635+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:19:08.200858+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:638",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440680053905485,
+      "fiber_id": 636,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:18:09.505207+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:18:09.504627+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:636",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440670162108934,
+      "fiber_id": 634,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:17:21.834316+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:17:21.831907+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:634",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440664788784603,
+      "fiber_id": 632,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:16:55.938983+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:16:55.938320+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:632",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440477306102715,
+      "fiber_id": 630,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:01:52.405943+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:01:52.405701+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:630",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9440454518530803,
+      "fiber_id": 628,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T15:00:02.584848+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T15:00:02.584275+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:628",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.944042457159456,
+      "fiber_id": 626,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-06T14:57:38.259927+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-06T14:57:38.258418+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:626",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427823742009048,
+      "fiber_id": 624,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T22:04:49.725677+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T22:04:49.725616+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:624",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427793792700424,
+      "fiber_id": 622,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T22:02:25.195950+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T22:02:25.195228+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:622",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427778579268948,
+      "fiber_id": 620,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T22:01:11.778617+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T22:01:11.776525+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:620",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427773696075527,
+      "fiber_id": 618,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T22:00:48.213163+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T22:00:48.212929+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:618",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427768890280198,
+      "fiber_id": 616,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T22:00:25.021207+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T22:00:25.020954+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:616",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427763562673974,
+      "fiber_id": 614,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:59:59.311066+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:59:59.310379+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:614",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427659354220126,
+      "fiber_id": 612,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:51:36.415489+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:51:36.413802+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:612",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427359659354064,
+      "fiber_id": 610,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:27:30.098558+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:27:30.097693+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:610",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427259866588023,
+      "fiber_id": 608,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:19:28.491959+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:19:28.491025+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:608",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427243988588591,
+      "fiber_id": 606,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:18:11.863196+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:18:11.861078+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:606",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427238365278925,
+      "fiber_id": 604,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:17:44.724528+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:17:44.722042+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:604",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427234752303031,
+      "fiber_id": 602,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:17:27.287928+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:17:27.286773+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:602",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427231057659599,
+      "fiber_id": 600,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:17:09.457185+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:17:09.454328+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:600",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427024468086147,
+      "fiber_id": 598,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:00:32.422764+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:00:32.422063+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:598",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9427021710137161,
+      "fiber_id": 596,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T21:00:19.112312+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T21:00:19.112434+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:596",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426970739057144,
+      "fiber_id": 594,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:56:13.114271+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:56:13.111954+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:594",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426648635499038,
+      "fiber_id": 592,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:30:18.538378+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:30:18.537908+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:592",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426644229060727,
+      "fiber_id": 590,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:29:57.271114+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:29:57.270124+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:590",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426640132273459,
+      "fiber_id": 588,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:29:37.498343+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:29:37.496958+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:588",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426630907968515,
+      "fiber_id": 586,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:28:52.978043+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:28:52.977971+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:586",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426622387168041,
+      "fiber_id": 584,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:28:11.853107+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:28:11.851744+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:584",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.942658910167265,
+      "fiber_id": 582,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:25:31.203071+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:25:31.202694+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:582",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426558714051481,
+      "fiber_id": 580,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:23:04.538920+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:23:04.538145+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:580",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426388606382236,
+      "fiber_id": 578,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:09:23.515054+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:09:23.514921+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:578",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426334421043312,
+      "fiber_id": 576,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T20:05:01.986659+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T20:05:01.985533+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:576",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9426013222043812,
+      "fiber_id": 574,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T19:39:11.671885+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T19:39:11.669139+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:574",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.942600034163164,
+      "fiber_id": 572,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T19:38:09.501557+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T19:38:09.499302+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:572",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9425994985823329,
+      "fiber_id": 570,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T19:37:43.650468+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T19:37:43.648440+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:570",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9425976500455128,
+      "fiber_id": 568,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T19:36:14.426307+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T19:36:14.424137+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:568",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9423726052992083,
+      "fiber_id": 566,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T16:35:10.782420+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T16:35:10.780148+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:566",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.942363370279922,
+      "fiber_id": 564,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T16:27:44.922506+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T16:27:44.922446+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:564",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9423612485355974,
+      "fiber_id": 562,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T16:26:02.485639+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T16:26:02.484903+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:562",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9423593912752124,
+      "fiber_id": 560,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T16:24:32.817749+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T16:24:32.816707+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:560",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9423577956411631,
+      "fiber_id": 558,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-05T16:23:15.780947+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-05T16:23:15.780633+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:558",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372868396432471,
+      "fiber_id": 556,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T20:11:50.030630+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T20:11:50.029170+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:556",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372863594817346,
+      "fiber_id": 554,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T20:11:26.723109+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T20:11:26.721021+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:554",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372858242499758,
+      "fiber_id": 552,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T20:11:00.742409+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T20:11:00.742206+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:552",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372854559568644,
+      "fiber_id": 550,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T20:10:42.865074+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T20:10:42.864995+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:550",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.937284726382186,
+      "fiber_id": 548,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T20:10:07.450731+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T20:10:07.450223+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:548",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372683074618556,
+      "fiber_id": 546,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:56:50.451311+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:56:50.449685+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:546",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372674637140452,
+      "fiber_id": 544,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:56:09.494129+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:56:09.493265+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:544",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.937262942525392,
+      "fiber_id": 542,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:52:30.026684+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:52:30.026994+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:542",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372624609617249,
+      "fiber_id": 540,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:52:06.650505+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:52:06.649932+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:540",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372613893254319,
+      "fiber_id": 538,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:51:14.630836+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:51:14.629895+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:538",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372605277917573,
+      "fiber_id": 536,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:50:32.809984+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:50:32.810027+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:536",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372597599077774,
+      "fiber_id": 534,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:49:55.535074+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:49:55.532570+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:534",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372590462052738,
+      "fiber_id": 532,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:49:20.890234+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:49:20.888462+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:532",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372583059365549,
+      "fiber_id": 530,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:48:44.955778+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:48:44.954001+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:530",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372467040787001,
+      "fiber_id": 528,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:39:21.769485+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:39:21.768099+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:528",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372453471975722,
+      "fiber_id": 526,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:38:15.902264+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:38:15.901667+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:526",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372438119463488,
+      "fiber_id": 524,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:37:01.376290+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:37:01.376247+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:524",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372430250506415,
+      "fiber_id": 522,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:36:23.177824+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:36:23.176958+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:522",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372342189754929,
+      "fiber_id": 520,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:29:15.700230+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:29:15.699138+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:520",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372318948379988,
+      "fiber_id": 518,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:27:22.877822+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:27:22.876395+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:518",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372214820333632,
+      "fiber_id": 516,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:18:57.397540+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:18:57.395225+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:516",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372190812728748,
+      "fiber_id": 514,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:17:00.853974+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:17:00.853575+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:514",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9372042891600472,
+      "fiber_id": 512,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T19:05:02.772600+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T19:05:02.772041+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:512",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371827142227995,
+      "fiber_id": 510,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:47:35.399493+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:47:35.398575+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:510",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371823140594355,
+      "fiber_id": 508,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:47:15.973005+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:47:15.972038+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:508",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371773484758538,
+      "fiber_id": 506,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:43:14.911142+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:43:14.907773+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:506",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371769624015317,
+      "fiber_id": 504,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:42:56.168519+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:42:56.167591+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:504",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371626008732056,
+      "fiber_id": 502,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:31:18.958646+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:31:18.957449+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:502",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371622045404434,
+      "fiber_id": 500,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:30:59.717707+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:30:59.717937+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:500",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371423066725119,
+      "fiber_id": 498,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:14:53.716798+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:14:53.716090+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:498",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371418990266016,
+      "fiber_id": 496,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T18:14:33.926206+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T18:14:33.926552+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:496",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    },
+    {
+      "confidence": 0.9371166697111055,
+      "fiber_id": 494,
+      "object_label": "TLS1.2",
+      "observed_at": "2026-01-02T17:54:09.064367+00:00",
+      "predicate": "supports_tls",
+      "provenance": [
+        {
+          "fetched_at": "2026-01-02T17:54:09.064194+00:00",
+          "hash": "demo-sha256-placeholder",
+          "line_span": null,
+          "source_id": "demo_seed:fiber:494",
+          "uri": "https://example.org/demo/tls-policy"
+        }
+      ],
+      "subject_label": "FrameworkX"
+    }
+  ]
+}
