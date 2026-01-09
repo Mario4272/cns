@@ -40,7 +40,8 @@ def traverse_from(
                     "FROM fibers f "
                     "JOIN atoms a_src ON a_src.id = f.src "
                     "JOIN atoms a_dst ON a_dst.id = f.dst "
-                    f"WHERE f.src IN ({id_placeholders})" + preds_clause + " LIMIT %(limit)s"
+                    f"WHERE f.src IN ({id_placeholders})" + preds_clause + " "
+                    "ORDER BY f.id ASC LIMIT %(limit)s"
                 )
                 cur.execute(sql, params)
                 for row in cur.fetchall():
@@ -54,7 +55,8 @@ def traverse_from(
                 "JOIN fibers f2 ON f1.dst = f2.src "
                 "JOIN atoms a1 ON a1.id = f1.src "
                 "JOIN atoms a2 ON a2.id = f2.dst "
-                f"WHERE f1.src IN ({id_placeholders})" + preds_clause + " LIMIT %(limit)s"
+                f"WHERE f1.src IN ({id_placeholders})" + preds_clause + " "
+                "ORDER BY f1.id ASC, f2.id ASC LIMIT %(limit)s"
             )
             cur.execute(sql2, params)
             for row in cur.fetchall():
