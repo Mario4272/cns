@@ -10,6 +10,8 @@ class CqlQuery:
     predicate: Optional[str] = None
     asof_iso: Optional[str] = None
     belief_ge: Optional[float] = None
+    limit: int = 100
+    offset: int = 0
     explain: bool = True
     provenance: bool = True
 
@@ -18,9 +20,11 @@ def parse(query: str) -> CqlQuery:
     """
     Minimal parser for queries like:
     MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2025-01-01T00:00:00Z
-    BELIEF >= 0.7 RETURN EXPLAIN PROVENANCE
+    BELIEF >= 0.7 LIMIT 50 OFFSET 10 RETURN EXPLAIN PROVENANCE
 
     All keywords are optional; defaults:
+      - limit: 100
+      - offset: 0
       - explain: True
       - provenance: True
     """
@@ -69,6 +73,26 @@ def parse(query: str) -> CqlQuery:
                 except ValueError:
                     pass
                 i += 3
+            else:
+                i += 1
+            continue
+        if tok == "LIMIT":
+            if i + 1 < len(tokens):
+                try:
+                    out.limit = int(tokens[i + 1])
+                except ValueError:
+                    pass
+                i += 2
+            else:
+                i += 1
+            continue
+        if tok == "OFFSET":
+            if i + 1 < len(tokens):
+                try:
+                    out.offset = int(tokens[i + 1])
+                except ValueError:
+                    pass
+                i += 2
             else:
                 i += 1
             continue

@@ -10,6 +10,7 @@ def traverse_from(
     hops: int = 1,
     predicates: Optional[Sequence[str]] = None,
     limit: int = 1000,
+    offset: int = 0,
 ) -> List[Edge]:
     if not ids:
         return []
@@ -17,7 +18,7 @@ def traverse_from(
     # Use lists for psycopg array adaptation and cast to specific array types in SQL
     ids_list: List[int] = [int(i) for i in ids]
     preds_clause = ""
-    params: dict[str, object] = {"limit": int(limit)}
+    params: dict[str, object] = {"limit": int(limit), "offset": int(offset)}
     # Build explicit placeholders for ids to avoid ANY(array) adapter issues
     id_placeholders = ", ".join([f"%(id_{idx})s" for idx, _ in enumerate(ids_list)])
     for idx, val in enumerate(ids_list):
@@ -41,7 +42,7 @@ def traverse_from(
                     "JOIN atoms a_src ON a_src.id = f.src "
                     "JOIN atoms a_dst ON a_dst.id = f.dst "
                     f"WHERE f.src IN ({id_placeholders})" + preds_clause + " "
-                    "ORDER BY f.id ASC LIMIT %(limit)s"
+                    "ORDER BY f.id ASC LIMIT %(limit)s OFFSET %(offset)s"
                 )
                 cur.execute(sql, params)
                 for row in cur.fetchall():
@@ -56,7 +57,7 @@ def traverse_from(
                 "JOIN atoms a1 ON a1.id = f1.src "
                 "JOIN atoms a2 ON a2.id = f2.dst "
                 f"WHERE f1.src IN ({id_placeholders})" + preds_clause + " "
-                "ORDER BY f1.id ASC, f2.id ASC LIMIT %(limit)s"
+                "ORDER BY f1.id ASC, f2.id ASC LIMIT %(limit)s OFFSET %(offset)s"
             )
             cur.execute(sql2, params)
             for row in cur.fetchall():
