@@ -130,7 +130,7 @@ jobs:
           CNS_DB_USER: cns
           CNS_DB_PASSWORD: cns  # pragma: allowlist secret
         run: |
-          python scripts/perf_smoke.py --iters 100 --warmup 20 --p95-budget-ms 500 --p99-budget-ms 900 || true
+          python scripts/perf_smoke.py --iters 100 --warmup 20 --p95-budget-ms 500 --p99-budget-ms 900
 
       - name: Upload perf artifacts
         if: always() && (hashFiles('perf_last_explain.json') != '' || hashFiles('perf_summary.md') != '')

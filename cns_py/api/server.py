@@ -123,6 +123,7 @@ def graph_neighborhood(
     label: str,
     hops: int = 1,
     limit: int = 100,
+    offset: int = 0,
     asof: Optional[datetime] = None,
     policy: str = "all",
 ) -> GraphNeighborhoodEnvelope:
@@ -138,6 +139,8 @@ def graph_neighborhood(
         raise HTTPException(status_code=400, detail="hops must be >= 1")
     if limit < 1:
         raise HTTPException(status_code=400, detail="limit must be >= 1")
+    if offset < 0:
+        raise HTTPException(status_code=400, detail="offset must be >= 0")
 
     policy_normalized = policy.lower().strip()
     allowed_policies = {"all", "latest", "highest_confidence"}
@@ -162,7 +165,10 @@ def graph_neighborhood(
     ]
     if asof is not None:
         # Use ISO format expected by the CQL executor.
-        cql_query = f'MATCH label="{label}" ASOF {asof.isoformat()} RETURN'
+        # Slice 13: Push limit/offset into CQL
+        cql_query = (
+            f'MATCH label="{label}" ASOF {asof.isoformat()} LIMIT {limit} OFFSET {offset} RETURN'
+        )
         try:
             cql_payload = cql(cql_query)
         except Exception as exc:  # pragma: no cover - defensive; detailed tests elsewhere
@@ -200,7 +206,7 @@ def graph_neighborhood(
             )
 
         # traverse_from returns (src_label, predicate, dst_label)
-        edges_simple = traverse_from(ids, hops=hops, predicates=None, limit=limit)
+        edges_simple = traverse_from(ids, hops=hops, predicates=None, limit=limit, offset=offset)
         edges_raw = [(subj, pred, obj, None, None, None, None) for subj, pred, obj in edges_simple]
 
     # Collect unique labels and resolve them to real CNS atom IDs for Explorer consumption.
@@ -482,7 +488,9 @@ def graph_edge_detail(edge_id: int, asof: Optional[datetime] = None) -> EdgeRece
     )
 
 
-def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDetailEnvelope:
+def graph_node_detail(
+    node_id: int, asof: Optional[datetime] = None, limit: int = 100, offset: int = 0
+) -> NodeDetailEnvelope:
     """Return a minimal detail view for a single node.
 
     This endpoint exposes a receipts-lite view: basic node identity, a capped
@@ -515,7 +523,7 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
             )
 
             where_clauses: List[str] = ["f.src = %(node_id)s"]
-            params: Dict[str, Any] = {"node_id": node_id}
+            params: Dict[str, Any] = {"node_id": node_id, "limit": limit, "offset": offset}
 
             if asof is not None:
                 ts_from = asof
@@ -529,7 +537,7 @@ def graph_node_detail(node_id: int, asof: Optional[datetime] = None) -> NodeDeta
                 params["ts_to"] = ts_to
 
             sql = base_sql + "WHERE " + " AND ".join(where_clauses) + " "
-            sql += "ORDER BY f.predicate, a_dst.label LIMIT 200"
+            sql += "ORDER BY f.predicate, a_dst.label LIMIT %(limit)s OFFSET %(offset)s"
 
             cur.execute(sql, params)
             rows = cur.fetchall()

@@ -1,0 +1,223 @@
+build (3.10, 15)	Lint (ruff)	﻿2026-02-06T17:56:04.2440211Z ##[group]Run ruff check .
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2440496Z [36;1mruff check .[0m
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2473277Z shell: /usr/bin/bash -e {0}
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2473506Z env:
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2473747Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.19/x64
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2474161Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.19/x64/lib/pkgconfig
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2474761Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.19/x64
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2475119Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.19/x64
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2475478Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.19/x64
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2475832Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.19/x64/lib
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2476132Z ##[endgroup]
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2708856Z E501 Line too long (105 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2709466Z    --> cns_py/api/server.py:169:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2709856Z     |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2710226Z 167 |         # Use ISO format expected by the CQL executor.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2710856Z 168 |         # Slice 13: Push limit/offset into CQL
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2711926Z 169 |         cql_query = f'MATCH label="{label}" ASOF {asof.isoformat()} LIMIT {limit} OFFSET {offset} RETURN'
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2712796Z     |                                                                                                     ^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2713326Z 170 |         try:
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2713656Z 171 |             cql_payload = cql(cql_query)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2714052Z     |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2714199Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2714339Z E501 Line too long (118 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2714871Z    --> cns_py/cql/executor.py:102:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2715266Z     |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2715527Z 100 |     if where_clauses:
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2715973Z 101 |         sql += "WHERE " + " AND ".join(where_clauses) + " "
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2716892Z 102 |     sql += "ORDER BY COALESCE(asp.belief, 0.0) DESC, asp.observed_at DESC, f.id ASC LIMIT %(limit)s OFFSET %(offset)s"
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2717881Z     |                                                                                                     ^^^^^^^^^^^^^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2718441Z 103 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2718730Z 104 |     results: List[ResultItem] = []
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2719124Z     |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2719266Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2719452Z I001 [*] Import block is un-sorted or un-formatted
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2719937Z  --> scripts/bench_scale.py:2:1
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2720295Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2720543Z 2 | / import time
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2720845Z 3 | | import random
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2721207Z 4 | | from datetime import datetime
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2721641Z 5 | | from cns_py.storage.db import get_conn
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2722144Z 6 | | from cns_py.api.server import graph_neighborhood
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2722741Z 7 | | from cns_py.demo.ingest import upsert_atom, link_with_validity
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2723359Z   | |______________________________________________________________^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2723822Z 8 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2724096Z 9 |   HUB_LABEL = "SuperHub"
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2724438Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2724856Z help: Organize imports
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2725060Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2725228Z F401 [*] `random` imported but unused
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2725658Z  --> scripts/bench_scale.py:3:8
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2726010Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2726274Z 2 | import time
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2726558Z 3 | import random
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2726843Z   |        ^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2727145Z 4 | from datetime import datetime
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2727557Z 5 | from cns_py.storage.db import get_conn
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2727951Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2728230Z help: Remove unused import: `random`
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2728504Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2728689Z F401 [*] `datetime.datetime` imported but unused
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2729149Z  --> scripts/bench_scale.py:4:22
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2729506Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2729748Z 2 | import time
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2730028Z 3 | import random
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2730543Z 4 | from datetime import datetime
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2730805Z   |                      ^^^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2731072Z 5 | from cns_py.storage.db import get_conn
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2731391Z 6 | from cns_py.api.server import graph_neighborhood
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2731686Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2731967Z help: Remove unused import: `datetime.datetime`
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2732216Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2732399Z F401 [*] `cns_py.demo.ingest.link_with_validity` imported but unused
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2733084Z  --> scripts/bench_scale.py:7:45
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2733494Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2733798Z 5 | from cns_py.storage.db import get_conn
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2734304Z 6 | from cns_py.api.server import graph_neighborhood
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2734980Z 7 | from cns_py.demo.ingest import upsert_atom, link_with_validity
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2735338Z   |                                             ^^^^^^^^^^^^^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2735612Z 8 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2735809Z 9 | HUB_LABEL = "SuperHub"
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2736038Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2736471Z help: Remove unused import: `cns_py.demo.ingest.link_with_validity`
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2736733Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2736828Z E501 Line too long (112 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2737080Z   --> scripts/bench_scale.py:36:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2737321Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2737545Z 34 |             print("  Inserting atoms...")
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2737916Z 35 |             # Fallback: Just insert, we assume they don't exist for this bench.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2738479Z 36 |             cur.executemany("INSERT INTO atoms (kind, label) VALUES (%s, %s) ON CONFLICT DO NOTHING", atom_args)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2739029Z    |                                                                                                     ^^^^^^^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2739364Z 37 |             
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2739572Z 38 |             # Fetch all IDs
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2739795Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2739899Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2739991Z E501 Line too long (103 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2740243Z   --> scripts/bench_scale.py:47:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2740478Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2740715Z 45 |             # 2. Generate args for fibers (src, dst, predicate)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2741115Z 46 |             fiber_args = [(hub_id, tid, "connects_to") for tid in target_ids]
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2741643Z 47 |             cur.executemany("INSERT INTO fibers (src, dst, predicate) VALUES (%s, %s, %s)", fiber_args)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2742142Z    |                                                                                                     ^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2742471Z 48 |             
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2742673Z 49 |             conn.commit()
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2742893Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2742989Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2743116Z I001 [*] Import block is un-sorted or un-formatted
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2743420Z  --> scripts/generate_golden.py:2:1
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2743702Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2743893Z 2 | / import json
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2744096Z 3 | | import os
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2744309Z 4 | | from datetime import datetime
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2744766Z 5 | | from cns_py.cql.executor import cql
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2745034Z   | |___________________________________^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2745276Z 6 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2745467Z 7 |   # Canonical query for receipts
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2745713Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2745902Z help: Organize imports
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2746032Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2746156Z I001 [*] Import block is un-sorted or un-formatted
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2746446Z  --> scripts/quick_check.py:2:1
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2746681Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2746881Z 2 | / from cns_py.storage.db import get_conn
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2747191Z 3 | | from cns_py.api.server import graph_neighborhood
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2747496Z   | |________________________________________________^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2747762Z 4 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2747940Z 5 |   def check():
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2748138Z   |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2748320Z help: Organize imports
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2748598Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2748718Z I001 [*] Import block is un-sorted or un-formatted
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2749027Z   --> scripts/showcase_v1.py:9:1
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2749271Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2749465Z  7 |   3. Provenance & Receipts.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2749699Z  8 |   """
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2749888Z  9 | / import sys
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2750086Z 10 | | import json
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2750293Z 11 | | from datetime import datetime
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2750558Z 12 | | from rich.console import Console
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2750829Z 13 | | from rich.table import Table
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2751086Z 14 | | from rich.panel import Panel
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2751353Z 15 | | from rich.markdown import Markdown
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2751619Z    | |__________________________________^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2751860Z 16 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2752048Z 17 |   # Add project root
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2752258Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2752450Z help: Organize imports
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2752582Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2752705Z I001 [*] Import block is un-sorted or un-formatted
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2753117Z   --> tests/test_determinism.py:5:1
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2753366Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2753630Z  3 |   Ensures identical inputs produce bit-for-bit identical outputs.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2753974Z  4 |   """
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2754160Z  5 | / import pytest
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2754397Z  6 | | from cns_py.graph import traverse_from
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2754836Z  7 | | from cns_py.cql.executor import cql
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2755126Z  8 | | from cns_py.storage.db import get_conn
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2755392Z    | |______________________________________^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2755642Z  9 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2755840Z 10 |   @pytest.fixture(scope="module")
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2756098Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2756288Z help: Organize imports
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2756415Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2756507Z E501 Line too long (101 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2756758Z   --> tests/test_determinism.py:47:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2757006Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2757285Z 45 |     Verify CQL executor result stability, including provenance order.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2757630Z 46 |     """
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2758017Z 47 |     q = 'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2024-12-31T12:00:00Z RETURN PROVENANCE'
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2758520Z    |                                                                                                     ^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2758843Z 48 |     
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2759023Z 49 |     # Warmup
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2759209Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2759308Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2759432Z I001 [*] Import block is un-sorted or un-formatted
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2759732Z   --> tests/test_golden_receipts.py:5:1
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2759984Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2760261Z  3 |   Ensures API/CQL outputs do not drift from the "Golden Master" contract.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2760627Z  4 |   """
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2760809Z  5 | / import json
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2761001Z  6 | | import os
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2761200Z  7 | | import pytest
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2761422Z  8 | | from datetime import datetime
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2761697Z  9 | | from cns_py.cql.executor import cql
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2761958Z    | |___________________________________^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2762196Z 10 |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2762537Z 11 |   GOLDEN_PATH = os.path.join(os.path.dirname(__file__), "golden", "receipt_explain_v1.json")
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2762953Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2763134Z help: Organize imports
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2763268Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2763358Z E501 Line too long (120 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2763611Z   --> tests/test_golden_receipts.py:44:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2763870Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2764137Z 43 |     # JSON round-trip actual to handle datetime serialization matching
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2765031Z 44 |     actual_json = json.loads(json.dumps(actual, default=lambda x: x.isoformat() if isinstance(x, datetime) else str(x)))
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2765632Z    |                                                                                                     ^^^^^^^^^^^^^^^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2766122Z 45 |     
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2766302Z 46 |     # Assert
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2766494Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2766588Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2766676Z E501 Line too long (140 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2766935Z   --> tests/test_golden_receipts.py:52:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2767198Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2767613Z 50 | …ant determinism).
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2767841Z 51 | …
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2768449Z 52 | …es not match Golden Master. If change is intentional, run scripts/generate_golden.py."
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2768912Z    |                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2769227Z 53 | …
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2769411Z 54 | …
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2769605Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2769707Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2769799Z E501 Line too long (108 > 100)
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2770055Z   --> tests/test_golden_receipts.py:79:101
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2770310Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2770528Z 77 |     # Ensure our standard factors are tracked
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2771052Z 78 |     expected_factors = {"evidence", "contradictions", "recency", "source_rep"}
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2771635Z 79 |     assert set(terms.keys()) == expected_factors or set(terms.keys()).issuperset({"evidence", "recency"}), \
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2772172Z    |                                                                                                     ^^^^^^^^
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2772553Z 80 |         f"Belief factors drifted. Found: {terms.keys()}"
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2772848Z    |
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2772951Z 
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2773034Z Found 17 errors.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2773260Z [*] 9 fixable with the `--fix` option.
+build (3.10, 15)	Lint (ruff)	2026-02-06T17:56:04.2782814Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,32 @@
+E501 Line too long (118 > 100)
+   --> cns_py\cql\executor.py:102:101
+    |
+100 |     if where_clauses:
+101 |         sql += "WHERE " + " AND ".join(where_clauses) + " "
+102 |     sql += "ORDER BY COALESCE(asp.belief, 0.0) DESC, asp.observed_at DESC, f.id ASC LIMIT %(limit)s OFFSET %(offset)s"
+    |                                                                                                     ^^^^^^^^^^^^^^^^^^
+103 |
+104 |     results: List[ResultItem] = []
+    |
+
+E501 Line too long (101 > 100)
+  --> tests\test_determinism.py:52:101
+   |
+50 |     Verify CQL executor result stability, including provenance order.
+51 |     """
+52 |     q = 'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2024-12-31T12:00:00Z RETURN PROVENANCE'
+   |                                                                                                     ^
+53 |
+54 |     # Warmup
+   |
+
+E501 Line too long (111 > 100)
+  --> tests\test_golden_receipts.py:61:101
+   |
+59 |     assert (
+60 |         actual_json == expected
+61 |     ), "Current output does not match Golden Master. If change is intentional, run scripts/generate_golden.py."
+   |                                                                                                     ^^^^^^^^^^^
+   |
+
+Found 3 errors.

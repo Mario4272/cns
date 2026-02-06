@@ -225,6 +225,35 @@ make e2e          # Playwright demo script
 - ✅ Deterministic updates (100% stable).
 
 
+
+## Phase 13 — Explorer Scale + Determinism (Weeks 23-26) 🚀 KICKOFF
+
+**Objective**: Convert CNS Explorer + belief/explain into a Beta-ready, reproducible, deterministic experience with receipts.
+
+### Deliverables
+- **Slice 13.1: Determinism Hardening**
+    - Explicit API ordering & tie-breaks.
+    - Determinism regression tests.
+- **Slice 13.2: Receipt Stability**
+    - Stable Explanation schema and field ordering.
+    - Golden snapshot tests.
+- **Slice 13.3: Explorer Scale**
+    - Responsive at 10k nodes strategy (pagination/virtualization/caching).
+- **Slice 13.4: CI Gates**
+    - Enforce critical integration tests & perf smoke policy.
+- **Slice 13.5: Beta Demo**
+    - One-command runbook (<5 min setup).
+
+### Metrics
+- Determinism: 100% identical outputs for identical inputs.
+- Perf smoke: No regressions vs Phase 12 baseline.
+- Explorer: Responsive interactions at 10k scale.
+
+### Status (2026-01-09)
+- Kickoff: Epic #52 created.
+- Sub-issues #53 through #58 created.
+
+
 ## Phase 7 — Frontend Integration (Slice 7.1) ✅ COMPLETE
 
 **Objective:** Expose vector capabilities to users.

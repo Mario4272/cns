@@ -13,7 +13,7 @@ let canvasContainer: HTMLDivElement | null;
 let predicateFilterInput: HTMLInputElement | null;
 let debugNodesEl: HTMLElement | null;
 let debugEdgesEl: HTMLElement | null;
-let debugEdgesEl: HTMLElement | null;
+
 let debugModeSelect: HTMLSelectElement | null;
 
 // Phase 11 New Elements
@@ -81,7 +81,11 @@ function initScene() {
 }
 
 function animate() {
-}
+  requestAnimationFrame(animate);
+  if (controls) controls.update();
+  if (renderer && scene && camera) {
+    renderer.render(scene, camera);
+  }
 }
 
 function onCanvasClick(event: MouseEvent) {
