@@ -100,5 +100,5 @@ def test_belief_term_stability():
         "intrinsic_score",
     }
     assert set(terms.keys()).issuperset(
-        {"input_belief", "decay_factor"}
+        expected_factors
     ), f"Belief factors drifted. Found: {terms.keys()}"
