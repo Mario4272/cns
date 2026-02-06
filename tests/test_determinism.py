@@ -50,8 +50,8 @@ def test_cql_determinism_complex():
     Verify CQL executor result stability, including provenance order.
     """
     q = (
-        'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2024-12-31T12:00:00Z '
-        'RETURN PROVENANCE'
+        'MATCH label="FrameworkX" PREDICATE supports_tls '
+        "ASOF 2024-12-31T12:00:00Z RETURN PROVENANCE"
     )
 
     # Warmup

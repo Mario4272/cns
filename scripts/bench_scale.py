@@ -33,7 +33,8 @@ def setup_data():
             print("  Inserting atoms...")
             # Fallback: Just insert, we assume they don't exist for this bench.
             cur.executemany(
-                "INSERT INTO atoms (kind, label) VALUES (%s, %s) ON CONFLICT DO NOTHING", atom_args
+                "INSERT INTO atoms (kind, label) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                atom_args,
             )
 
             # Fetch all IDs
@@ -46,7 +47,8 @@ def setup_data():
             # 2. Generate args for fibers (src, dst, predicate)
             fiber_args = [(hub_id, tid, "connects_to") for tid in target_ids]
             cur.executemany(
-                "INSERT INTO fibers (src, dst, predicate) VALUES (%s, %s, %s)", fiber_args
+                "INSERT INTO fibers (src, dst, predicate) VALUES (%s, %s, %s)",
+                fiber_args,
             )
 
             conn.commit()
