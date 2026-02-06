@@ -8,4 +8,4 @@
 - [ ] Perf smoke (if hot paths touched)
 
 ## Guidelines
-Please follow: `docs/agent_guidelines_rust.md`
+Please follow: `.github/AGENT_GUIDELINES.md`
