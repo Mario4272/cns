@@ -2,10 +2,13 @@
 Regression tests for Phase 13.1 Determinism.
 Ensures identical inputs produce bit-for-bit identical outputs.
 """
+
 import pytest
-from cns_py.graph import traverse_from
+
 from cns_py.cql.executor import cql
+from cns_py.graph import traverse_from
 from cns_py.storage.db import get_conn
+
 
 @pytest.fixture(scope="module")
 def seeded_determinism_graph():
@@ -14,6 +17,7 @@ def seeded_determinism_graph():
     # For now, we rely on the existence of 'FrameworkX' from standard demos.
     # If not present, these tests might skip or fail, but in dev env it should be there.
     pass
+
 
 def test_traverse_determinism_repeated():
     """
@@ -40,15 +44,19 @@ def test_traverse_determinism_repeated():
     for i, res in enumerate(results[1:]):
         assert res == ref, f"Run {i+1} differed from Run 0"
 
+
 def test_cql_determinism_complex():
     """
     Verify CQL executor result stability, including provenance order.
     """
-    q = 'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2024-12-31T12:00:00Z RETURN PROVENANCE'
-    
+    q = (
+        'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2024-12-31T12:00:00Z '
+        'RETURN PROVENANCE'
+    )
+
     # Warmup
     cql(q)
-    
+
     results = []
     for _ in range(10):
         # Convert to JSON string or hash to check deep equality including field order if serialized
@@ -59,9 +67,9 @@ def test_cql_determinism_complex():
             res["explain"]["total_ms"] = 0
             for step in res["explain"]["steps"]:
                 step["ms"] = 0
-        
+
         results.append(res)
-        
+
     ref = results[0]
     for i, res in enumerate(results[1:]):
         # We perform a strict equality check

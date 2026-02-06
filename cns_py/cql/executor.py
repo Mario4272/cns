@@ -91,7 +91,7 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     if q.belief_ge is not None:
         where_clauses.append("COALESCE(asp.belief, 0.0) >= %(belief_ge)s")
         params["belief_ge"] = q.belief_ge
-    
+
     # Pagination support
     params["limit"] = q.limit
     params["offset"] = q.offset
@@ -99,7 +99,10 @@ def execute(q: CqlQuery) -> Dict[str, Any]:
     sql = base_select
     if where_clauses:
         sql += "WHERE " + " AND ".join(where_clauses) + " "
-    sql += "ORDER BY COALESCE(asp.belief, 0.0) DESC, asp.observed_at DESC, f.id ASC LIMIT %(limit)s OFFSET %(offset)s"
+    sql += (
+        "ORDER BY COALESCE(asp.belief, 0.0) DESC, asp.observed_at DESC, f.id ASC "
+        "LIMIT %(limit)s OFFSET %(offset)s"
+    )
 
     results: List[ResultItem] = []
     raw_rows: List[

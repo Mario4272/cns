@@ -1,12 +1,13 @@
-
 import json
 import os
 from datetime import datetime
+
 from cns_py.cql.executor import cql
 
 # Canonical query for receipts
 QUERY = 'MATCH label="FrameworkX" PREDICATE supports_tls ASOF 2024-12-31T12:00:00Z RETURN EXPLAIN'
 OUTPUT_PATH = "tests/golden/receipt_explain_v1.json"
+
 
 def normalize(obj):
     """Recursively strip volatile fields."""
@@ -24,23 +25,26 @@ def normalize(obj):
             obj[i] = normalize(item)
     return obj
 
+
 def default_serializer(obj):
     if isinstance(obj, datetime):
         return obj.isoformat()
     return str(obj)
 
+
 def main():
     print(f"Running query: {QUERY}")
     res = cql(QUERY)
-    
+
     # Normalize
     cleaned = normalize(res)
-    
+
     # Save
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(cleaned, f, default=default_serializer, indent=2, sort_keys=True)
-    
+
     print(f"Generated golden master at: {os.path.abspath(OUTPUT_PATH)}")
+
 
 if __name__ == "__main__":
     main()

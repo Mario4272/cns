@@ -166,7 +166,9 @@ def graph_neighborhood(
     if asof is not None:
         # Use ISO format expected by the CQL executor.
         # Slice 13: Push limit/offset into CQL
-        cql_query = f'MATCH label="{label}" ASOF {asof.isoformat()} LIMIT {limit} OFFSET {offset} RETURN'
+        cql_query = (
+            f'MATCH label="{label}" ASOF {asof.isoformat()} LIMIT {limit} OFFSET {offset} RETURN'
+        )
         try:
             cql_payload = cql(cql_query)
         except Exception as exc:  # pragma: no cover - defensive; detailed tests elsewhere
@@ -487,10 +489,7 @@ def graph_edge_detail(edge_id: int, asof: Optional[datetime] = None) -> EdgeRece
 
 
 def graph_node_detail(
-    node_id: int, 
-    asof: Optional[datetime] = None,
-    limit: int = 100,
-    offset: int = 0
+    node_id: int, asof: Optional[datetime] = None, limit: int = 100, offset: int = 0
 ) -> NodeDetailEnvelope:
     """Return a minimal detail view for a single node.
 
@@ -524,11 +523,7 @@ def graph_node_detail(
             )
 
             where_clauses: List[str] = ["f.src = %(node_id)s"]
-            params: Dict[str, Any] = {
-                "node_id": node_id, 
-                "limit": limit, 
-                "offset": offset
-            }
+            params: Dict[str, Any] = {"node_id": node_id, "limit": limit, "offset": offset}
 
             if asof is not None:
                 ts_from = asof

@@ -1,6 +1,6 @@
-
-from cns_py.storage.db import get_conn
 from cns_py.api.server import graph_neighborhood
+from cns_py.storage.db import get_conn
+
 
 def check():
     print("Checking for SuperHub...")
@@ -33,13 +33,14 @@ def check():
     print(f"Page 2: {len(res2.nodes)} nodes")
     if res2.nodes:
         print(f"  Node: {res2.nodes[0].label}")
-    
+
     if res1.nodes and res2.nodes and res1.nodes[0].label != res2.nodes[0].label:
         print("\nSUCCESS: Offset returned different result.")
     elif not res1.nodes:
         print("\nSKIP: Not enough data to test offset.")
     else:
         print("\nFAIL: Offset returned same result?")
+
 
 if __name__ == "__main__":
     check()
