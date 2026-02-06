@@ -47,9 +47,7 @@ def test_explain_schema_stability():
 
     # JSON round-trip actual to handle datetime serialization matching
     actual_json = json.loads(
-        json.dumps(
-            actual, default=lambda x: x.isoformat() if isinstance(x, datetime) else str(x)
-        )
+        json.dumps(actual, default=lambda x: x.isoformat() if isinstance(x, datetime) else str(x))
     )
 
     # Assert
